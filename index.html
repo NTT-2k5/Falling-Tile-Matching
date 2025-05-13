@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Falling Tile Matching Game</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden; 
+    touch-action: none; 
+}
+
+#game-container {
+    width: 100%;
+    max-width: 550px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh; /* Make game container take full viewport height */
+    max-height: 100vh; /* Ensure it doesn't exceed viewport */
+    padding: 5px; /* Add a little padding around the game container */
+    box-sizing: border-box;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background-color: #45a049;
+}
+
+/* Game Interface Styles */
+#game-interface {
+    display: flex; /* CHANGED: Use flexbox */
+    flex-direction: column; /* CHANGED: Stack children vertically */
+    align-items: center; /* CHANGED: Center children like stats-area if its width is not 100% of parent*/
+    width: 100%; /* Make game-interface take full width of game-container */
+    flex-grow: 1; /* Allow game interface to take available vertical space */
+    overflow: hidden; /* Prevent internal scrolling if content overflows due to sizing issues */
+    /* display: none; is handled by JS */
+}
+
+#stats-area {
+    display: flex;
+    justify-content: space-around; 
+    align-items: center;
+    width: 100%; /* Will span the top of #game-interface */
+    padding: 8px 0; /* Adjusted padding */
+    margin-bottom: 8px; /* Adjusted margin */
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    font-size: clamp(0.8em, 2.5vw, 1.2em); /* Responsive font size */
+    flex-shrink: 0; /* Prevent stats area from shrinking */
+}
+
+#score-area, #combo-area, #timer-area {
+    padding: 0 5px; /* Adjusted padding */
+    text-align: center;
+    flex-grow: 1; 
+    white-space: nowrap; /* Prevent text from wrapping within stat items */
+}
+
+
+#timer-area {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center timer content if it doesn't fill flex item */
+}
+
+#time-bar-container {
+    width: clamp(60px, 15vw, 100px); /* Responsive width */
+    height: 18px; /* Adjusted height */
+    background-color: #ccc;
+    border-radius: 5px;
+    margin-left: 8px; /* Adjusted margin */
+    overflow: hidden; 
+}
+
+#time-bar {
+    height: 100%;
+    width: 100%; 
+    background-color: #4CAF50;
+    border-radius: 5px;
+    transition: width 0.1s linear, background-color 0.3s linear; /* Added transition for color */
+}
+
+
+#game-display-area {
+    display: flex;
+    width: 100%;
+    flex-grow: 1; /* Allow this area to take remaining space after stats */
+    min-height: 0; /* Important for flex children that need to scroll or manage overflow */
+}
+
+#pairs-preview-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: top; 
+margin-top: 30px;
+    padding-right: clamp(10px, 3vw, 20px); /* Responsive padding */
+    flex-shrink: 0;
+    flex-basis: clamp(70px, 20vw, 120px); /* Give preview area a base width but allow shrinking */
+}
+
+.pair-container {
+    margin-bottom: clamp(10px, 3vh, 20px); /* Responsive margin */
+    text-align: center;
+}
+
+.pair-label {
+    // font-size: clamp(0.7em, 2vw, 0.9em); /* Responsive font size */
+font-size: clamp(0.9em, 2vw, 1.1em);
+    margin-bottom: 5px;
+    // color: #555;
+}
+
+#current-pair, #next-pair {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.block {
+    /* width and height will be set by JS for preview blocks to be relative to cell size */
+    margin: 2px 0;
+    border-radius: clamp(4px, 1vw, 8px); /* Responsive border-radius */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+    position: relative; 
+    box-shadow:
+        inset 2px 2px 3px rgba(255, 255, 255, 0.3), 
+        inset -2px -2px 3px rgba(0, 0, 0, 0.2),   
+        2px 2px 5px rgba(0, 0, 0, 0.3);         
+}
+
+
+.primary-block::after {
+    content: '×'; /* Cross mark */
+    font-size: 1.5em; /* Adjust size of cross mark */
+    color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+    position: absolute;
+}
+
+/* Block Colors */
+.block.green { background-color: #4CAF50; }
+.block.blue { background-color: #2196F3; }
+.block.red { background-color: #F44336; }
+.block.purple { background-color: #9C27B0; }
+.block.orange { background-color: #FF9800; }
+
+#playfield-container {
+    flex-grow: 1; 
+    display: flex;
+    justify-content: center; 
+    align-items: center; /* Center the playfield vertically if there's extra space */
+    min-width: 0; /* Important for flex children */
+}
+
+#playfield {
+    display: grid;
+    grid-template-columns: repeat(6, var(--cell-size)); 
+    grid-template-rows: repeat(12, var(--cell-size));    
+    background-color: #d3d3d3; 
+    border: 2px solid white; 
+    gap: 2px; 
+    padding: 2px; 
+    position: relative; 
+    overflow: hidden;
+    /* Ensure playfield itself doesn't grow beyond its calculated grid size */
+    width: calc(6 * var(--cell-size) + 2 * 2px + 2px * 5); /* 6 cells + 2*border + 5*gap */
+    height: calc(12 * var(--cell-size) + 2 * 2px + 2px * 11); /* 12 cells + 2*border + 11*gap */
+    max-width: 100%; /* Ensure it doesn't overflow its container if calculation is off */
+    max-height: 100%;
+    box-sizing: content-box; /* Important if padding is used to represent grid lines border */
+}
+
+.playfield-cell {
+    background-color: #e0e0e0; 
+}
+
+.playfield-block {
+    position: absolute; 
+    /* width, height, left, top set by JS */
+    z-index: 10; 
+    transition: top 0.06s linear, left 0.06s linear, opacity 0.2s linear; 
+    /* Ensure no margin on playfield blocks */
+    margin: 0 !important;
+}
+
+.preview-block {
+    opacity: 0.5; /* Transparent for preview */
+    z-index: 5;
+}
+
+.clearing {
+    animation: clearAnimation 0.3s forwards;
+}
+
+@keyframes clearAnimation {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.5; }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    #stats-area {
+        font-size: 1em;
+        flex-wrap: wrap; /* Allow stats to wrap on very small screens if necessary */
+    }
+    #timer-area {
+        flex-basis: 100%; /* Timer takes full width if stats wrap */
+        margin-top: 5px;
+    }
+    #time-bar-container {
+        width: 80px;
+    }
+
+    /* The core requirement is to scale game-display-area horizontally.
+       This is best achieved by adjusting --cell-size in JS based on screen width.
+       The flex layout of game-display-area will naturally adjust. */
+}
+</style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="mode-selection-modal" class="modal">
+            <div class="modal-content">
+                <h2>Falling Tile Matching</h2>
+                <button id="relax-mode-btn">Relax Mode</button>
+                <button id="timed-mode-btn">Timed Mode</button>
+                <button id="pressure-mode-btn">Pressure Mode</button>
+            </div>
+        </div>
+
+        <div id="game-interface" style="display: none;">
+            <div id="stats-area">
+                <div id="score-area">Score: <span id="score">0</span></div>
+                <div id="combo-area">Combo <span id="combo">0</span>x</div>
+                <div id="timer-area" style="display: none;">
+                    Time: <span id="time-left">0.0</span>s
+                    <div id="time-bar-container">
+                        <div id="time-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-display-area">
+                <div id="pairs-preview-area">
+                    <div class="pair-container current-pair-container">
+                        <div class="pair-label"><b>NOW</b></div>
+                        <div id="current-pair">
+                            <div class="block primary-block" id="current-primary"></div>
+                            <div class="block secondary-block" id="current-secondary"></div>
+                        </div>
+                    </div>
+                    <div class="pair-container next-pair-container">
+                        <div class="pair-label">Next</div>
+                        <div id="next-pair">
+                            <div class="block primary-block" id="next-primary"></div>
+                            <div class="block secondary-block" id="next-secondary"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="playfield-container">
+                    <div id="playfield">
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-over-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>Game Over</h2>
+                <p>Your Final Score: <span id="final-score">0</span></p>
+                <button id="play-again-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Game Elements
+    const modeSelectionModal = document.getElementById('mode-selection-modal');
+    const gameInterface = document.getElementById('game-interface');
+    const gameOverModal = document.getElementById('game-over-modal');
+
+    const relaxModeBtn = document.getElementById('relax-mode-btn');
+    const timedModeBtn = document.getElementById('timed-mode-btn');
+    const pressureModeBtn = document.getElementById('pressure-mode-btn');
+    const playAgainBtn = document.getElementById('play-again-btn');
+
+    const scoreDisplay = document.getElementById('score');
+    const comboDisplay = document.getElementById('combo');
+    const timerArea = document.getElementById('timer-area');
+    const timeLeftDisplay = document.getElementById('time-left');
+    const timeBar = document.getElementById('time-bar');
+
+    const currentPrimaryDisplay = document.getElementById('current-primary');
+    const currentSecondaryDisplay = document.getElementById('current-secondary');
+    const nextPrimaryDisplay = document.getElementById('next-primary');
+    const nextSecondaryDisplay = document.getElementById('next-secondary');
+
+    const playfieldElement = document.getElementById('playfield');
+    const playfieldContainer = document.getElementById('playfield-container');
+    const finalScoreDisplay = document.getElementById('final-score');
+
+    // Game Constants
+    const ROWS = 12;
+    const COLS = 6;
+    const COLORS = ['green', 'blue', 'red', 'purple', 'orange'];
+    const FALL_SPEED = 60; // ms per row (0.06 seconds)
+    const TIMED_MODE_DURATION = 100 * 1000; // 100 seconds in ms
+    const PRESSURE_MODE_INITIAL_TIME = 10 * 1000; // 10 seconds in ms
+    const PRESSURE_MODE_DECREMENT = 100; // 0.1 seconds in ms
+    const PRESSURE_MODE_MIN_TIME = 500; // 0.5 seconds in ms
+    const GRID_PADDING = 2; // Matches #playfield's padding in CSS
+    const GRID_GAP = 2;     // Matches #playfield's gap in CSS
+
+
+    // Game State Variables
+    let gameMode = ''; // 'relax', 'timed', 'pressure'
+    let score = 0;
+    let combo = 0;
+    let playfield = []; // 2D array to store block data (color, or null if empty)
+    let currentPair = { primary: null, secondary: null };
+    let nextPair = { primary: null, secondary: null };
+    let cellSize = 40; // Will be dynamically adjusted
+    let allowInput = false;
+    let isFalling = false;
+    let gameTimerInterval = null;
+    let pressureTimerInterval = null;
+    let currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+    let pressureTurnStartTime = 0;
+
+    let primaryBlockPreview = null;
+    let secondaryBlockPreview = null;
+    let startDragPos = null; // { x, y } screen coordinates
+    let startCell = null; // { row, col }
+
+    // --- Initialization ---
+    function initGame() {
+        modeSelectionModal.style.display = 'none';
+        gameOverModal.style.display = 'none';
+        gameInterface.style.display = 'flex'; // Assuming flex direction column for overall layout
+
+        score = 0;
+        combo = 0;
+        currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+        updateScoreDisplay();
+        updateComboDisplay();
+        clearPlayfield();
+        generatePlayfieldCells(); // Create the visual grid cells once
+        adjustCellSize(); // Adjust cell size based on screen
+        generateNewPair(); // currentPair
+        generateNewPair(); // nextPair (moves current to next, generates new current)
+        updatePreviewDisplays();
+        allowInput = true;
+        isFalling = false;
+
+        if (gameMode === 'timed') {
+            timerArea.style.display = 'flex';
+            startTimedModeTimer();
+        } else if (gameMode === 'pressure') {
+            timerArea.style.display = 'flex';
+            startPressureTurnTimer();
+        } else {
+            timerArea.style.display = 'none';
+        }
+        console.log("Game initialized in mode:", gameMode);
+    }
+
+function adjustCellSize() {
+        const playfieldPaddingAndGapsHorizontal = 4 + (COLS - 1) * 2; // 2px padding*2 + (COLS-1) gaps*2px
+        const playfieldPaddingAndGapsVertical = 4 + (ROWS - 1) * 2;   // 2px padding*2 + (ROWS-1) gaps*2px
+
+        // Calculate available space for playfield, considering the pairs-preview-area
+        const gameDisplayAreaWidth = document.getElementById('game-display-area').offsetWidth;
+        const previewAreaWidth = document.getElementById('pairs-preview-area').offsetWidth;
+        // Ensure playfieldContainer has a width determined by remaining space
+        playfieldContainer.style.width = `calc(${gameDisplayAreaWidth}px - ${previewAreaWidth}px)`;
+
+
+        const availableWidthForPlayfield = playfieldContainer.offsetWidth - playfieldPaddingAndGapsHorizontal;
+        const availableHeightForPlayfield = playfieldContainer.offsetHeight - playfieldPaddingAndGapsVertical;
+
+        // Calculate cell size based on minimizing dimension to fit
+        const cellSizeBasedOnWidth = Math.floor(availableWidthForPlayfield / COLS);
+        const cellSizeBasedOnHeight = Math.floor(availableHeightForPlayfield / ROWS);
+        
+        cellSize = Math.max(10, Math.min(cellSizeBasedOnWidth, cellSizeBasedOnHeight)); // Ensure a minimum cell size
+
+        document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
+
+        // Update sizes for preview blocks, making them relative to the new cellSize
+        const nextPairBlockSize = Math.max(15, Math.floor(cellSize * 0.85)); // Next pair slightly smaller than cell
+        const currentPairBlockSize = Math.max(18, Math.floor(nextPairBlockSize * 1.25)); // Current pair 25% bigger than next
+
+        const currentPairBlocks = document.querySelectorAll('#current-pair .block');
+        currentPairBlocks.forEach(b => {
+            b.style.width = `${currentPairBlockSize}px`;
+            b.style.height = `${currentPairBlockSize}px`;
+            b.style.borderRadius = `${Math.floor(currentPairBlockSize * 0.2)}px`; // Proportional rounded corners
+        });
+        const nextPairBlocks = document.querySelectorAll('#next-pair .block');
+        nextPairBlocks.forEach(b => {
+            b.style.width = `${nextPairBlockSize}px`;
+            b.style.height = `${nextPairBlockSize}px`;
+            b.style.borderRadius = `${Math.floor(nextPairBlockSize * 0.2)}px`; // Proportional rounded corners
+        });
+
+        // Update playfield fixed size if it was set by CSS calc() using old --cell-size
+        // This is important because --cell-size in CSS calc() might not update dynamically if it's deeply nested or complex.
+        // Simpler to directly set playfield width/height here.
+        playfieldElement.style.width = `${COLS * cellSize + (COLS - 1) * 2 + 4}px`;
+        playfieldElement.style.height = `${ROWS * cellSize + (ROWS - 1) * 2 + 4}px`;
+
+
+        // Re-render existing blocks on playfield if any (e.g., after screen resize if implemented during gameplay)
+        renderPlayfield(); // This will use the new cellSize for blocks
+    }
+
+
+    window.addEventListener('resize', adjustCellSize);
+
+
+    function clearPlayfield() {
+        playfield = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
+        playfieldElement.innerHTML = ''; // Clear visual blocks
+    }
+
+    function generatePlayfieldCells() {
+        playfieldElement.innerHTML = ''; // Clear previous cells if any
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const cell = document.createElement('div');
+                cell.classList.add('playfield-cell');
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                playfieldElement.appendChild(cell);
+            }
+        }
+    }
+
+    // --- Pair Generation ---
+    function getRandomColor() {
+        return COLORS[Math.floor(Math.random() * COLORS.length)];
+    }
+
+    function generateNewPair() {
+        currentPair = nextPair; // Old next becomes current
+        nextPair = {
+            primary: getRandomColor(),
+            secondary: getRandomColor()
+        };
+        if (!currentPair.primary) { // First pair generation
+            currentPair = {
+                primary: getRandomColor(),
+                secondary: getRandomColor()
+            };
+        }
+        updatePreviewDisplays();
+    }
+
+    function updatePreviewDisplays() {
+        // Current Pair
+        currentPrimaryDisplay.className = `block primary-block ${currentPair.primary}`;
+        currentSecondaryDisplay.className = `block secondary-block ${currentPair.secondary}`;
+
+        // Next Pair
+        nextPrimaryDisplay.className = `block primary-block ${nextPair.primary}`;
+        nextSecondaryDisplay.className = `block secondary-block ${nextPair.secondary}`;
+    }
+
+    // --- Player Input ---
+    playfieldElement.addEventListener('mousedown', handleDragStart);
+    playfieldElement.addEventListener('touchstart', handleDragStart, { passive: false });
+
+function handleDragStart(e) {
+    if (!allowInput || isFalling) return;
+    e.preventDefault(); // Keep this if needed, but passive:false on listener might be better
+
+    const rect = playfieldElement.getBoundingClientRect();
+    const clientX = e.clientX || e.touches[0].clientX;
+    const clientY = e.clientY || e.touches[0].clientY;
+
+    const x = clientX - rect.left; // x relative to playfield element's border-box
+    const y = clientY - rect.top;  // y relative to playfield element's border-box
+
+    // Adjust for playfield padding to get coordinates relative to the start of the grid cells area
+    const effectiveX = x - GRID_PADDING;
+    const effectiveY = y - GRID_PADDING;
+
+    let clickCol = -1;
+    let clickRow = -1;
+
+    // Determine column: iterate through possible cell start and end points
+    for (let c = 0; c < COLS; c++) {
+        const cellStartPos = c * (cellSize + GRID_GAP);
+        const cellEndPos = cellStartPos + cellSize;
+        if (effectiveX >= cellStartPos && effectiveX < cellEndPos) {
+            clickCol = c;
+            break;
+        }
+    }
+
+    // Determine row: iterate through possible cell start and end points
+    for (let r = 0; r < ROWS; r++) {
+        const cellStartPos = r * (cellSize + GRID_GAP);
+        const cellEndPos = cellStartPos + cellSize;
+        if (effectiveY >= cellStartPos && effectiveY < cellEndPos) {
+            clickRow = r;
+            break;
+        }
+    }
+
+    // If click is outside actual cell areas (e.g., on a gap or outside padded area),
+    // clickCol or clickRow will remain -1. isValidCell will then catch this.
+
+    if (isValidCell(clickRow, clickCol) && !playfield[clickRow][clickCol]) {
+        startCell = { row: clickRow, col: clickCol };
+        startDragPos = { x: clientX, y: clientY };
+
+        removePlacementPreview(); 
+        primaryBlockPreview = createVisualBlock(currentPair.primary, startCell.row, startCell.col, true);
+        primaryBlockPreview.classList.add('preview-block');
+        playfieldElement.appendChild(primaryBlockPreview);
+
+        document.addEventListener('mousemove', handleDragMove);
+        document.addEventListener('touchmove', handleDragMove, { passive: false }); // passive:false if preventDefault is used inside
+        document.addEventListener('mouseup', handleDragEnd);
+        document.addEventListener('touchend', handleDragEnd);
+    } else {
+        // Click was not on a valid, empty cell.
+        startCell = null;
+        startDragPos = null;
+    }
+}
+
+    function handleDragMove(e) {
+        if (!startCell) return;
+        e.preventDefault();
+
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+
+        const deltaX = clientX - startDragPos.x;
+        const deltaY = clientY - startDragPos.y;
+
+        removeSecondaryBlockPreview();
+
+        let secondaryPos = { ...startCell };
+        let direction = '';
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
+            if (deltaX > cellSize / 3) { // Swipe Right
+                secondaryPos.col = startCell.col + 1;
+                direction = 'right';
+            } else if (deltaX < -cellSize / 3) { // Swipe Left
+                secondaryPos.col = startCell.col - 1;
+                direction = 'left';
+            }
+        } else { // Vertical swipe
+            if (deltaY > cellSize / 3) { // Swipe Down
+                secondaryPos.row = startCell.row + 1;
+                direction = 'down';
+            } else if (deltaY < -cellSize / 3) { // Swipe Up
+                secondaryPos.row = startCell.row - 1;
+                direction = 'up';
+            }
+        }
+
+        // If dragged back to primary or no significant swipe, don't show secondary
+        if (direction && (secondaryPos.row !== startCell.row || secondaryPos.col !== startCell.col)) {
+             if (isValidCell(secondaryPos.row, secondaryPos.col)) { // Only show if on grid
+                secondaryBlockPreview = createVisualBlock(currentPair.secondary, secondaryPos.row, secondaryPos.col, false);
+                secondaryBlockPreview.classList.add('preview-block');
+                playfieldElement.appendChild(secondaryBlockPreview);
+            }
+        } else {
+            // User might have swiped back to the center, effectively cancelling the secondary block placement intent
+            // Or, the swipe is not far enough yet.
+        }
+    }
+
+
+async function handleDragEnd(e) {
+    if (!startCell) return;
+
+    document.removeEventListener('mousemove', handleDragMove);
+    document.removeEventListener('touchmove', handleDragMove);
+    document.removeEventListener('mouseup', handleDragEnd);
+    document.removeEventListener('touchend', handleDragEnd);
+
+    const clientX = e.clientX || e.changedTouches[0].clientX;
+    const clientY = e.clientY || e.changedTouches[0].clientY;
+
+    const deltaX = clientX - startDragPos.x;
+    const deltaY = clientY - startDragPos.y;
+
+    let primaryTarget = { ...startCell };
+    let secondaryTarget = { ...startCell };
+
+    let placementValid = false;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > cellSize / 2) secondaryTarget.col++;
+        else if (deltaX < -cellSize / 2) secondaryTarget.col--;
+    } else {
+        if (deltaY > cellSize / 2) secondaryTarget.row++;
+        else if (deltaY < -cellSize / 2) secondaryTarget.row--;
+    }
+
+    if (secondaryTarget.row === primaryTarget.row && secondaryTarget.col === primaryTarget.col) {
+        removePlacementPreview();
+        startCell = null;
+        startDragPos = null;
+        return;
+    }
+
+    if (isValidCell(primaryTarget.row, primaryTarget.col) && !playfield[primaryTarget.row][primaryTarget.col] &&
+        isValidCell(secondaryTarget.row, secondaryTarget.col) && !playfield[secondaryTarget.row][secondaryTarget.col]) {
+        placementValid = true;
+    }
+
+    removePlacementPreview();
+
+    if (placementValid) {
+        allowInput = false;
+        combo = 0;
+        updateComboDisplay();
+
+        // Define block data based on currentPair and target positions
+        let pBlockData = {
+            finalRow: primaryTarget.row,
+            finalCol: primaryTarget.col,
+            color: currentPair.primary,
+            isPrimary: true,
+            id: Date.now() + '_p'
+        };
+        let sBlockData = {
+            finalRow: secondaryTarget.row,
+            finalCol: secondaryTarget.col,
+            color: currentPair.secondary,
+            isPrimary: false,
+            id: Date.now() + '_s'
+        };
+
+        // --- SMOOTH TOP-DOWN FALL ANIMATION ---
+        const animateBlockFall = async (blockInfo) => {
+            // Create the visual block, starting it effectively at the top of its column,
+            // but visually hidden or just above the grid for the animation start.
+            // For a true "fall from sky", startRow can be -1 or -2.
+            // For simplicity, let's start it at row 0 but animate from an "above grid" visual position if its finalRow is > 0
+            // Or animate from its target if finalRow is 0 (less of a fall, more of an appear)
+
+            let initialTopPosition;
+            const targetTopPosition = GRID_PADDING + (blockInfo.finalRow * cellSize) + (blockInfo.finalRow * GRID_GAP);
+
+            // Start block visually "above" the grid for a falling effect
+            // The further negative, the higher up it starts.
+            const startingRowOffset = -2; // Start 2 cells above the visible grid
+            initialTopPosition = GRID_PADDING + (startingRowOffset * cellSize) + (startingRowOffset * GRID_GAP);
+
+
+            const visualBlock = createVisualBlock(blockInfo.color, startingRowOffset, blockInfo.finalCol, blockInfo.isPrimary, blockInfo.id);
+            // Set initial animated properties
+            visualBlock.style.left = `${GRID_PADDING + (blockInfo.finalCol * cellSize) + (blockInfo.finalCol * GRID_GAP)}px`;
+            visualBlock.style.top = `${initialTopPosition}px`; // Start above
+            visualBlock.style.opacity = '1'; // Make it visible if you want to see it fall from above
+
+            playfieldElement.appendChild(visualBlock);
+
+            // Force reflow to apply initial styles before transition
+            void visualBlock.offsetWidth;
+
+            // Set transition for smooth fall - adjust duration and easing as needed
+            // A `cubic-bezier` can make it feel more natural (e.g., ease-in or a slight bounce)
+            // For a smoother, less sudden stop, use 'ease-out' or a custom cubic-bezier.
+            // Example: 'cubic-bezier(0.25, 0.1, 0.25, 1)' is often used for smooth acceleration and deceleration.
+            // Example: 'cubic-bezier(0.33, 1, 0.68, 1)' easeOutQuint for a fast start and slow end
+            // const fallDuration = 0.3 + (blockInfo.finalRow * 0.03); // Duration based on fall distance
+            // visualBlock.style.transition = `top ${fallDuration}s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s linear`;
+
+
+            // Set target styles for animation
+            visualBlock.style.top = `${targetTopPosition}px`;
+
+            return new Promise(resolve => {
+                visualBlock.addEventListener('transitionend', function handler(event) {
+                    if (event.propertyName === 'top') { // Ensure we're reacting to the 'top' transition
+                        visualBlock.removeEventListener('transitionend', handler);
+                        visualBlock.style.transition = ''; // Clear transition for future direct manipulation by gravity
+                        // Update the block's data-row attribute for consistency if needed by other functions, though applyGravity uses IDs
+                        // visualBlock.dataset.row = blockInfo.finalRow;
+                        resolve(visualBlock); // Resolve with the visual block
+                    }
+                });
+            });
+        };
+
+        // Update the playfield data model *before* starting animation
+        // So that if anything queries the model during animation, it's up-to-date.
+        playfield[pBlockData.finalRow][pBlockData.finalCol] = { color: pBlockData.color, isPrimary: pBlockData.isPrimary, id: pBlockData.id };
+        playfield[sBlockData.finalRow][sBlockData.finalCol] = { color: sBlockData.color, isPrimary: sBlockData.isPrimary, id: sBlockData.id };
+
+        // Animate blocks falling
+        // We don't want to call renderPlayfield() for these new blocks yet.
+        await Promise.all([
+            animateBlockFall(pBlockData),
+            animateBlockFall(sBlockData)
+        ]);
+
+        // After animation, the visual blocks are in place.
+        // renderPlayfield() might be called by handleGravityAndMatches,
+        // so ensure these animated blocks are the ones used or are replaced consistently.
+        // The current `applyGravity` finds blocks by ID, so it should pick up these animated ones.
+        // No need to re-render immediately here if `applyGravity` correctly updates these specific blocks.
+
+        if (gameMode === 'pressure') {
+            clearTimeout(pressureTimerInterval);
+            currentPressureTimeLimit = Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - PRESSURE_MODE_DECREMENT);
+        }
+
+        generateNewPair();
+        await handleGravityAndMatches(); // Ensure this uses the animated blocks or re-renders correctly
+    }
+
+    startCell = null;
+    startDragPos = null;
+}
+
+    function removePlacementPreview() {
+        if (primaryBlockPreview) primaryBlockPreview.remove();
+        removeSecondaryBlockPreview();
+        primaryBlockPreview = null;
+    }
+    function removeSecondaryBlockPreview() {
+        if (secondaryBlockPreview) secondaryBlockPreview.remove();
+        secondaryBlockPreview = null;
+    }
+
+
+    function isValidCell(row, col) {
+        return row >= 0 && row < ROWS && col >= 0 && col < COLS;
+    }
+
+ function createVisualBlock(color, row, col, isPrimary, id = null) {
+    const blockElement = document.createElement('div');
+    blockElement.classList.add('block', 'playfield-block', color);
+    if (isPrimary) blockElement.classList.add('primary-block');
+    blockElement.style.width = `${cellSize}px`;
+    blockElement.style.height = `${cellSize}px`;
+    // For initial animation, 'row' might be negative (off-screen above)
+    blockElement.style.left = `${GRID_PADDING + (col * cellSize) + (col * GRID_GAP)}px`;
+    blockElement.style.top = `${GRID_PADDING + (row * cellSize) + (row * GRID_GAP)}px`; // Initial top position
+    blockElement.style.borderRadius = `${Math.floor(cellSize * 0.2)}px`;
+    if (id) blockElement.dataset.id = id;
+    return blockElement;
+}
+
+    function renderPlayfield() {
+        playfieldElement.querySelectorAll('.playfield-block').forEach(b => b.remove()); // Clear old visual blocks
+
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (playfield[r][c]) {
+                    const blockData = playfield[r][c];
+                    const visualBlock = createVisualBlock(blockData.color, r, c, blockData.isPrimary, blockData.id);
+                    playfieldElement.appendChild(visualBlock);
+                }
+            }
+        }
+    }
+
+
+    // --- Game Logic: Gravity & Matches ---
+    async function handleGravityAndMatches() {
+        isFalling = true;
+        allowInput = false; // Disable input while blocks are settling and matches are checked
+        let fell;
+        do {
+            fell = await applyGravity();
+            if (fell) await new Promise(resolve => setTimeout(resolve, FALL_SPEED * 1.5)); // Wait for fall animation
+        } while (fell);
+
+        let matchesFound;
+        do {
+            matchesFound = await findAndClearMatches();
+            if (matchesFound > 0) {
+                score += matchesFound * (combo > 0 ? combo : 1);
+                if (combo === 0) combo = 1;
+                else combo++;
+                updateScoreDisplay();
+                updateComboDisplay();
+
+                // After clearing, apply gravity again
+                do {
+                    fell = await applyGravity();
+                    if (fell) await new Promise(resolve => setTimeout(resolve, FALL_SPEED * 1.5));
+                } while (fell);
+            }
+        } while (matchesFound > 0);
+
+        isFalling = false;
+        if (isGameOver()) {
+            handleGameOver();
+        } else {
+            allowInput = true;
+            if (gameMode === 'pressure') {
+                startPressureTurnTimer();
+            }
+        }
+    }
+
+
+async function applyGravity() {
+    let blocksFell = false;
+    for (let c = 0; c < COLS; c++) {
+        for (let r = ROWS - 2; r >= 0; r--) { 
+            if (playfield[r][c] && !playfield[r + 1][c]) {
+                let fallDistance = 0;
+                for (let lookRow = r + 1; lookRow < ROWS; lookRow++) {
+                    if (!playfield[lookRow][c]) {
+                        fallDistance++;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (fallDistance > 0) {
+                    const blockData = playfield[r][c];
+                    playfield[r + fallDistance][c] = blockData;
+                    playfield[r][c] = null;
+                    blocksFell = true;
+
+                    const visualBlock = playfieldElement.querySelector(`.playfield-block[data-id="${blockData.id}"]`);
+                    if (visualBlock) {
+                        const newTop = GRID_PADDING + (r + fallDistance) * cellSize + (r + fallDistance) * GRID_GAP;
+                        visualBlock.style.top = `${newTop}px`;
+                    }
+                }
+            }
+        }
+    }
+    if (blocksFell) {
+        await new Promise(resolve => setTimeout(resolve, FALL_SPEED + 10)); 
+    }
+    return blocksFell;
+}
+
+
+async function findAndClearMatches() {
+    const toClearSet = new Set(); // Stores "r-c" strings of blocks to clear
+    const visited = Array(ROWS).fill(null).map(() => Array(COLS).fill(false));
+
+    function getNeighbors(r, c) {
+        const neighbors = [];
+        // Cardinal directions
+        if (r > 0) neighbors.push({ r: r - 1, c }); // Up
+        if (r < ROWS - 1) neighbors.push({ r: r + 1, c }); // Down
+        if (c > 0) neighbors.push({ r, c: c - 1 }); // Left
+        if (c < COLS - 1) neighbors.push({ r, c: c + 1 }); // Right
+        return neighbors;
+    }
+
+    function dfs(r, c, color, currentGroup) {
+        // Base cases for stopping recursion:
+        if (!isValidCell(r, c) ||          // Out of bounds
+            visited[r][c] ||               // Already visited
+            !playfield[r][c] ||            // No block in data model at this cell
+            playfield[r][c].color !== color // Block is of a different color
+           ) {
+            return;
+        }
+
+        visited[r][c] = true;        // Mark as visited
+        currentGroup.add(`${r}-${c}`); // Add "r-c" string to the current group being explored
+
+        const neighbors = getNeighbors(r, c);
+        for (const neighbor of neighbors) {
+            dfs(neighbor.r, neighbor.c, color, currentGroup);
+        }
+    }
+
+    // Iterate through each cell to start a DFS if it hasn't been visited and contains a block
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            if (playfield[r][c] && !visited[r][c]) {
+                const currentGroup = new Set(); // For this specific DFS traversal
+                dfs(r, c, playfield[r][c].color, currentGroup);
+                
+                if (currentGroup.size >= 4) { // If a group of 4 or more is found
+                    currentGroup.forEach(cellString => toClearSet.add(cellString));
+                }
+            }
+        }
+    }
+
+    if (toClearSet.size > 0) {
+        const clearPromises = [];
+        
+        // Add 'clearing' class for animation and collect promises
+        toClearSet.forEach(cellString => {
+            const [r_str, c_str] = cellString.split('-');
+            const r = parseInt(r_str, 10);
+            const c = parseInt(c_str, 10);
+
+            if (playfield[r][c] && playfield[r][c].id) {
+                const visualBlock = playfieldElement.querySelector(`.playfield-block[data-id="${playfield[r][c].id}"]`);
+                if (visualBlock && !visualBlock.classList.contains('clearing')) {
+                    visualBlock.classList.add('clearing');
+                    clearPromises.push(new Promise(resolve => {
+                        visualBlock.addEventListener('animationend', () => {
+                            visualBlock.remove(); // Remove from DOM after animation
+                            resolve();
+                        }, { once: true });
+                    }));
+                }
+            }
+        });
+
+        await Promise.all(clearPromises); // Wait for all visual removal animations
+
+        // NOW, update the actual playfield data model
+        toClearSet.forEach(cellString => {
+            const [r_str, c_str] = cellString.split('-');
+            const r = parseInt(r_str, 10);
+            const c = parseInt(c_str, 10);
+            if (playfield[r] && playfield[r][c]) { // Check if exists before nullifying
+                 playfield[r][c] = null; 
+            }
+        });
+        
+        return toClearSet.size; // Return the number of blocks cleared
+    }
+    return 0; // No blocks were cleared
+}
+
+
+    // --- Timers ---
+    function startTimedModeTimer() {
+        let endTime = Date.now() + TIMED_MODE_DURATION;
+        updateTimerDisplay(TIMED_MODE_DURATION);
+
+        if (gameTimerInterval) clearInterval(gameTimerInterval);
+        gameTimerInterval = setInterval(() => {
+            const remainingTime = endTime - Date.now();
+            if (remainingTime <= 0) {
+                clearInterval(gameTimerInterval);
+                updateTimerDisplay(0);
+                handleGameOver();
+            } else {
+                updateTimerDisplay(remainingTime);
+            }
+        }, 100); // Update every 0.1 seconds for decisecond precision
+    }
+
+    function startPressureTurnTimer() {
+        pressureTurnStartTime = Date.now();
+        updateTimerDisplay(currentPressureTimeLimit);
+
+        if (pressureTimerInterval) clearTimeout(pressureTimerInterval); // Use clearTimeout for single timeout
+        pressureTimerInterval = setTimeout(() => {
+            if (!allowInput) return; // If player made a move, this timer is irrelevant
+            console.log("Pressure mode timeout!");
+            autoPlacePressureBlock();
+        }, currentPressureTimeLimit);
+
+        // For visual updates of the time bar in pressure mode
+        function updatePressureBar() {
+            if (!allowInput && gameMode === 'pressure') { // if input not allowed, turn ended or game over
+                 requestAnimationFrame(updatePressureBar); // keep checking
+                 return;
+            }
+            const elapsedTime = Date.now() - pressureTurnStartTime;
+            const remainingTime = currentPressureTimeLimit - elapsedTime;
+            if (remainingTime <=0 && allowInput) { // Check allowInput again in case of race condition
+                // Timeout logic is handled by the setTimeout above
+                updateTimerDisplay(0);
+                return;
+            }
+            if (gameMode === 'pressure' && allowInput) {
+                 updateTimerDisplay(Math.max(0, remainingTime));
+                 requestAnimationFrame(updatePressureBar);
+            }
+        }
+        requestAnimationFrame(updatePressureBar);
+    }
+
+
+    function updateTimerDisplay(ms) {
+        const seconds = (ms / 1000).toFixed(1);
+        timeLeftDisplay.textContent = `${seconds}`;
+
+        let percentage = 100;
+        if (gameMode === 'timed') {
+            percentage = (ms / TIMED_MODE_DURATION) * 100;
+        } else if (gameMode === 'pressure') {
+            percentage = (ms / currentPressureTimeLimit) * 100;
+            // Ensure the bar only updates while input is allowed for this turn
+            if (!allowInput && ms > 0) { // if a move was just made, reset bar for next turn (or keep full if game ends)
+                percentage = 100; // Or reflect the time taken for that turn briefly
+            }
+        }
+        timeBar.style.width = `${Math.max(0, percentage)}%`;
+        // Change color based on time left
+        if (percentage < 25) timeBar.style.backgroundColor = '#F44336'; // Red
+        else if (percentage < 50) timeBar.style.backgroundColor = '#FF9800'; // Orange
+        else timeBar.style.backgroundColor = '#4CAF50'; // Green
+    }
+
+    function autoPlacePressureBlock() {
+        if (!allowInput) return; // Should not happen if logic is correct
+
+        const primaryRow = 0, primaryCol = 2; // Row 1, Col 3 (0-indexed)
+        const secondaryRow = 1, secondaryCol = 2; // Row 2, Col 3
+
+        if (!playfield[primaryRow][primaryCol] && !playfield[secondaryRow][secondaryCol]) {
+            allowInput = false;
+            combo = 0;
+            updateComboDisplay();
+
+            playfield[primaryRow][primaryCol] = { color: currentPair.primary, isPrimary: true, id: Date.now() + '_ap_p' };
+            playfield[secondaryRow][secondaryCol] = { color: currentPair.secondary, isPrimary: false, id: Date.now() + '_ap_s' };
+            renderPlayfield();
+            generateNewPair();
+            // currentPressureTimeLimit is already updated for the *next* turn if this were successful
+            // No, it should be updated *after* a successful player placement or this auto-placement
+             currentPressureTimeLimit = Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - PRESSURE_MODE_DECREMENT);
+            handleGravityAndMatches();
+        } else {
+            console.log("Auto-place failed, game over.");
+            handleGameOver();
+        }
+    }
+
+
+    // --- Game Over & Restart ---
+    function isGameOver() {
+        // Check if the top two rows for pressure auto-placement are occupied
+        // (This is a specific game over for pressure mode if auto-place fails)
+        if (gameMode === 'pressure' && playfield[0][2] && playfield[1][2]) {
+             // More accurately, this should be checked when autoPlacePressureBlock *tries* to place
+             // For now, let's use a general check: if no valid move can be made
+        }
+
+        // General game over: cannot place the current pair anywhere
+        // This is a simplified check. A more robust check would iterate through all
+        // possible placements and orientations of the currentPair.
+        // For now, let's assume game over if the top row has any blocks preventing new drops.
+        // A simple check: if the default drop zone for new blocks is full.
+        // For this game, it means player cannot find a spot for a 2-block pair.
+        // This requires checking all possible anchor cells and all 4 directions.
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (!playfield[r][c]) { // Potential primary cell
+                    // Try placing secondary in all 4 directions
+                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // Up, Down, Left, Right
+                    for (const [dr, dc] of dirs) {
+                        const sr = r + dr;
+                        const sc = c + dc;
+                        if (isValidCell(sr, sc) && !playfield[sr][sc]) {
+                            return false; // Found a valid placement
+                        }
+                    }
+                }
+            }
+        }
+        return true; // No valid placement found
+    }
+
+    function handleGameOver() {
+        console.log("Game Over!");
+        allowInput = false;
+        isFalling = true; // Prevent any further actions
+        if (gameTimerInterval) clearInterval(gameTimerInterval);
+        if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
+
+        finalScoreDisplay.textContent = score;
+        gameInterface.style.display = 'none';
+        gameOverModal.style.display = 'flex';
+    }
+
+    function updateScoreDisplay() {
+        scoreDisplay.textContent = score;
+    }
+    function updateComboDisplay() {
+        comboDisplay.textContent = `${combo}x`;
+        const comboArea = document.getElementById('combo-area');
+        if (combo > 1) {
+            comboArea.innerHTML = `Combo <span id="combo">${combo}</span>x!`;
+        } else {
+            comboArea.innerHTML = `Combo <span id="combo">${combo}</span>x`;
+        }
+    }
+
+    // --- Event Listeners for Mode Selection & Restart ---
+    relaxModeBtn.addEventListener('click', () => {
+        gameMode = 'relax';
+        initGame();
+    });
+    timedModeBtn.addEventListener('click', () => {
+        gameMode = 'timed';
+        initGame();
+    });
+    pressureModeBtn.addEventListener('click', () => {
+        gameMode = 'pressure';
+        initGame();
+    });
+    playAgainBtn.addEventListener('click', () => {
+        gameOverModal.style.display = 'none';
+        modeSelectionModal.style.display = 'flex'; // Go back to mode selection
+    });
+
+    // Initial setup: Show mode selection
+    modeSelectionModal.style.display = 'flex';
+});
+</script>
+</body>
+</html>
