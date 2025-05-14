@@ -875,7 +875,8 @@ async function handleDragEnd(e) {
             if (matchesFound > 0) {
                 if (combo === 0) combo = 1;
                 else combo++;
-                score += matchesFound * combo;
+                if (combo < 5) score += matchesFound * combo;
+                else score += matchesFound * (combo * 2 - 4);
                 updateScoreDisplay();
                 updateComboDisplay();
                 do {
