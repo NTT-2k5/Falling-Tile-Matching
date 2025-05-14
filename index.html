@@ -833,9 +833,10 @@ async function handleDragEnd(e) {
         do {
             matchesFound = await findAndClearMatches();
             if (matchesFound > 0) {
-                score += matchesFound * (combo > 0 ? combo : 1);
+                // score += matchesFound * (combo > 0 ? combo : 1);
                 if (combo === 0) combo = 1;
                 else combo++;
+                score += matchesFound * combo;
                 updateScoreDisplay();
                 updateComboDisplay();
 
