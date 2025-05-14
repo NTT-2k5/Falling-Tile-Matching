@@ -264,8 +264,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: top; /* Center the playfield vertically if there's extra space */
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 15px;
     min-width: 0; /* Important for flex children */
 }
 
@@ -521,22 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
         howToPlayModal.style.display = 'none';
         gameInterface.style.display = 'flex';
 
-        score = 0;
-        combo = 0;
-        currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
-        currentHighScore = getHighScore(gameMode); // Load high score for the current mode
-        updateScoreDisplay();
-        updateHighscoreDisplay(); // Display high score in stats
-        updateComboDisplay();
-        clearPlayfield();
-        generatePlayfieldCells();
-        adjustCellSize();
-        generateNewPair();
-        generateNewPair();
-        updatePreviewDisplays();
-        allowInput = true;
-        isFalling = false;
-
         // Reset game over message visibility
         finalScoreLine.style.display = 'block';
         highscoreMessageLine.style.display = 'none';
@@ -553,6 +536,24 @@ document.addEventListener('DOMContentLoaded', () => {
             timerAreaContainer.style.display = 'none';
             allowInput = true; // Player has control
         }
+	playfieldContainer.style.marginBottom = '15px';
+
+        score = 0;
+        combo = 0;
+        currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+        currentHighScore = getHighScore(gameMode); // Load high score for the current mode
+        updateScoreDisplay();
+        updateHighscoreDisplay(); // Display high score in stats
+        updateComboDisplay();
+        clearPlayfield();
+        generatePlayfieldCells();
+        adjustCellSize();
+        generateNewPair();
+        generateNewPair();
+        updatePreviewDisplays();
+        allowInput = true;
+        isFalling = false;
+
         console.log("Game initialized in mode:", gameMode, "High Score:", currentHighScore);
     }
 
