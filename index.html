@@ -50,6 +50,9 @@ body {
     border-radius: 8px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .modal-content h2 {
@@ -143,6 +146,7 @@ margin-top: 20px;
     padding-right: clamp(10px, 3vw, 20px); /* Responsive padding */
     flex-shrink: 0;
     flex-basis: clamp(70px, 20vw, 120px); /* Give preview area a base width but allow shrinking */
+position: relative;
 }
 
 .pair-container {
@@ -162,6 +166,26 @@ font-size: clamp(0.9em, 2vw, 1.1em);
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+#main-menu-btn {
+    padding: 10px 10px; /* Adds spacing inside the button */
+    margin: 10px; /* Adds spacing around the button */
+    border: none; /* Removes the default button border */
+    border-radius: 5px; /* Rounds the corners */
+    background-color: #4CAF50; /* Sets the background color (a shade of green) */
+    color: white; /* Sets the text color */
+    font-size: 16px; /* Sets the text size */
+    cursor: pointer; /* Changes the cursor to a pointer on hover */
+    /* If you want absolute positioning at the very bottom: 
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);*/
+    
+}
+#main-menu-btn:hover {
+    background-color: #45a049; /* Example hover color */
 }
 
 .block {
@@ -199,7 +223,9 @@ font-size: clamp(0.9em, 2vw, 1.1em);
     flex-grow: 1; 
     display: flex;
     justify-content: center; 
-    align-items: center; /* Center the playfield vertically if there's extra space */
+    align-items: top; /* Center the playfield vertically if there's extra space */
+    margin-top: 20px;
+    margin-bottom: 20px;
     min-width: 0; /* Important for flex children */
 }
 
@@ -208,7 +234,7 @@ font-size: clamp(0.9em, 2vw, 1.1em);
     grid-template-columns: repeat(6, var(--cell-size)); 
     grid-template-rows: repeat(12, var(--cell-size));    
     background-color: #d3d3d3; 
-    border: 5px solid #cccccc;
+    border: 2px solid #cccccc;
     border-radius: 8px;
     gap: 2px; 
     padding: 2px; 
@@ -318,6 +344,7 @@ font-size: clamp(0.9em, 2vw, 1.1em);
                             <div class="block secondary-block" id="next-secondary"></div>
                         </div>
                     </div>
+<br><button id="main-menu-btn">Main Menu</button>
                 </div>
                 <div id="playfield-container">
                     <div id="playfield">
@@ -345,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timedModeBtn = document.getElementById('timed-mode-btn');
     const pressureModeBtn = document.getElementById('pressure-mode-btn');
     const playAgainBtn = document.getElementById('play-again-btn');
+    const mainMenuBtn = document.getElementById('main-menu-btn');
 
     const scoreDisplay = document.getElementById('score');
     const comboDisplay = document.getElementById('combo');
@@ -1135,7 +1163,7 @@ async function findAndClearMatches() {
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
 
         finalScoreDisplay.textContent = score;
-        gameInterface.style.display = 'none';
+        gameInterface.style.display = 'flex';
         gameOverModal.style.display = 'flex';
     }
 
@@ -1166,6 +1194,21 @@ async function findAndClearMatches() {
         initGame();
     });
     playAgainBtn.addEventListener('click', () => {
+        gameOverModal.style.display = 'none';
+gameInterface.style.display = 'none';
+        modeSelectionModal.style.display = 'flex'; // Go back to mode selection
+    });
+
+    mainMenuBtn.addEventListener('click', () => {
+	if (gameTimerInterval) clearInterval(gameTimerInterval);
+        if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
+	score = 0;
+    combo = 0;
+    currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+    updateScoreDisplay();
+    updateComboDisplay();
+    clearPlayfield();
+gameInterface.style.display = 'none';
         gameOverModal.style.display = 'none';
         modeSelectionModal.style.display = 'flex'; // Go back to mode selection
     });
