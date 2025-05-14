@@ -208,7 +208,8 @@ font-size: clamp(0.9em, 2vw, 1.1em);
     grid-template-columns: repeat(6, var(--cell-size)); 
     grid-template-rows: repeat(12, var(--cell-size));    
     background-color: #d3d3d3; 
-    border: 2px solid white; 
+    border: 5px solid #cccccc;
+    border-radius: 8px;
     gap: 2px; 
     padding: 2px; 
     position: relative; 
@@ -467,8 +468,8 @@ function adjustCellSize() {
         // Update playfield fixed size if it was set by CSS calc() using old --cell-size
         // This is important because --cell-size in CSS calc() might not update dynamically if it's deeply nested or complex.
         // Simpler to directly set playfield width/height here.
-        playfieldElement.style.width = `${COLS * cellSize + (COLS - 1) * 2 + 4}px`;
-        playfieldElement.style.height = `${ROWS * cellSize + (ROWS - 1) * 2 + 4}px`;
+        playfieldElement.style.width = `${COLS * cellSize + (COLS - 1) * 2}px`;
+        playfieldElement.style.height = `${ROWS * cellSize + (ROWS - 1) * 2}px`;
 
 
         // Re-render existing blocks on playfield if any (e.g., after screen resize if implemented during gameplay)
