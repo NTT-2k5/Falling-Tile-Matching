@@ -279,9 +279,6 @@ body {
     padding: 2px;
     position: relative;
     overflow: hidden;
-    /* Ensure playfield itself doesn't grow beyond its calculated grid size */
-    width: calc(6 * var(--cell-size) + 2 * 2px + 2px * 5); /* 6 cells + 2*border + 5*gap */
-    height: calc(12 * var(--cell-size) + 2 * 2px + 2px * 11); /* 12 cells + 2*border + 11*gap */
     max-width: 100%; /* Ensure it doesn't overflow its container if calculation is off */
     max-height: 100%;
     box-sizing: content-box; /* Important if padding is used to represent grid lines border */
@@ -336,8 +333,21 @@ body {
         flex-basis: 100%; /* Timer takes full width if stats wrap */
         margin-top: 5px;
     }
+}
+@media (max-width: 300px) {
+    #stats-area {
+        font-size: 0.9em;
+        /* flex-wrap: wrap; // Removed as rows handle wrapping better */
+    }
+     .stats-row {
+        flex-wrap: wrap; /* Allow items within a row to wrap if necessary */
+    }
+    #timer-area-container { /* Adjusted to target the container */
+        flex-basis: 100%; /* Timer takes full width if stats wrap */
+        margin-top: 5px;
+    }
     #time-bar-container {
-        width: 80px;
+        width: 90px;
     }
 }
     </style>
@@ -367,14 +377,14 @@ body {
                     <li>Drag your finger/mouse away from the primary block (up, down, left, or right) to position the secondary block next to it.<br>Release to place the pair.</li>
                     <li>The placed blocks will fall to the lowest available position in their columns.</li>
                     <li>When 4 or more blocks of the same color are touching (not diagonally), they will clear, and you'll earn points.</li>
-                    <li>Clearing multiple groups with one placement or in quick succession increases your combo for more points!</li>
+                    <li>Clearing multiple groups with one placement increases your combo for more points!</li>
                     <li>The game is over when there are no valid empty spots left to place a pair of blocks.</li>
                 </ul>
                 <p><strong>Game Modes:</strong></p>
                 <ul>
                     <li><strong>Relax Mode:</strong> Play at your own pace. No timers!</li>
                     <li><strong>Timed Mode:</strong> Score as many points as you can before the 100-second timer runs out.</li>
-                    <li><strong>Pressure Mode:</strong> You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at column 3. If this column is full and new block can't be placed, game over!</li>
+                    <li><strong>Pressure Mode:</strong> You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at column 3, but if this column is full, the game is over instantly!</li>
                 </ul>
                 <button id="close-how-to-play-btn">Got it!</button>
             </div>
@@ -476,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const TIMED_MODE_DURATION = 100 * 1000; // 100 seconds in ms
     const PRESSURE_MODE_INITIAL_TIME = 10 * 1000; // 10 seconds in ms
     const PRESSURE_MODE_DECREMENT = 100; // 0.1 seconds in ms
-    const PRESSURE_MODE_MIN_TIME = 600; // 0.6 seconds in ms
+    const PRESSURE_MODE_MIN_TIME = 500; // 0.5 seconds in ms
     const GRID_PADDING = 2;
     const GRID_GAP = 2;
 
@@ -844,7 +854,8 @@ async function handleDragEnd(e) {
 
         if (gameMode === 'pressure') {
             clearTimeout(pressureTimerInterval);
-            currentPressureTimeLimit = Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - PRESSURE_MODE_DECREMENT);
+            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1000 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
+	// console.log(currentPressureTimeLimit);
         }
 
         generateNewPair();
@@ -1160,7 +1171,7 @@ async function findAndClearMatches() {
             playfield[secondaryRow][secondaryCol] = { color: currentPair.secondary, isPrimary: false, id: Date.now() + '_ap_s' };
             renderPlayfield();
             generateNewPair();
-             currentPressureTimeLimit = Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - PRESSURE_MODE_DECREMENT);
+            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1000 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
             handleGravityAndMatches();
         } else {
             console.log("Auto-place failed, game over.");
