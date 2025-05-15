@@ -214,7 +214,7 @@ body {
     align-items: center;
 }
 
-#main-menu-btn {
+#end-game-btn {
     padding: 10px 10px; /* Adds spacing inside the button */
     margin: 10px; /* Adds spacing around the button */
     border: none; /* Removes the default button border */
@@ -224,7 +224,7 @@ body {
     font-size: 16px; /* Sets the text size */
     cursor: pointer; /* Changes the cursor to a pointer on hover */
 }
-#main-menu-btn:hover {
+#end-game-btn:hover {
     background-color: #45a049; /* Example hover color */
 }
 
@@ -412,19 +412,19 @@ body {
                     <div class="pair-container current-pair-container">
                         <div class="pair-label"><b>NOW</b></div>
                         <div id="current-pair">
-                            <div class="block primary-block" id="current-primary"></div>
                             <div class="block secondary-block" id="current-secondary"></div>
+                            <div class="block primary-block" id="current-primary"></div>
                         </div>
                     </div>
                     <div class="line"></div>
                     <div class="pair-container next-pair-container">
                         <div class="pair-label">Next</div>
                         <div id="next-pair">
-                            <div class="block primary-block" id="next-primary"></div>
                             <div class="block secondary-block" id="next-secondary"></div>
+                            <div class="block primary-block" id="next-primary"></div>
                         </div>
                     </div>
-<br><button id="main-menu-btn">Main Menu</button>
+<br><button id="end-game-btn">End Game</button>
                 </div>
                 <div id="playfield-container">
                     <div id="playfield">
@@ -437,8 +437,9 @@ body {
             <div class="modal-content">
                 <h2>Game Over</h2>
                 <p id="final-score-line">Your Final Score: <span id="final-score">0</span></p>
-                <p id="highscore-message-line" style="display: none;">High Score: <span id="final-highscore">0</span></p><br>
-                <button id="play-again-btn">Play Again</button>
+                <p id="highscore-message-line" style="display: none;">High Score: <span id="final-highscore">0</span></p>
+                <p id="max-combo-line">Max Combo: <span id="max-combo">0</span></p><br>
+                <button id="main-menu-btn">Main Menu</button>
             </div>
         </div>
     </div>
@@ -455,8 +456,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pressureModeBtn = document.getElementById('pressure-mode-btn');
     const howToPlayBtn = document.getElementById('how-to-play-btn');
     const closeHowToPlayBtn = document.getElementById('close-how-to-play-btn');
-    const playAgainBtn = document.getElementById('play-again-btn');
-    const mainMenuBtn = document.getElementById('main-menu-btn');
+    const mainmenuBtn = document.getElementById('main-menu-btn');
+    const endgameBtn = document.getElementById('end-game-btn');
 
     const scoreDisplay = document.getElementById('score');
     const highscoreDisplay = document.getElementById('highscore'); // New element for high score in stats
@@ -473,9 +474,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const playfieldElement = document.getElementById('playfield');
     const playfieldContainer = document.getElementById('playfield-container');
     const finalScoreDisplay = document.getElementById('final-score');
-    const finalScoreLine = document.getElementById('final-score-line'); // For Game Over modal
-    const highscoreMessageLine = document.getElementById('highscore-message-line'); // For Game Over modal
-    const finalHighscoreDisplay = document.getElementById('final-highscore'); // For Game Over modal
+    const finalScoreLine = document.getElementById('final-score-line');
+    const maxcomboDisplay = document.getElementById('max-combo');
+    const maxcomboLine = document.getElementById('max-combo-line');
+    const highscoreMessageLine = document.getElementById('highscore-message-line');
+    const finalHighscoreDisplay = document.getElementById('final-highscore');
 
 
     // Game Constants
@@ -496,6 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let currentHighScore = 0; // To store the high score for the current mode
     let combo = 0;
+    let maxcombo = 0;
     let playfield = [];
     let currentPair = { primary: null, secondary: null };
     let nextPair = { primary: null, secondary: null };
@@ -533,6 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset game over message visibility
         finalScoreLine.style.display = 'block';
         highscoreMessageLine.style.display = 'none';
+        maxcomboLine.style.display = 'none';
 
 	if (gameMode === 'timed') {
             timerAreaContainer.style.display = 'flex';
@@ -550,6 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         score = 0;
         combo = 0;
+        maxcombo = 0;
         currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
         currentHighScore = getHighScore(gameMode); // Load high score for the current mode
         updateScoreDisplay();
@@ -923,8 +929,8 @@ async function handleDragEnd(e) {
         do {
             matchesFound = await findAndClearMatches();
             if (matchesFound > 0) {
-                if (combo === 0) combo = 1;
-                else combo++;
+                combo = combo === 0 ? 1 : combo + 1;
+		maxcombo = Math.max(maxcombo, combo);
                 if (combo < 5) score += matchesFound * combo;
                 else score += matchesFound * (combo * 2 - 4);
                 updateScoreDisplay();
@@ -1213,6 +1219,9 @@ async function findAndClearMatches() {
         finalScoreDisplay.textContent = score;
         finalScoreLine.style.display = 'block'; // Ensure score line is visible
 
+        maxcomboDisplay.textContent = maxcombo;
+        maxcomboLine.style.display = 'block';
+
         const oldHighScore = getHighScore(gameMode);
         if (score > oldHighScore) {
             setHighScore(gameMode, score);
@@ -1269,34 +1278,25 @@ async function findAndClearMatches() {
         howToPlayModal.style.display = 'none';
     });
 
-    playAgainBtn.addEventListener('click', () => {
+    mainmenuBtn.addEventListener('click', () => {
         gameOverModal.style.display = 'none';
         gameInterface.style.display = 'none';
         modeSelectionModal.style.display = 'flex';
 allowInput = false;
     });
 
-    mainMenuBtn.addEventListener('click', () => {
-        if (gameTimerInterval) clearInterval(gameTimerInterval);
-        if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
-        score = 0;
-        combo = 0;
-        currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+    endgameBtn.addEventListener('click', () => {
+	handleGameOver();
+        // currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
         updateScoreDisplay();
         // currentHighScore remains as loaded for the mode, no need to reset to 0 here
         updateHighscoreDisplay(); // Display correct high score for potential next game in same mode
         updateComboDisplay();
-        clearPlayfield();
-        gameInterface.style.display = 'none';
-        gameOverModal.style.display = 'none';
-        howToPlayModal.style.display = 'none';
-        modeSelectionModal.style.display = 'flex';
-allowInput = false;
     });
 
     // Initial setup: Show mode selection
     modeSelectionModal.style.display = 'flex';
-allowInput = false;
+    allowInput = false;
 });
 </script>
 </body>
