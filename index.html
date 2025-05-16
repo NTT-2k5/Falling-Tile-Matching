@@ -172,7 +172,8 @@ body {
     width: 100%;
     background-color: #4CAF50;
     border-radius: 5px;
-    transition: width 0.1s linear, background-color 0.3s linear; /* Added transition for color */
+    //transition: width 0.1s linear, background-color 0.3s linear; /* Added transition for color */
+	transition: background-color 0.2s linear;
 }
 
 
@@ -490,6 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PRESSURE_MODE_INITIAL_TIME = 10 * 1000; // 10 seconds in ms
     const PRESSURE_MODE_DECREMENT = 100; // 0.1 seconds in ms
     const PRESSURE_MODE_MIN_TIME = 500; // 0.5 seconds in ms
+	const PRESSURE_MODE_THRESHOLD_TIME = 1700;
     const GRID_PADDING = 2;
     const GRID_GAP = 2;
 
@@ -556,10 +558,10 @@ document.addEventListener('DOMContentLoaded', () => {
         score = 0;
         combo = 0;
         maxcombo = 0;
-        currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+        //currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
         currentHighScore = getHighScore(gameMode); // Load high score for the current mode
         updateScoreDisplay();
-        updateHighscoreDisplay(); // Display high score in stats
+        highscoreDisplay.textContent = currentHighScore; // Display high score in stats
         updateComboDisplay();
         clearPlayfield();
         generatePlayfieldCells();
@@ -570,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allowInput = true;
         isFalling = false;
 
-        console.log("Game initialized in mode:", gameMode, "High Score:", currentHighScore);
+        console.log("Game initialized in mode:", gameMode, ", High Score:", currentHighScore);
     }
 
 function adjustCellSize() {
@@ -871,8 +873,8 @@ async function handleDragEnd(e) {
 
         if (gameMode === 'pressure') {
             clearTimeout(pressureTimerInterval);
-            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1200 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
-	 console.log(currentPressureTimeLimit);
+            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
+			console.log(currentPressureTimeLimit);
         }
 
         generateNewPair();
@@ -946,11 +948,6 @@ async function handleDragEnd(e) {
                 else score += matchesFound * (combo * 2 - 4);
                 updateScoreDisplay();
                 updateComboDisplay();
-                // Update high score if current score is higher (live update during gameplay)
-                if (score > currentHighScore) {
-                    currentHighScore = score;
-                    updateHighscoreDisplay(); // Update the stats area immediately
-                }
                 do {
                     fell = await applyGravity();
                     if (fell) await new Promise(resolve => setTimeout(resolve, FALL_SPEED * 1.5));
@@ -1161,9 +1158,10 @@ async function findAndClearMatches() {
         updateTimerDisplay(currentPressureTimeLimit);
 
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
+		//console.log("Start timer for",currentPressureTimeLimit,"ms");
         pressureTimerInterval = setTimeout(() => {
             if (!allowInput) return;
-            console.log("Pressure mode timeout!");
+            //console.log("Pressure mode timeout!");
             autoPlacePressureBlock();
         }, currentPressureTimeLimit);
 
@@ -1306,7 +1304,7 @@ async function findAndClearMatches() {
 
 
         // Update the pressure time limit for the next turn
-         currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1200 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
+         currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
 
 
         // Generate the next pair *after* the placement
@@ -1371,7 +1369,6 @@ async function findAndClearMatches() {
             highscoreMessageLine.style.display = 'block';
             finalHighscoreDisplay.textContent = score; // Show new high score
             currentHighScore = score; // Update runtime high score
-            updateHighscoreDisplay(); // Update stats area high score
         } else {
             highscoreMessageLine.innerHTML = `High Score: <span id="final-highscore">${oldHighScore}</span>`;
             highscoreMessageLine.style.display = 'block';
@@ -1384,9 +1381,6 @@ async function findAndClearMatches() {
 
     function updateScoreDisplay() {
         scoreDisplay.textContent = score;
-    }
-    function updateHighscoreDisplay() { // New function to update high score in stats
-        highscoreDisplay.textContent = currentHighScore;
     }
     function updateComboDisplay() {
         comboDisplay.textContent = `${combo}x`;
@@ -1409,6 +1403,7 @@ async function findAndClearMatches() {
     });
     pressureModeBtn.addEventListener('click', () => {
         gameMode = 'pressure';
+		currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
         initGame();
     });
 
@@ -1424,15 +1419,12 @@ async function findAndClearMatches() {
         gameOverModal.style.display = 'none';
         gameInterface.style.display = 'none';
         modeSelectionModal.style.display = 'flex';
-allowInput = false;
+		allowInput = false;
     });
 
     endgameBtn.addEventListener('click', () => {
-	handleGameOver();
-        // currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+		handleGameOver();
         updateScoreDisplay();
-        // currentHighScore remains as loaded for the mode, no need to reset to 0 here
-        updateHighscoreDisplay(); // Display correct high score for potential next game in same mode
         updateComboDisplay();
     });
 
