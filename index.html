@@ -292,7 +292,7 @@ body {
     position: absolute;
     /* width, height, left, top set by JS */
     z-index: 10;
-    transition: top 0.06s linear, left 0.06s linear, opacity 0.2s linear;
+    // transition: top 0.06s linear, left 0.06s linear, opacity 0.2s linear;
     /* Ensure no margin on playfield blocks */
     margin: 0 !important;
 }
@@ -311,7 +311,7 @@ body {
 }
 
 .clearing {
-    animation: clearAnimation 0.3s forwards;
+    animation: clearAnimation 0.5s forwards;
 }
 
 @keyframes clearAnimation {
@@ -359,7 +359,7 @@ body {
                 <h2>Falling Tile Matching</h2>
                 <button id="relax-mode-btn">Relax Mode</button>
                 <button id="timed-mode-btn">Timed Mode</button>
-                <button id="pressure-mode-btn">Pressure Mode</button>
+                <button id="pressure-mode-btn">Panic Mode</button>
                 <button id="how-to-play-btn">How to Play</button>
             </div>
         </div>
@@ -373,8 +373,8 @@ body {
                 <p><strong>Gameplay:</strong></p>
                 <ul>
                     <li>You'll see a pair of blocks (NOW pair) and the Next pair that will come after. The block with the '×' is the primary block.</li>
-                    <li>To place blocks, click/tap on an empty cell in the playfield. This will be the position of the primary block.</li>
-                    <li>Drag your finger/mouse away from the primary block (up, down, left, or right) to position the secondary block next to it.<br>Release to place the pair.</li>
+                    <li>To place blocks, tap (click) on an empty cell in the playfield. This will be the position of the primary block.</li>
+                    <li>Drag your finger (mouse) away from the primary block (up, down, left, or right) to position the secondary block next to it.<br>Release to place the pair.</li>
                     <li>The placed blocks will fall to the lowest available position in their columns.</li>
                     <li>When 4 or more blocks of the same color are touching (not diagonally), they will clear, and you'll earn points.</li>
                     <li>Clearing multiple groups with one placement increases your combo for more points!</li>
@@ -384,7 +384,7 @@ body {
                 <ul>
                     <li><strong>Relax Mode:</strong> Play at your own pace. No timers!</li>
                     <li><strong>Timed Mode:</strong> Score as many points as you can before the 100-second timer runs out.</li>
-                    <li><strong>Pressure Mode:</strong> You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at column 3, but if this column is full, the game is over instantly!</li>
+                    <li><strong>Panic Mode:</strong> You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at a random empty column.</li>
                 </ul>
                 <button id="close-how-to-play-btn">Got it!</button>
             </div>
@@ -424,7 +424,7 @@ body {
                             <div class="block primary-block" id="next-primary"></div>
                         </div>
                     </div>
-<br><button id="end-game-btn">End Game</button>
+					<br><button id="end-game-btn">End Game</button>
                 </div>
                 <div id="playfield-container">
                     <div id="playfield">
@@ -485,8 +485,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const ROWS = 12;
     const COLS = 6;
     const COLORS = ['green', 'blue', 'red', 'purple', 'orange'];
-    const FALL_SPEED = 60; // ms per row (0.06 seconds)
-    const TIMED_MODE_DURATION = 100 * 1000; // 100 seconds in ms
+    const FALL_SPEED = 50; // ms per row
+    const TIMED_MODE_DURATION = 100 * 1000;
     const PRESSURE_MODE_INITIAL_TIME = 10 * 1000; // 10 seconds in ms
     const PRESSURE_MODE_DECREMENT = 100; // 0.1 seconds in ms
     const PRESSURE_MODE_MIN_TIME = 500; // 0.5 seconds in ms
@@ -824,30 +824,41 @@ async function handleDragEnd(e) {
             id: Date.now() + '_s'
         };
         const animateBlockFall = async (blockInfo) => {
-            let initialTopPosition;
+            // Calculate the top and left position for the block in its target cell
             const targetTopPosition = GRID_PADDING + (blockInfo.finalRow * cellSize) + (blockInfo.finalRow * GRID_GAP);
-            const startingRowOffset = -2;
-            initialTopPosition = GRID_PADDING + (startingRowOffset * cellSize) + (startingRowOffset * GRID_GAP);
+            const targetLeftPosition = GRID_PADDING + (blockInfo.finalCol * cellSize) + (blockInfo.finalCol * GRID_GAP);
 
+            // Create the visual block element
+            const visualBlock = createVisualBlock(blockInfo.color, blockInfo.finalRow, blockInfo.finalCol, blockInfo.isPrimary, blockInfo.id);
 
-            const visualBlock = createVisualBlock(blockInfo.color, startingRowOffset, blockInfo.finalCol, blockInfo.isPrimary, blockInfo.id);
-            visualBlock.style.left = `${GRID_PADDING + (blockInfo.finalCol * cellSize) + (blockInfo.finalCol * GRID_GAP)}px`;
-            visualBlock.style.top = `${initialTopPosition}px`;
-            visualBlock.style.opacity = '1';
-
-            playfieldElement.appendChild(visualBlock);
-            void visualBlock.offsetWidth;
+            // Set the block's position directly to the target cell's position
             visualBlock.style.top = `${targetTopPosition}px`;
+            visualBlock.style.left = `${targetLeftPosition}px`;
+            visualBlock.style.opacity = '1'; // Ensure it's fully visible
 
-            return new Promise(resolve => {
-                visualBlock.addEventListener('transitionend', function handler(event) {
-                    if (event.propertyName === 'top') {
-                        visualBlock.removeEventListener('transitionend', handler);
-                        visualBlock.style.transition = '';
-                        resolve(visualBlock);
-                    }
-                });
-            });
+            // IMPORTANT: Temporarily remove the transition property.
+            // This prevents the block from animating from its default starting position
+            // (which might be 0,0 or inherited) when it's first added to the DOM.
+            //visualBlock.style.transition = 'none';
+
+            // Add the block to the playfield
+            playfieldElement.appendChild(visualBlock);
+
+            // Force a reflow. This makes the browser apply the 'none' transition
+            // and the correct initial position *before* we re-enable transitions.
+            void visualBlock.offsetWidth;
+
+            // Re-enable the transition property for future animations (like gravity)
+            // Make sure this matches the transition duration defined in your CSS for .playfield-block top property
+            // If you changed the falling speed as discussed before, use that new duration here.
+            //visualBlock.style.transition = 'top 0.25s linear, left 0.06s linear, opacity 0.2s linear'; // <-- Adjust '0.06s' if you changed falling speed
+
+
+            // We no longer need to wait for a transition to finish in this function,
+            // as the block is placed instantly.
+            // The await in handleDragEnd before handleGravityAndMatches()
+            // now simply ensures the blocks are in the DOM before gravity starts.
+            return visualBlock; // Return the block element (optional, but good practice)
         };
 
         playfield[pBlockData.finalRow][pBlockData.finalCol] = { color: pBlockData.color, isPrimary: pBlockData.isPrimary, id: pBlockData.id };
@@ -860,8 +871,8 @@ async function handleDragEnd(e) {
 
         if (gameMode === 'pressure') {
             clearTimeout(pressureTimerInterval);
-            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1000 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
-	// console.log(currentPressureTimeLimit);
+            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1200 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
+	 console.log(currentPressureTimeLimit);
         }
 
         generateNewPair();
@@ -961,6 +972,9 @@ async function handleDragEnd(e) {
 
 async function applyGravity() {
     let blocksFell = false;
+    // Variable to track the maximum fall distance in this gravity pass
+    let maxFallDistanceInPass = 0;
+
     for (let c = 0; c < COLS; c++) {
         for (let r = ROWS - 2; r >= 0; r--) {
             if (playfield[r][c] && !playfield[r + 1][c]) {
@@ -975,22 +989,52 @@ async function applyGravity() {
 
                 if (fallDistance > 0) {
                     const blockData = playfield[r][c];
+                    // Update playfield array (move block to its new logical position)
                     playfield[r + fallDistance][c] = blockData;
                     playfield[r][c] = null;
                     blocksFell = true;
 
+                    // Update the maximum fall distance seen in this pass
+                    maxFallDistanceInPass = Math.max(maxFallDistanceInPass, fallDistance);
+
                     const visualBlock = playfieldElement.querySelector(`.playfield-block[data-id="${blockData.id}"]`);
                     if (visualBlock) {
+                        // Calculate the new visual top position
                         const newTop = GRID_PADDING + (r + fallDistance) * cellSize + (r + fallDistance) * GRID_GAP;
+
+                        // --- Dynamically calculate and set the transition duration ---
+                        // FALL_SPEED is in milliseconds (e.g., 60ms = 0.06s per row)
+                        // We want fallDistance * (speed per row in seconds)
+                        const fallDuration = fallDistance * (FALL_SPEED / 1000); // Duration in seconds
+
+                        // Get existing transitions (like left and opacity) to preserve them
+                        const currentTransitions = visualBlock.style.transition.split(',').map(t => t.trim()).filter(t => t !== '');
+                        // Remove the old 'top' transition if it exists
+                        const otherTransitions = currentTransitions.filter(t => !t.startsWith('top'));
+
+                        // Set the new transition property with the dynamic duration for 'top'
+                        // and include any other existing transitions
+                        visualBlock.style.transition = `top ${fallDuration.toFixed(3)}s linear${otherTransitions.length > 0 ? ', ' + otherTransitions.join(', ') : ''}`;
+
+                        // --- Apply the new visual top position ---
+                        // The CSS transition we just set will animate the movement over the calculated duration
                         visualBlock.style.top = `${newTop}px`;
                     }
                 }
             }
         }
     }
+
     if (blocksFell) {
-        await new Promise(resolve => setTimeout(resolve, FALL_SPEED + 10));
+        // --- Adjust the waiting time ---
+        // We need to wait long enough for the longest fall animation in this pass to finish.
+        // The duration of the longest fall is maxFallDistanceInPass * (FALL_SPEED / 1000) seconds.
+        // Convert this duration back to milliseconds for setTimeout and add a small buffer.
+        const waitDuration = maxFallDistanceInPass * (FALL_SPEED / 1000) * 1000 + 50; // Add a 50ms buffer
+        await new Promise(resolve => setTimeout(resolve, waitDuration));
     }
+
+    // Return whether any blocks fell in this pass
     return blocksFell;
 }
 
@@ -1138,6 +1182,7 @@ async function findAndClearMatches() {
                  updateTimerDisplay(Math.max(0, remainingTime));
                  requestAnimationFrame(updatePressureBar);
             }
+		
         }
         requestAnimationFrame(updatePressureBar);
     }
@@ -1162,26 +1207,123 @@ async function findAndClearMatches() {
         else timeBar.style.backgroundColor = '#4CAF50';
     }
 
-    function autoPlacePressureBlock() {
-        if (!allowInput) return;
+    // Make autoPlacePressureBlock asynchronous because it needs to await handleGravityAndMatches
+    // Make autoPlacePressureBlock asynchronous as it awaits handleGravityAndMatches
+    async function autoPlacePressureBlock() {
+        // Add a check to prevent auto-placement if player input is already being processed
+        if (!allowInput) {
+            console.log("Auto-place skipped: input not allowed.");
+            return;
+        }
 
-        const primaryRow = 0, primaryCol = 2;
-        const secondaryRow = 1, secondaryCol = 2;
+        console.log("Pressure mode timeout! Attempting auto-placement.");
 
-        if (!playfield[primaryRow][primaryCol] && !playfield[secondaryRow][secondaryCol]) {
-            allowInput = false;
-            combo = 0;
-            updateComboDisplay();
+        // --- Disable input immediately when timeout occurs ---
+        allowInput = false;
+        removePlacementPreview(); // Remove any preview the player might have
 
-            playfield[primaryRow][primaryCol] = { color: currentPair.primary, isPrimary: true, id: Date.now() + '_ap_p' };
-            playfield[secondaryRow][secondaryCol] = { color: currentPair.secondary, isPrimary: false, id: Date.now() + '_ap_s' };
-            renderPlayfield();
-            generateNewPair();
-            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1000 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
-            handleGravityAndMatches();
+
+        // --- Find available columns for a vertical pair placement at the top ---
+        // A vertical pair (secondary at row 0, primary at row 1) needs both row 0 and row 1 to be empty in a column.
+        const availableColumns = [];
+        for (let c = 0; c < COLS; c++) {
+            // Check if the top two cells in this column are empty
+            if (isValidCell(0, c) && !playfield[0][c] && isValidCell(1, c) && !playfield[1][c]) {
+                availableColumns.push(c);
+            }
+        }
+
+        // --- Check if any columns are available for placement ---
+        if (availableColumns.length === 0) {
+            // If no columns have empty space at the top for a vertical pair, it's game over
+            console.log("No available columns with space at the top for auto-placement. Game over.");
+            handleGameOver(); // Trigger game over
+            return; // Stop the function execution
+        }
+
+        // --- Select a random available column ---
+        const randomColumnIndex = Math.floor(Math.random() * availableColumns.length);
+        const chosenCol = availableColumns[randomColumnIndex];
+
+        // --- Define placement positions for the vertical pair (primary below secondary) ---
+        const secondaryRow = 0; // Secondary block goes in the top row (row 0)
+        const primaryRow = 1;   // Primary block goes in the row below (row 1)
+        const primaryCol = chosenCol;
+        const secondaryCol = chosenCol;
+
+        // At this point, we know the chosen column's top two cells are empty,
+        // so the placement in the array is valid.
+
+        // --- Proceed with placement logic ---
+        // Reset combo on auto-placement
+        combo = 0;
+        updateComboDisplay();
+
+        // Define block data for the auto-placed pair
+        let pBlockData = {
+            finalRow: primaryRow, // Will be 1
+            finalCol: primaryCol, // Will be chosenCol
+            color: currentPair.primary,
+            isPrimary: true, // This block has the '×'
+            id: Date.now() + '_ap_p'
+        };
+        let sBlockData = {
+            finalRow: secondaryRow, // Will be 0
+            finalCol: secondaryCol, // Will be chosenCol
+            color: currentPair.secondary,
+            isPrimary: false,
+            id: Date.now() + '_ap_s'
+        };
+
+        // Update the playfield array with the new blocks
+        playfield[pBlockData.finalRow][pBlockData.finalCol] = { color: pBlockData.color, isPrimary: pBlockData.isPrimary, id: pBlockData.id };
+        playfield[sBlockData.finalRow][sBlockData.finalCol] = { color: sBlockData.color, isPrimary: sBlockData.isPrimary, id: sBlockData.id };
+
+        // --- Create and add visual blocks instantly at their placed position ---
+        // (Using the instant placement logic from the previous fix)
+         await Promise.all([
+            (async (data) => {
+                const visualBlock = createVisualBlock(data.color, data.finalRow, data.finalCol, data.isPrimary, data.id);
+                // Temporarily remove transition for instant placement
+                visualBlock.style.transition = 'none';
+                playfieldElement.appendChild(visualBlock);
+                // Force reflow to apply the non-transitioned style
+                void visualBlock.offsetWidth;
+                // Re-enable transition for gravity falls (match CSS or dynamic if implemented)
+                // Use the same transition duration as your regular falling blocks
+                visualBlock.style.transition = 'top 0.05s linear, left 0.06s linear, opacity 0.2s linear'; // <-- Adjust if you have dynamic falling speed logic
+                return visualBlock;
+            })(pBlockData),
+             (async (data) => {
+                const visualBlock = createVisualBlock(data.color, data.finalRow, data.finalCol, data.isPrimary, data.id);
+                visualBlock.style.transition = 'none';
+                playfieldElement.appendChild(visualBlock);
+                void visualBlock.offsetWidth;
+                visualBlock.style.transition = 'top 0.05s linear, left 0.06s linear, opacity 0.2s linear'; // <-- Adjust if you have dynamic falling speed logic
+                return visualBlock;
+            })(sBlockData)
+        ]);
+
+
+        // Update the pressure time limit for the next turn
+         currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_MIN_TIME+1200 ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
+
+
+        // Generate the next pair *after* the placement
+        generateNewPair();
+
+        // --- Handle gravity and matches ---
+        // Await this to ensure all falling and clearing animations complete
+        await handleGravityAndMatches();
+
+        // --- After gravity/matches, re-enable input and restart the timer ---
+        // Check if the game is over *after* handleGravityAndMatches
+        if (isGameOver()) {
+             handleGameOver(); // Trigger game over if the board is full after gravity/matches
         } else {
-            console.log("Auto-place failed, game over.");
-            handleGameOver();
+             allowInput = true; // Re-enable player input
+             // Restart the pressure timer for the next turn
+             startPressureTurnTimer();
         }
     }
 
