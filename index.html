@@ -943,9 +943,11 @@ async function handleDragEnd(e) {
             matchesFound = await findAndClearMatches();
             if (matchesFound > 0) {
                 combo = combo === 0 ? 1 : combo + 1;
-		maxcombo = Math.max(maxcombo, combo);
-                if (combo < 5) score += matchesFound * combo;
-                else score += matchesFound * (combo * 2 - 4);
+				maxcombo = Math.max(maxcombo, combo);
+                // if (combo < 5) score += matchesFound * combo;
+                // else score += matchesFound * (combo * 2 - 4);
+				if (combo < 5) score += matchesFound * Math.pow(2,combo-1);
+				else score += matchesFound * 16 * (combo-4);
                 updateScoreDisplay();
                 updateComboDisplay();
                 do {
@@ -1049,7 +1051,7 @@ async function findAndClearMatches() {
         return neighbors;
     }
 
-    function dfs(r, c, color, currentGroup) {
+    function searchN(r, c, color, currentGroup) {
         if (!isValidCell(r, c) ||
             visited[r][c] ||
             !playfield[r][c] ||
@@ -1063,7 +1065,7 @@ async function findAndClearMatches() {
 
         const neighbors = getNeighbors(r, c);
         for (const neighbor of neighbors) {
-            dfs(neighbor.r, neighbor.c, color, currentGroup);
+            searchN(neighbor.r, neighbor.c, color, currentGroup);
         }
     }
 
@@ -1071,7 +1073,7 @@ async function findAndClearMatches() {
         for (let c = 0; c < COLS; c++) {
             if (playfield[r][c] && !visited[r][c]) {
                 const currentGroup = new Set();
-                dfs(r, c, playfield[r][c].color, currentGroup);
+                searchN(r, c, playfield[r][c].color, currentGroup);
 
                 if (currentGroup.size >= 4) {
                     currentGroup.forEach(cellString => toClearSet.add(cellString));
