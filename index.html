@@ -943,11 +943,9 @@ async function handleDragEnd(e) {
             matchesFound = await findAndClearMatches();
             if (matchesFound > 0) {
                 combo = combo === 0 ? 1 : combo + 1;
-				maxcombo = Math.max(maxcombo, combo);
-                // if (combo < 5) score += matchesFound * combo;
-                // else score += matchesFound * (combo * 2 - 4);
-				if (combo < 5) score += matchesFound * Math.pow(2,combo-1);
-				else score += matchesFound * 16 * (combo-4);
+		maxcombo = Math.max(maxcombo, combo);
+		if (combo < 4) score += matchesFound * Math.pow(2,combo-1);
+		else score += matchesFound * 8 * (combo-3);
                 updateScoreDisplay();
                 updateComboDisplay();
                 do {
