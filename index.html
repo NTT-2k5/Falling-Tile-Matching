@@ -188,25 +188,23 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: top;
+    justify-content: top; /* Align items to the top */
     margin-top: 20px;
     padding-right: clamp(10px, 3vw, 20px); /* Responsive padding */
     flex-shrink: 0;
-    flex-basis: clamp(70px, 20vw, 120px); /* Give preview area a base width but allow shrinking */
+    flex-basis: clamp(80px, 22vw, 130px); /* Adjusted base width for save button */
     position: relative;
 }
 
 .pair-container {
-    margin-bottom: clamp(10px, 3vh, 20px); /* Responsive margin */
+    margin-bottom: clamp(10px, 3vh, 15px); /* Adjusted margin */
     text-align: center;
 }
 
 .pair-label {
-    // font-size: clamp(0.7em, 2vw, 0.9em); /* Responsive font size */
     font-size: clamp(0.9em, 2vw, 1.1em);
     margin-top: 15px;
     margin-bottom: 5px;
-    // color: #555;
 }
 
 #current-pair, #next-pair {
@@ -215,18 +213,55 @@ body {
     align-items: center;
 }
 
+#save-pair-btn {
+    display: flex; /* Changed by JS to flex when visible */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    margin: 10px auto;
+    border: none;
+    border-radius: 5px;
+    background-color: #e0e0e0;
+    cursor: pointer;
+    width: clamp(80px, 90%, 110px); /* Responsive width */
+    font-size: clamp(0.9em, 2vw, 1.1em);
+    box-sizing: border-box;
+}
+
+#save-pair-btn .save-btn-text {
+    margin-bottom: 5px;
+	font-style: italic;
+    /* font-weight: bold; */
+}
+
+#save-pair-btn .save-btn-blocks-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#save-pair-btn .save-btn-blocks-container .block {
+    margin: 1px 0; /* Minimal margin for stacked blocks */
+    /* JS will set width, height, borderRadius, and color class */
+    /* box-shadow from .block class will apply */
+}
+
+
 #end-game-btn {
-    padding: 10px 10px; /* Adds spacing inside the button */
-    margin: 10px; /* Adds spacing around the button */
-    border: none; /* Removes the default button border */
-    border-radius: 5px; /* Rounds the corners */
-    background-color: #4CAF50; /* Sets the background color (a shade of green) */
-    color: white; /* Sets the text color */
-    font-size: 16px; /* Sets the text size */
-    cursor: pointer; /* Changes the cursor to a pointer on hover */
+    padding: 10px 10px;
+    margin: 10px auto; /* Ensure consistent margin */
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    width: clamp(80px, 90%, 110px); /* Match save button width for consistency */
+    box-sizing: border-box;
 }
 #end-game-btn:hover {
-    background-color: #45a049; /* Example hover color */
+    background-color: #45a049;
 }
 
 .block {
@@ -293,8 +328,6 @@ body {
     position: absolute;
     /* width, height, left, top set by JS */
     z-index: 10;
-    // transition: top 0.06s linear, left 0.06s linear, opacity 0.2s linear;
-    /* Ensure no margin on playfield blocks */
     margin: 0 !important;
 }
 
@@ -302,8 +335,8 @@ body {
   width: 65px;
   height: 0;
   border: 1px solid #C4C4C4;
-  margin: 3px;
-  display:inline-block;
+  margin: 3px auto 5px auto; /* Added auto for horizontal centering and bottom margin */
+  display:block; /* Ensure it takes up its own line */
 }
 
 .preview-block {
@@ -325,26 +358,24 @@ body {
 @media (max-width: 600px) {
     #stats-area {
         font-size: 1em;
-        /* flex-wrap: wrap; // Removed as rows handle wrapping better */
     }
      .stats-row {
-        flex-wrap: wrap; /* Allow items within a row to wrap if necessary */
+        flex-wrap: wrap;
     }
-    #timer-area-container { /* Adjusted to target the container */
-        flex-basis: 100%; /* Timer takes full width if stats wrap */
+    #timer-area-container {
+        flex-basis: 100%;
         margin-top: 5px;
     }
 }
 @media (max-width: 300px) {
     #stats-area {
         font-size: 0.9em;
-        /* flex-wrap: wrap; // Removed as rows handle wrapping better */
     }
      .stats-row {
-        flex-wrap: wrap; /* Allow items within a row to wrap if necessary */
+        flex-wrap: wrap;
     }
-    #timer-area-container { /* Adjusted to target the container */
-        flex-basis: 100%; /* Timer takes full width if stats wrap */
+    #timer-area-container {
+        flex-basis: 100%;
         margin-top: 5px;
     }
     #time-bar-container {
@@ -360,7 +391,7 @@ body {
                 <h2>Falling Tile Matching</h2>
                 <button id="relax-mode-btn">Relax Mode</button>
                 <button id="timed-mode-btn">Timed Mode</button>
-                <button id="pressure-mode-btn">Panic Mode</button>
+                <button id="pressure-mode-btn">Pressure Mode</button>
                 <button id="how-to-play-btn">How to Play</button>
             </div>
         </div>
@@ -379,13 +410,14 @@ body {
                     <li>The placed blocks will fall to the lowest available position in their columns.</li>
                     <li>When 4 or more blocks of the same color are touching (not diagonally), they will clear, and you'll earn points.</li>
                     <li>Clearing multiple groups with one placement increases your combo for more points!</li>
+                    <li>Use the "Save" button to swap the current pair with a saved pair. If no pair is saved, the current pair will be stored.</li>
                     <li>The game is over when there are no valid empty spots left to place a pair of blocks.</li>
                 </ul>
                 <p><strong>Game Modes:</strong></p>
                 <ul>
                     <li><strong>Relax Mode:</strong> Play at your own pace. No timers!</li>
                     <li><strong>Timed Mode:</strong> Score as many points as you can before the 100-second timer runs out.</li>
-                    <li><strong>Panic Mode:</strong> You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at a random empty column.</li>
+                    <li><strong>Pressure Mode:</strong> You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at a random empty column.</li>
                 </ul>
                 <button id="close-how-to-play-btn">Got it!</button>
             </div>
@@ -425,7 +457,14 @@ body {
                             <div class="block primary-block" id="next-primary"></div>
                         </div>
                     </div>
-					<br><button id="end-game-btn">End Game</button>
+                    <button id="save-pair-btn" style="display: none;">
+                        <span class="save-btn-text">Save</span>
+                        <div class="save-btn-blocks-container">
+                            <div id="saved-secondary-preview" class="block"></div>
+                            <div id="saved-primary-preview" class="block"></div>
+                        </div>
+                    </button>
+                    <button id="end-game-btn">End Game</button>
                 </div>
                 <div id="playfield-container">
                     <div id="playfield">
@@ -461,9 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const endgameBtn = document.getElementById('end-game-btn');
 
     const scoreDisplay = document.getElementById('score');
-    const highscoreDisplay = document.getElementById('highscore'); // New element for high score in stats
+    const highscoreDisplay = document.getElementById('highscore');
     const comboDisplay = document.getElementById('combo');
-    const timerAreaContainer = document.getElementById('timer-area-container'); // Updated ID
+    const timerAreaContainer = document.getElementById('timer-area-container');
     const timeLeftDisplay = document.getElementById('time-left');
     const timeBar = document.getElementById('time-bar');
 
@@ -471,6 +510,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSecondaryDisplay = document.getElementById('current-secondary');
     const nextPrimaryDisplay = document.getElementById('next-primary');
     const nextSecondaryDisplay = document.getElementById('next-secondary');
+
+    // Save Pair Elements
+    const savePairBtn = document.getElementById('save-pair-btn');
+    const savedPrimaryDisplay = document.getElementById('saved-primary-preview');
+    const savedSecondaryDisplay = document.getElementById('saved-secondary-preview');
 
     const playfieldElement = document.getElementById('playfield');
     const playfieldContainer = document.getElementById('playfield-container');
@@ -488,23 +532,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const COLORS = ['green', 'blue', 'red', 'purple', 'orange'];
     const FALL_SPEED = 50; // ms per row
     const TIMED_MODE_DURATION = 100 * 1000;
-    const PRESSURE_MODE_INITIAL_TIME = 10 * 1000; // 10 seconds in ms
-    const PRESSURE_MODE_DECREMENT = 100; // 0.1 seconds in ms
-    const PRESSURE_MODE_MIN_TIME = 500; // 0.5 seconds in ms
+    const PRESSURE_MODE_INITIAL_TIME = 10 * 1000;
+    const PRESSURE_MODE_DECREMENT = 100;
+    const PRESSURE_MODE_MIN_TIME = 500;
 	const PRESSURE_MODE_THRESHOLD_TIME = 1700;
     const GRID_PADDING = 2;
     const GRID_GAP = 2;
 
 
     // Game State Variables
-    let gameMode = ''; // 'relax', 'timed', 'pressure'
+    let gameMode = '';
     let score = 0;
-    let currentHighScore = 0; // To store the high score for the current mode
+    let currentHighScore = 0;
     let combo = 0;
     let maxcombo = 0;
     let playfield = [];
     let currentPair = { primary: null, secondary: null };
     let nextPair = { primary: null, secondary: null };
+    let savedPair = { primary: null, secondary: null }; // Added for saved pair
     let cellSize = 40;
     let allowInput = false;
     let isFalling = false;
@@ -535,47 +580,81 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverModal.style.display = 'none';
         howToPlayModal.style.display = 'none';
         gameInterface.style.display = 'flex';
+        savePairBtn.style.display = 'flex'; // Show save button
 
-        // Reset game over message visibility
         finalScoreLine.style.display = 'block';
         highscoreMessageLine.style.display = 'none';
         maxcomboLine.style.display = 'none';
 
-	if (gameMode === 'timed') {
+        if (gameMode === 'timed') {
             timerAreaContainer.style.display = 'flex';
-            allowInput = true; // Player has control at the start
+            allowInput = true;
             startTimedModeTimer();
         } else if (gameMode === 'pressure') {
             timerAreaContainer.style.display = 'flex';
-            allowInput = true; // Player has control at the start
+            allowInput = true;
             startPressureTurnTimer();
-        } else { // Relax mode
+        } else {
             timerAreaContainer.style.display = 'none';
-            allowInput = true; // Player has control
+            allowInput = true;
         }
-	playfieldContainer.style.marginBottom = '15px';
+	    playfieldContainer.style.marginBottom = '15px';
 
         score = 0;
         combo = 0;
         maxcombo = 0;
-        //currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
-        currentHighScore = getHighScore(gameMode); // Load high score for the current mode
+        currentHighScore = getHighScore(gameMode);
         updateScoreDisplay();
-        highscoreDisplay.textContent = currentHighScore; // Display high score in stats
+        highscoreDisplay.textContent = currentHighScore;
         updateComboDisplay();
         clearPlayfield();
         generatePlayfieldCells();
-        adjustCellSize();
-        generateNewPair();
-        generateNewPair();
-        updatePreviewDisplays();
+		savedPair = { primary: null, secondary: null }; // Reset saved pair
+        adjustCellSize(); // Calls updateSavedPairDisplay internally now
+
+        
+        // updateSavedPairDisplay(); // Called by adjustCellSize
+
+        generateNewPair(); // currentPair = nextPair (null initially), nextPair = random; currentPair becomes random due to safeguard
+        generateNewPair(); // currentPair = first random, nextPair = second random
+        updatePreviewDisplays(); // Ensure initial current/next are shown
+        
         allowInput = true;
         isFalling = false;
 
         console.log("Game initialized in mode:", gameMode, ", High Score:", currentHighScore);
     }
 
-function adjustCellSize() {
+    function updateSavedPairDisplay() {
+        const nextPairBlockSize = Math.max(15, Math.floor(cellSize * 0.85));
+
+        if (!savedPrimaryDisplay || !savedSecondaryDisplay) return;
+
+        const basePrimaryClass = 'block primary-block';
+        const baseSecondaryClass = 'block secondary-block';
+        const emptySlotColor = '#bdbdbd';
+
+        if (savedPair && savedPair.primary) {
+            savedPrimaryDisplay.className = `${basePrimaryClass} ${savedPair.primary}`;
+            savedSecondaryDisplay.className = `${baseSecondaryClass} ${savedPair.secondary}`;
+            savedPrimaryDisplay.style.backgroundColor = '';
+            savedSecondaryDisplay.style.backgroundColor = '';
+        } else {
+            savedPrimaryDisplay.className = basePrimaryClass;
+            savedSecondaryDisplay.className = baseSecondaryClass;
+            savedPrimaryDisplay.style.backgroundColor = emptySlotColor;
+            savedSecondaryDisplay.style.backgroundColor = emptySlotColor;
+        }
+
+        [savedPrimaryDisplay, savedSecondaryDisplay].forEach(b => {
+            b.style.width = `${nextPairBlockSize}px`;
+            b.style.height = `${nextPairBlockSize}px`;
+            b.style.borderRadius = `${Math.floor(nextPairBlockSize * 0.2)}px`;
+        });
+    }
+
+
+    function adjustCellSize() {
         const playfieldPaddingAndGapsHorizontal = 4 + (COLS - 1) * 2;
         const playfieldPaddingAndGapsVertical = 4 + (ROWS - 1) * 2;
 
@@ -607,6 +686,9 @@ function adjustCellSize() {
             b.style.height = `${nextPairBlockSize}px`;
             b.style.borderRadius = `${Math.floor(nextPairBlockSize * 0.2)}px`;
         });
+        
+        // Update saved pair display as well, since its blocks are based on nextPairBlockSize
+        updateSavedPairDisplay();
 
         playfieldElement.style.width = `${COLS * cellSize + (COLS - 1) * 2}px`;
         playfieldElement.style.height = `${ROWS * cellSize + (ROWS - 1) * 2}px`;
@@ -642,33 +724,37 @@ function adjustCellSize() {
     }
 
     function generateNewPair() {
-        currentPair = nextPair;
-        nextPair = {
+        currentPair = nextPair; // currentPair becomes what nextPair was
+        nextPair = {            // A new nextPair is generated
             primary: getRandomColor(),
             secondary: getRandomColor()
         };
-        if (!currentPair.primary) {
+        // Safeguard: if the game just started and nextPair was null, currentPair might be null.
+        if (!currentPair.primary) { // This handles the very first pair generation.
             currentPair = {
                 primary: getRandomColor(),
                 secondary: getRandomColor()
             };
         }
-        updatePreviewDisplays();
+        updatePreviewDisplays(); // Update visual for current and next
     }
 
     function updatePreviewDisplays() {
-        currentPrimaryDisplay.className = `block primary-block ${currentPair.primary}`;
-        currentSecondaryDisplay.className = `block secondary-block ${currentPair.secondary}`;
-
-        nextPrimaryDisplay.className = `block primary-block ${nextPair.primary}`;
-        nextSecondaryDisplay.className = `block secondary-block ${nextPair.secondary}`;
+        if (currentPair.primary) {
+            currentPrimaryDisplay.className = `block primary-block ${currentPair.primary}`;
+            currentSecondaryDisplay.className = `block secondary-block ${currentPair.secondary}`;
+        }
+        if (nextPair.primary) {
+            nextPrimaryDisplay.className = `block primary-block ${nextPair.primary}`;
+            nextSecondaryDisplay.className = `block secondary-block ${nextPair.secondary}`;
+        }
     }
 
     // --- Player Input ---
     playfieldElement.addEventListener('mousedown', handleDragStart);
     playfieldElement.addEventListener('touchstart', handleDragStart, { passive: false });
 
-function handleDragStart(e) {
+    function handleDragStart(e) {
     if (!allowInput || isFalling) return;
     e.preventDefault();
 
@@ -826,41 +912,15 @@ async function handleDragEnd(e) {
             id: Date.now() + '_s'
         };
         const animateBlockFall = async (blockInfo) => {
-            // Calculate the top and left position for the block in its target cell
             const targetTopPosition = GRID_PADDING + (blockInfo.finalRow * cellSize) + (blockInfo.finalRow * GRID_GAP);
             const targetLeftPosition = GRID_PADDING + (blockInfo.finalCol * cellSize) + (blockInfo.finalCol * GRID_GAP);
-
-            // Create the visual block element
             const visualBlock = createVisualBlock(blockInfo.color, blockInfo.finalRow, blockInfo.finalCol, blockInfo.isPrimary, blockInfo.id);
-
-            // Set the block's position directly to the target cell's position
             visualBlock.style.top = `${targetTopPosition}px`;
             visualBlock.style.left = `${targetLeftPosition}px`;
-            visualBlock.style.opacity = '1'; // Ensure it's fully visible
-
-            // IMPORTANT: Temporarily remove the transition property.
-            // This prevents the block from animating from its default starting position
-            // (which might be 0,0 or inherited) when it's first added to the DOM.
-            //visualBlock.style.transition = 'none';
-
-            // Add the block to the playfield
+            visualBlock.style.opacity = '1';
             playfieldElement.appendChild(visualBlock);
-
-            // Force a reflow. This makes the browser apply the 'none' transition
-            // and the correct initial position *before* we re-enable transitions.
             void visualBlock.offsetWidth;
-
-            // Re-enable the transition property for future animations (like gravity)
-            // Make sure this matches the transition duration defined in your CSS for .playfield-block top property
-            // If you changed the falling speed as discussed before, use that new duration here.
-            //visualBlock.style.transition = 'top 0.25s linear, left 0.06s linear, opacity 0.2s linear'; // <-- Adjust '0.06s' if you changed falling speed
-
-
-            // We no longer need to wait for a transition to finish in this function,
-            // as the block is placed instantly.
-            // The await in handleDragEnd before handleGravityAndMatches()
-            // now simply ensures the blocks are in the DOM before gravity starts.
-            return visualBlock; // Return the block element (optional, but good practice)
+            return visualBlock;
         };
 
         playfield[pBlockData.finalRow][pBlockData.finalCol] = { color: pBlockData.color, isPrimary: pBlockData.isPrimary, id: pBlockData.id };
@@ -873,11 +933,11 @@ async function handleDragEnd(e) {
 
         if (gameMode === 'pressure') {
             clearTimeout(pressureTimerInterval);
-            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
+             currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
 			console.log(currentPressureTimeLimit);
         }
 
-        generateNewPair();
+        generateNewPair(); // Generate the next pair to be ready
         await handleGravityAndMatches();
     }
 
@@ -943,9 +1003,9 @@ async function handleDragEnd(e) {
             matchesFound = await findAndClearMatches();
             if (matchesFound > 0) {
                 combo = combo === 0 ? 1 : combo + 1;
-		maxcombo = Math.max(maxcombo, combo);
-		if (combo < 4) score += matchesFound * Math.pow(2,combo-1);
-		else score += matchesFound * 8 * (combo-3);
+		        maxcombo = Math.max(maxcombo, combo);
+		        if (combo < 4) score += matchesFound * Math.pow(2,combo-1);
+		        else score += matchesFound * 8 * (combo-3);
                 updateScoreDisplay();
                 updateComboDisplay();
                 do {
@@ -969,7 +1029,6 @@ async function handleDragEnd(e) {
 
 async function applyGravity() {
     let blocksFell = false;
-    // Variable to track the maximum fall distance in this gravity pass
     let maxFallDistanceInPass = 0;
 
     for (let c = 0; c < COLS; c++) {
@@ -986,35 +1045,18 @@ async function applyGravity() {
 
                 if (fallDistance > 0) {
                     const blockData = playfield[r][c];
-                    // Update playfield array (move block to its new logical position)
                     playfield[r + fallDistance][c] = blockData;
                     playfield[r][c] = null;
                     blocksFell = true;
-
-                    // Update the maximum fall distance seen in this pass
                     maxFallDistanceInPass = Math.max(maxFallDistanceInPass, fallDistance);
 
                     const visualBlock = playfieldElement.querySelector(`.playfield-block[data-id="${blockData.id}"]`);
                     if (visualBlock) {
-                        // Calculate the new visual top position
                         const newTop = GRID_PADDING + (r + fallDistance) * cellSize + (r + fallDistance) * GRID_GAP;
-
-                        // --- Dynamically calculate and set the transition duration ---
-                        // FALL_SPEED is in milliseconds (e.g., 60ms = 0.06s per row)
-                        // We want fallDistance * (speed per row in seconds)
-                        const fallDuration = fallDistance * (FALL_SPEED / 1000); // Duration in seconds
-
-                        // Get existing transitions (like left and opacity) to preserve them
+                        const fallDuration = fallDistance * (FALL_SPEED / 1000);
                         const currentTransitions = visualBlock.style.transition.split(',').map(t => t.trim()).filter(t => t !== '');
-                        // Remove the old 'top' transition if it exists
                         const otherTransitions = currentTransitions.filter(t => !t.startsWith('top'));
-
-                        // Set the new transition property with the dynamic duration for 'top'
-                        // and include any other existing transitions
                         visualBlock.style.transition = `top ${fallDuration.toFixed(3)}s linear${otherTransitions.length > 0 ? ', ' + otherTransitions.join(', ') : ''}`;
-
-                        // --- Apply the new visual top position ---
-                        // The CSS transition we just set will animate the movement over the calculated duration
                         visualBlock.style.top = `${newTop}px`;
                     }
                 }
@@ -1023,15 +1065,9 @@ async function applyGravity() {
     }
 
     if (blocksFell) {
-        // --- Adjust the waiting time ---
-        // We need to wait long enough for the longest fall animation in this pass to finish.
-        // The duration of the longest fall is maxFallDistanceInPass * (FALL_SPEED / 1000) seconds.
-        // Convert this duration back to milliseconds for setTimeout and add a small buffer.
-        const waitDuration = maxFallDistanceInPass * (FALL_SPEED / 1000) * 1000 + 50; // Add a 50ms buffer
+        const waitDuration = maxFallDistanceInPass * FALL_SPEED + 50; // Simplified: maxFallDistance * time_per_row + buffer
         await new Promise(resolve => setTimeout(resolve, waitDuration));
     }
-
-    // Return whether any blocks fell in this pass
     return blocksFell;
 }
 
@@ -1057,10 +1093,8 @@ async function findAndClearMatches() {
            ) {
             return;
         }
-
         visited[r][c] = true;
         currentGroup.add(`${r}-${c}`);
-
         const neighbors = getNeighbors(r, c);
         for (const neighbor of neighbors) {
             searchN(neighbor.r, neighbor.c, color, currentGroup);
@@ -1072,7 +1106,6 @@ async function findAndClearMatches() {
             if (playfield[r][c] && !visited[r][c]) {
                 const currentGroup = new Set();
                 searchN(r, c, playfield[r][c].color, currentGroup);
-
                 if (currentGroup.size >= 4) {
                     currentGroup.forEach(cellString => toClearSet.add(cellString));
                 }
@@ -1082,7 +1115,6 @@ async function findAndClearMatches() {
 
     if (toClearSet.size > 0) {
         const clearPromises = [];
-
         toClearSet.forEach(cellString => {
             const [r_str, c_str] = cellString.split('-');
             const r = parseInt(r_str, 10);
@@ -1101,9 +1133,7 @@ async function findAndClearMatches() {
                 }
             }
         });
-
         await Promise.all(clearPromises);
-
         toClearSet.forEach(cellString => {
             const [r_str, c_str] = cellString.split('-');
             const r = parseInt(r_str, 10);
@@ -1112,7 +1142,6 @@ async function findAndClearMatches() {
                  playfield[r][c] = null;
             }
         });
-
         return toClearSet.size;
     }
     return 0;
@@ -1123,24 +1152,16 @@ async function findAndClearMatches() {
     function startTimedModeTimer() {
         remainingTimedModeTime = TIMED_MODE_DURATION;
         updateTimerDisplay(remainingTimedModeTime);
-
         if (gameTimerInterval) clearInterval(gameTimerInterval);
         gameTimerInterval = setInterval(() => {
             if (gameMode !== 'timed') {
                 clearInterval(gameTimerInterval);
                 return;
             }
-
-            // MODIFIED BLOCK: Only decrement timer if allowInput is true
             if (!allowInput) {
-                // console.log("Timed Mode Timer tick: PAUSED (allowInput is false)"); // Optional log
-                return; // Timer is "paused" because game is processing
+                return; 
             }
-            // console.log("Timed Mode Timer tick: RUNNING (allowInput is true)"); // Optional log
-            // END MODIFIED BLOCK
-
             remainingTimedModeTime -= 100;
-
             if (remainingTimedModeTime <= 0) {
                 remainingTimedModeTime = 0;
                 clearInterval(gameTimerInterval);
@@ -1150,18 +1171,14 @@ async function findAndClearMatches() {
                 updateTimerDisplay(remainingTimedModeTime);
             }
         }, 100);
-        // console.log("Timed Mode Timer STARTED"); // MODIFIED: Log for debugging
     }
 
     function startPressureTurnTimer() {
         pressureTurnStartTime = Date.now();
         updateTimerDisplay(currentPressureTimeLimit);
-
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
-		//console.log("Start timer for",currentPressureTimeLimit,"ms");
         pressureTimerInterval = setTimeout(() => {
             if (!allowInput) return;
-            //console.log("Pressure mode timeout!");
             autoPlacePressureBlock();
         }, currentPressureTimeLimit);
 
@@ -1180,7 +1197,6 @@ async function findAndClearMatches() {
                  updateTimerDisplay(Math.max(0, remainingTime));
                  requestAnimationFrame(updatePressureBar);
             }
-		
         }
         requestAnimationFrame(updatePressureBar);
     }
@@ -1189,7 +1205,6 @@ async function findAndClearMatches() {
     function updateTimerDisplay(ms) {
         const seconds = (ms / 1000).toFixed(1);
         timeLeftDisplay.textContent = `${seconds}`;
-
         let percentage = 100;
         if (gameMode === 'timed') {
             percentage = (ms / TIMED_MODE_DURATION) * 100;
@@ -1205,91 +1220,63 @@ async function findAndClearMatches() {
         else timeBar.style.backgroundColor = '#4CAF50';
     }
 
-    // Make autoPlacePressureBlock asynchronous because it needs to await handleGravityAndMatches
-    // Make autoPlacePressureBlock asynchronous as it awaits handleGravityAndMatches
     async function autoPlacePressureBlock() {
-        // Add a check to prevent auto-placement if player input is already being processed
         if (!allowInput) {
             console.log("Auto-place skipped: input not allowed.");
             return;
         }
-
         console.log("Pressure mode timeout! Attempting auto-placement.");
-
-        // --- Disable input immediately when timeout occurs ---
         allowInput = false;
-        removePlacementPreview(); // Remove any preview the player might have
+        removePlacementPreview(); 
 
-
-        // --- Find available columns for a vertical pair placement at the top ---
-        // A vertical pair (secondary at row 0, primary at row 1) needs both row 0 and row 1 to be empty in a column.
         const availableColumns = [];
         for (let c = 0; c < COLS; c++) {
-            // Check if the top two cells in this column are empty
             if (isValidCell(0, c) && !playfield[0][c] && isValidCell(1, c) && !playfield[1][c]) {
                 availableColumns.push(c);
             }
         }
 
-        // --- Check if any columns are available for placement ---
         if (availableColumns.length === 0) {
-            // If no columns have empty space at the top for a vertical pair, it's game over
-            console.log("No available columns with space at the top for auto-placement. Game over.");
-            handleGameOver(); // Trigger game over
-            return; // Stop the function execution
+            console.log("No available columns for auto-placement. Game over.");
+            handleGameOver(); 
+            return; 
         }
 
-        // --- Select a random available column ---
         const randomColumnIndex = Math.floor(Math.random() * availableColumns.length);
         const chosenCol = availableColumns[randomColumnIndex];
-
-        // --- Define placement positions for the vertical pair (primary below secondary) ---
-        const secondaryRow = 0; // Secondary block goes in the top row (row 0)
-        const primaryRow = 1;   // Primary block goes in the row below (row 1)
+        const secondaryRow = 0; 
+        const primaryRow = 1;  
         const primaryCol = chosenCol;
         const secondaryCol = chosenCol;
 
-        // At this point, we know the chosen column's top two cells are empty,
-        // so the placement in the array is valid.
-
-        // --- Proceed with placement logic ---
-        // Reset combo on auto-placement
         combo = 0;
         updateComboDisplay();
 
-        // Define block data for the auto-placed pair
         let pBlockData = {
-            finalRow: primaryRow, // Will be 1
-            finalCol: primaryCol, // Will be chosenCol
+            finalRow: primaryRow, 
+            finalCol: primaryCol, 
             color: currentPair.primary,
-            isPrimary: true, // This block has the '×'
+            isPrimary: true, 
             id: Date.now() + '_ap_p'
         };
         let sBlockData = {
-            finalRow: secondaryRow, // Will be 0
-            finalCol: secondaryCol, // Will be chosenCol
+            finalRow: secondaryRow, 
+            finalCol: secondaryCol, 
             color: currentPair.secondary,
             isPrimary: false,
             id: Date.now() + '_ap_s'
         };
 
-        // Update the playfield array with the new blocks
         playfield[pBlockData.finalRow][pBlockData.finalCol] = { color: pBlockData.color, isPrimary: pBlockData.isPrimary, id: pBlockData.id };
         playfield[sBlockData.finalRow][sBlockData.finalCol] = { color: sBlockData.color, isPrimary: sBlockData.isPrimary, id: sBlockData.id };
 
-        // --- Create and add visual blocks instantly at their placed position ---
-        // (Using the instant placement logic from the previous fix)
          await Promise.all([
             (async (data) => {
                 const visualBlock = createVisualBlock(data.color, data.finalRow, data.finalCol, data.isPrimary, data.id);
-                // Temporarily remove transition for instant placement
                 visualBlock.style.transition = 'none';
                 playfieldElement.appendChild(visualBlock);
-                // Force reflow to apply the non-transitioned style
                 void visualBlock.offsetWidth;
-                // Re-enable transition for gravity falls (match CSS or dynamic if implemented)
-                // Use the same transition duration as your regular falling blocks
-                visualBlock.style.transition = 'top 0.05s linear, left 0.06s linear, opacity 0.2s linear'; // <-- Adjust if you have dynamic falling speed logic
+                visualBlock.style.transition = 'top 0.05s linear, left 0.06s linear, opacity 0.2s linear';
                 return visualBlock;
             })(pBlockData),
              (async (data) => {
@@ -1297,30 +1284,19 @@ async function findAndClearMatches() {
                 visualBlock.style.transition = 'none';
                 playfieldElement.appendChild(visualBlock);
                 void visualBlock.offsetWidth;
-                visualBlock.style.transition = 'top 0.05s linear, left 0.06s linear, opacity 0.2s linear'; // <-- Adjust if you have dynamic falling speed logic
+                visualBlock.style.transition = 'top 0.05s linear, left 0.06s linear, opacity 0.2s linear';
                 return visualBlock;
             })(sBlockData)
         ]);
-
-
-        // Update the pressure time limit for the next turn
          currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
 
-
-        // Generate the next pair *after* the placement
         generateNewPair();
-
-        // --- Handle gravity and matches ---
-        // Await this to ensure all falling and clearing animations complete
         await handleGravityAndMatches();
 
-        // --- After gravity/matches, re-enable input and restart the timer ---
-        // Check if the game is over *after* handleGravityAndMatches
         if (isGameOver()) {
-             handleGameOver(); // Trigger game over if the board is full after gravity/matches
+             handleGameOver(); 
         } else {
-             allowInput = true; // Re-enable player input
-             // Restart the pressure timer for the next turn
+             allowInput = true; 
              startPressureTurnTimer();
         }
     }
@@ -1328,25 +1304,21 @@ async function findAndClearMatches() {
 
     // --- Game Over & Restart ---
     function isGameOver() {
-        // Original game over condition for pressure mode (column 3 full at top) is tricky
-        // Let's simplify: if the auto-place target is full AND no other moves are possible.
-        // The more general check is if any valid pair placement is possible.
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 if (!playfield[r][c]) {
-                    // Check neighbors for an empty spot for the second block
-                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // Up, Down, Left, Right
+                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]; 
                     for (const [dr, dc] of dirs) {
-                        const sr = r + dr; // Secondary row
-                        const sc = c + dc; // Secondary col
+                        const sr = r + dr; 
+                        const sc = c + dc; 
                         if (isValidCell(sr, sc) && !playfield[sr][sc]) {
-                            return false; // Found a valid placement
+                            return false; 
                         }
                     }
                 }
             }
         }
-        return true; // No valid pair placement found anywhere
+        return true; 
     }
 
     function handleGameOver() {
@@ -1357,7 +1329,7 @@ async function findAndClearMatches() {
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
 
         finalScoreDisplay.textContent = score;
-        finalScoreLine.style.display = 'block'; // Ensure score line is visible
+        finalScoreLine.style.display = 'block'; 
 
         maxcomboDisplay.textContent = maxcombo;
         maxcomboLine.style.display = 'block';
@@ -1367,15 +1339,15 @@ async function findAndClearMatches() {
             setHighScore(gameMode, score);
             highscoreMessageLine.innerHTML = "New High Score!";
             highscoreMessageLine.style.display = 'block';
-            finalHighscoreDisplay.textContent = score; // Show new high score
-            currentHighScore = score; // Update runtime high score
+            finalHighscoreDisplay.textContent = score; 
+            currentHighScore = score; 
         } else {
             highscoreMessageLine.innerHTML = `High Score: <span id="final-highscore">${oldHighScore}</span>`;
             highscoreMessageLine.style.display = 'block';
             finalHighscoreDisplay.textContent = oldHighScore;
         }
 
-        gameInterface.style.display = 'flex';
+        gameInterface.style.display = 'flex'; // Keep interface visible for modal
         gameOverModal.style.display = 'flex';
     }
 
@@ -1418,18 +1390,35 @@ async function findAndClearMatches() {
     mainmenuBtn.addEventListener('click', () => {
         gameOverModal.style.display = 'none';
         gameInterface.style.display = 'none';
+        savePairBtn.style.display = 'none'; // Hide save button when going to main menu
         modeSelectionModal.style.display = 'flex';
 		allowInput = false;
     });
 
     endgameBtn.addEventListener('click', () => {
 		handleGameOver();
-        updateScoreDisplay();
-        updateComboDisplay();
+        // updateScoreDisplay and updateComboDisplay are called within handleGameOver or subsequent logic
+    });
+
+    savePairBtn.addEventListener('click', () => {
+        if (!allowInput || isFalling) return;
+
+        if (!savedPair || !savedPair.primary) { // No pair saved yet
+            savedPair = { ...currentPair }; // Save the current pair
+            generateNewPair(); // Advances next to current, and generates a new next
+        } else { // A pair is already saved, so swap
+            const tempCurrentPair = { ...currentPair };
+            currentPair = { ...savedPair };
+            savedPair = tempCurrentPair;
+        }
+
+        updatePreviewDisplays();    // Update current and next pair visuals in the preview area
+        updateSavedPairDisplay();   // Update the saved pair visual in the save button
     });
 
     // Initial setup: Show mode selection
     modeSelectionModal.style.display = 'flex';
+    savePairBtn.style.display = 'none'; // Ensure save button is hidden initially
     allowInput = false;
 });
 </script>
