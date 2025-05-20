@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Falling Tile Matching Game</title>
+    <title id="page-title">Falling Tile Matching Game</title>
     <style>
 body {
     font-family: Arial, sans-serif;
@@ -108,6 +108,28 @@ body {
 #how-to-play-btn:hover {
     background-color: #1c7cd6; /* Darker blue on hover */
 }
+
+.language-selector-container {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.language-selector-container label {
+    margin-right: 8px;
+    font-size: 1em;
+    color: #555;
+}
+
+.language-selector-container select {
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+}
+
 
 /* Game Interface Styles */
 #game-interface {
@@ -387,36 +409,43 @@ body {
     <div id="game-container">
         <div id="mode-selection-modal" class="modal">
             <div class="modal-content">
-                <h2>Falling Tile Matching</h2>
+                <h2 id="main-menu-title">Falling Tile Matching</h2>
                 <button id="relax-mode-btn">Relax Mode</button>
                 <button id="timed-mode-btn">Timed Mode</button>
                 <button id="pressure-mode-btn">Pressure Mode</button>
                 <button id="how-to-play-btn">How to Play</button>
+                <div class="language-selector-container">
+                    <label for="language-selector" id="language-label">Language:</label>
+                    <select id="language-selector">
+                        <option value="en">English</option>
+                        <option value="vi">Tiếng Việt</option>
+                    </select>
+                </div>
             </div>
         </div>
 
 
         <div id="how-to-play-modal" class="modal" style="display: none;">
             <div class="modal-content">
-                <h2>How to Play</h2>
-                <p><strong>Objective:</strong> Score points by matching groups of 4 or more same-colored blocks!</p>
+                <h2 id="htp-title">How to Play</h2>
+                <p><span id="htp-objective-label-strong"><strong>Objective:</strong></span> <span id="htp-objective-text">Score points by matching groups of 4 or more same-colored blocks!</span></p>
 
-                <p><strong>Gameplay:</strong></p>
+                <p><strong id="htp-gameplay-label">Gameplay:</strong></p>
                 <ul>
-                    <li>You'll see a pair of blocks (NOW pair) and the Next pair that will come after. The block with the '×' is the primary block.</li>
-                    <li>To place blocks, tap (click) on an empty cell in the playfield. This will be the position of the primary block.</li>
-                    <li>Drag your finger (mouse) away from the primary block (up, down, left, or right) to position the secondary block next to it.<br>Release to place the pair.</li>
-                    <li>The placed blocks will fall to the lowest available position in their columns.</li>
-                    <li>When 4 or more blocks of the same color are touching (not diagonally), they will clear, and you'll earn points.</li>
-                    <li>Clearing multiple groups with one placement increases your combo for more points!</li>
-                    <li>Use the "Save" button to swap the current pair with a saved pair. If no pair is saved, the current pair will be stored.</li>
-                    <li>The game is over when there are no valid empty spots left to place a pair of blocks.</li>
+                    <li id="htp-gameplay-rule1"></li>
+                    <li id="htp-gameplay-rule2"></li>
+                    <li id="htp-gameplay-rule3"></li>
+                    <li id="htp-gameplay-rule4"></li>
+                    <li id="htp-gameplay-rule5"></li>
+                    <li id="htp-gameplay-rule6"></li>
+                    <li id="htp-gameplay-rule7"></li>
+                    <li id="htp-gameplay-rule8"></li>
                 </ul>
-                <p><strong>Game Modes:</strong></p>
+                <p><strong id="htp-gamemodes-label">Game Modes:</strong></p>
                 <ul>
-                    <li><strong>Relax Mode:</strong> Play at your own pace. No timers!</li>
-                    <li><strong>Timed Mode:</strong> Score as many points as you can before the 100-second timer runs out.</li>
-                    <li><strong>Pressure Mode:</strong> You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at a random empty column.</li>
+                    <li><strong id="htp-relaxmode-label">Relax Mode:</strong> <span id="htp-relaxmode-desc"></span></li>
+                    <li><strong id="htp-timedmode-label">Timed Mode:</strong> <span id="htp-timedmode-desc"></span></li>
+                    <li><strong id="htp-pressuremode-label">Pressure Mode:</strong> <span id="htp-pressuremode-desc"></span></li>
                 </ul>
                 <button id="close-how-to-play-btn">Got it!</button>
             </div>
@@ -426,12 +455,12 @@ body {
         <div id="game-interface" style="display: none;">
             <div id="stats-area">
                 <div class="stats-row">
-                    <div id="score-area">Score: <span id="score">0</span></div>
-                    <div id="highscore-area">High Score: <span id="highscore">0</span></div>
-                    <div id="combo-area">Combo <span id="combo">0</span>x</div>
+                    <div id="score-area"><span class="label">Score: </span><span id="score">0</span></div>
+                    <div id="highscore-area"><span class="label">High Score: </span><span id="highscore">0</span></div>
+                    <div id="combo-area"><span class="label">Combo </span><span id="combo-value-display">0x</span></div>
                 </div>
                 <div class="stats-row">
-                    <div id="timer-area-container" style="display: none;">Time:&nbsp;<span id="time-left">0.0</span>s
+                    <div id="timer-area-container" style="display: none;"><span class="label">Time: </span>&nbsp;<span id="time-left">0.0</span>
                         <div id="time-bar-container">
                             <div id="time-bar"></div>
                         </div>
@@ -442,7 +471,7 @@ body {
             <div id="game-display-area">
                 <div id="pairs-preview-area">
                     <div class="pair-container current-pair-container">
-                        <div class="pair-label"><b>NOW</b></div>
+                        <div class="pair-label" id="now-label"><b>NOW</b></div>
                         <div id="current-pair">
                             <div class="block secondary-block" id="current-secondary"></div>
                             <div class="block primary-block" id="current-primary"></div>
@@ -450,14 +479,14 @@ body {
                     </div>
                     <div class="line"></div>
                     <div class="pair-container next-pair-container">
-                        <div class="pair-label">Next</div>
+                        <div class="pair-label" id="next-label">Next</div>
                         <div id="next-pair">
                             <div class="block secondary-block" id="next-secondary"></div>
                             <div class="block primary-block" id="next-primary"></div>
                         </div>
                     </div>
                     <button id="save-pair-btn" style="display: none;">
-                        <span class="save-btn-text">Save</span>
+                        <span class="save-btn-text" id="save-btn-text-label">Save</span>
                         <div class="save-btn-blocks-container">
                             <div id="saved-secondary-preview" class="block"></div>
                             <div id="saved-primary-preview" class="block"></div>
@@ -474,10 +503,10 @@ body {
 
         <div id="game-over-modal" class="modal" style="display: none;">
             <div class="modal-content">
-                <h2>Game Over</h2>
-                <p id="final-score-line">Your Final Score: <span id="final-score">0</span></p>
+                <h2 id="game-over-title">Game Over</h2>
+                <p id="final-score-line"><span class="label">Your Final Score: </span><span id="final-score">0</span></p>
                 <p id="highscore-message-line" style="display: none;">High Score: <span id="final-highscore">0</span></p>
-                <p id="max-combo-line">Max Combo: <span id="max-combo">0</span></p><br>
+                <p id="max-combo-line"><span class="label">Max Combo: </span><span id="max-combo">0</span></p><br>
                 <button id="main-menu-btn">Main Menu</button>
             </div>
         </div>
@@ -500,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scoreDisplay = document.getElementById('score');
     const highscoreDisplay = document.getElementById('highscore');
-    const comboDisplay = document.getElementById('combo');
+    // const comboDisplay = document.getElementById('combo'); // Replaced by combo-value-display
     const timerAreaContainer = document.getElementById('timer-area-container');
     const timeLeftDisplay = document.getElementById('time-left');
     const timeBar = document.getElementById('time-bar');
@@ -510,7 +539,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextPrimaryDisplay = document.getElementById('next-primary');
     const nextSecondaryDisplay = document.getElementById('next-secondary');
 
-    // Save Pair Elements
     const savePairBtn = document.getElementById('save-pair-btn');
     const savedPrimaryDisplay = document.getElementById('saved-primary-preview');
     const savedSecondaryDisplay = document.getElementById('saved-secondary-preview');
@@ -523,6 +551,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const maxcomboLine = document.getElementById('max-combo-line');
     const highscoreMessageLine = document.getElementById('highscore-message-line');
     const finalHighscoreDisplay = document.getElementById('final-highscore');
+
+    // Language Elements
+    const languageSelector = document.getElementById('language-selector');
+    const languageLabel = document.getElementById('language-label');
+    const pageTitleElement = document.getElementById('page-title');
+
+    const mainMenuTitle = document.getElementById('main-menu-title');
+    const htpTitle = document.getElementById('htp-title');
+    const htpObjectiveLabelStrong = document.getElementById('htp-objective-label-strong');
+    const htpObjectiveText = document.getElementById('htp-objective-text');
+    const htpGameplayLabel = document.getElementById('htp-gameplay-label');
+    const htpGameplayRule1 = document.getElementById('htp-gameplay-rule1');
+    const htpGameplayRule2 = document.getElementById('htp-gameplay-rule2');
+    const htpGameplayRule3 = document.getElementById('htp-gameplay-rule3');
+    const htpGameplayRule4 = document.getElementById('htp-gameplay-rule4');
+    const htpGameplayRule5 = document.getElementById('htp-gameplay-rule5');
+    const htpGameplayRule6 = document.getElementById('htp-gameplay-rule6');
+    const htpGameplayRule7 = document.getElementById('htp-gameplay-rule7');
+    const htpGameplayRule8 = document.getElementById('htp-gameplay-rule8');
+    const htpGameModesLabel = document.getElementById('htp-gamemodes-label');
+    const htpRelaxModeLabel = document.getElementById('htp-relaxmode-label');
+    const htpRelaxModeDesc = document.getElementById('htp-relaxmode-desc');
+    const htpTimedModeLabel = document.getElementById('htp-timedmode-label');
+    const htpTimedModeDesc = document.getElementById('htp-timedmode-desc');
+    const htpPressureModeLabel = document.getElementById('htp-pressuremode-label');
+    const htpPressureModeDesc = document.getElementById('htp-pressuremode-desc');
+    const nowLabel = document.getElementById('now-label');
+    const nextLabel = document.getElementById('next-label');
+    const saveBtnTextLabel = document.getElementById('save-btn-text-label');
+    const gameOverTitle = document.getElementById('game-over-title');
 
 
     // Game Constants
@@ -548,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let playfield = [];
     let currentPair = { primary: null, secondary: null };
     let nextPair = { primary: null, secondary: null };
-    let savedPair = { primary: null, secondary: null }; // Added for saved pair
+    let savedPair = { primary: null, secondary: null };
     let cellSize = 40;
     let allowInput = false;
     let isFalling = false;
@@ -562,6 +620,175 @@ document.addEventListener('DOMContentLoaded', () => {
     let secondaryBlockPreview = null;
     let startDragPos = null;
     let startCell = null;
+    let currentLanguage = 'en';
+
+
+    const translations = {
+        en: {
+            pageTitle: "Falling Tile Matching Game",
+            mainMenuTitle: "Falling Tile Matching",
+            relaxMode: "Relax Mode",
+            timedMode: "Timed Mode",
+            pressureMode: "Pressure Mode",
+            howToPlay: "How to Play",
+            languageSelectorLabel: "Language:",
+
+            howToPlayTitle: "How to Play",
+            htpObjectiveLabelStrong: "<strong>Objective:</strong>",
+            htpObjectiveText: "Arrange pairs of blocks and score points by matching groups of 4 or more same-colored blocks!",
+            htpGameplayLabel: "<strong>Gameplay:</strong>",
+            htpGameplayRule1: "You'll see a pair of blocks (NOW pair) and the Next pair that will come after. The block with the '×' is the primary block.",
+            htpGameplayRule2: "To place blocks, tap (click) on an empty cell in the playfield. This will be the position of the primary block.",
+            htpGameplayRule3: "Drag your finger (mouse) away from the primary block (up, down, left, or right) to position the secondary block next to it.<br>Release to place the pair.",
+            htpGameplayRule4: "The placed blocks will fall to the lowest available position in their columns.",
+            htpGameplayRule5: "When 4 or more blocks of the same color are touching (not diagonally), they will form a group and clear, and you'll earn points.",
+            htpGameplayRule6: "Clearing multiple groups and making chain reaction with one placement increases your combo for more points!",
+            htpGameplayRule7: "Use the \"Save\" button to swap the current pair with a saved pair. If no pair is saved, the current pair will be stored.",
+            htpGameplayRule8: "The game is over when there are no valid empty spots left to place a pair of blocks.",
+            htpGameModesLabel: "<strong>Game Modes:</strong>",
+            htpRelaxModeLabel: "<strong>Relax Mode:</strong>",
+            htpRelaxModeDesc: "Play at your own pace. No timers!",
+            htpTimedModeLabel: "<strong>Timed Mode:</strong>",
+            htpTimedModeDesc: "Score as many points as you can before the 100-second timer runs out.",
+            htpPressureModeLabel: "<strong>Pressure Mode:</strong>",
+            htpPressureModeDesc: "You have a limited time to make each move. This time gets shorter with each successful placement!<br>If you run out of time, a pair will be placed for you at a random empty column.",
+            gotIt: "Got it!",
+
+            scoreLabelText: "Score: ",
+            highscoreLabelText: "High Score: ",
+            comboLabelText: "Combo ",
+            timeLabelText: "Time: ",
+
+            nowLabel: "<b>NOW</b>",
+            nextLabel: "Next",
+            saveLabelText: "Save",
+            endGameLabel: "End Game",
+
+            gameOverTitle: "Game Over",
+            finalScoreLabelText: "Your Final Score: ",
+            newHighScoreMsg: "New High Score!",
+            highScoreMsgPrefix: "High Score: ",
+            maxComboLabelText: "Max Combo: ",
+            mainMenuLabel: "Main Menu"
+        },
+        vi: {
+            pageTitle: "Trò chơi xếp cặp khối rơi",
+            mainMenuTitle: "Trò chơi Xếp cặp khối rơi",
+            relaxMode: "Chế độ Thư giãn",
+            timedMode: "Chế độ Tính giờ",
+            pressureMode: "Chế độ Áp lực",
+            howToPlay: "Hướng dẫn chơi",
+            languageSelectorLabel: "Ngôn ngữ:",
+
+            howToPlayTitle: "Hướng dẫn chơi",
+            htpObjectiveLabelStrong: "<strong>Mục tiêu:</strong>",
+            htpObjectiveText: "Xếp các cặp khối được cho và ghi điểm bằng cách ghép thành các nhóm từ 4 khối cùng màu trở lên!",
+            htpGameplayLabel: "<strong>Cách chơi:</strong>",
+            htpGameplayRule1: "Bạn sẽ thấy một cặp khối (cặp HIỆN TẠI) và cặp \"Kế tiếp\" sẽ xuất hiện sau đó. Khối có dấu '×' là khối chính.",
+            htpGameplayRule2: "Để đặt khối, chạm (hoặc nhấp chuột) vào một ô trống trên bảng chơi. Đây sẽ là vị trí của khối chính.",
+            htpGameplayRule3: "Kéo ngón tay (chuột) ra khỏi khối chính theo hướng lên, xuống, trái hoặc phải để định vị khối phụ bên cạnh nó. Thả ra để đặt cặp khối.",
+            htpGameplayRule4: "Các khối đã đặt sẽ rơi xuống vị trí trống thấp nhất trong cột của chúng.",
+            htpGameplayRule5: "Khi có 4 khối cùng màu trở lên ở sát nhau (không theo đường chéo), chúng tạo thành một nhóm và sẽ bị phá, bạn sẽ nhận được điểm.",
+            htpGameplayRule6: "Phá nhiều nhóm, tạo ra phản ứng dây chuyền bằng một lần đặt để tăng chuỗi của bạn và tăng thêm nhiều điểm!",
+            htpGameplayRule7: "Sử dụng nút \"Lưu trữ\" để đổi cặp hiện tại với một cặp đã lưu trữ. Nếu chưa có cặp nào được lưu, cặp hiện tại sẽ được lưu trữ.",
+            htpGameplayRule8: "Trò chơi kết thúc khi không còn ô trống hợp lệ nào để đặt một cặp khối.",
+            htpGameModesLabel: "<strong>Chế độ chơi:</strong>",
+            htpRelaxModeLabel: "<strong>Chế độ Thư giãn:</strong>",
+            htpRelaxModeDesc: "Chơi theo tốc độ của riêng bạn. Không giới hạn thời gian!",
+            htpTimedModeLabel: "<strong>Chế độ Tính giờ:</strong>",
+            htpTimedModeDesc: "Ghi càng nhiều điểm càng tốt trước khi hết 100 giây.",
+            htpPressureModeLabel: "<strong>Chế độ Áp lực:</strong>",
+            htpPressureModeDesc: "Bạn bị giới hạn thời gian thực hiện mỗi nước đi. Thời gian này sẽ ngắn dần sau mỗi lần đặt thành công!<br>Nếu hết giờ, một cặp khối sẽ được tự động đặt vào một cột trống ngẫu nhiên.",
+            gotIt: "Đã hiểu!",
+
+            scoreLabelText: "Điểm: ",
+            highscoreLabelText: "Điểm cao: ",
+            comboLabelText: "Chuỗi ",
+            timeLabelText: "Thời gian: ",
+
+            nowLabel: "<b>HIỆN TẠI</b>",
+            nextLabel: "Kế tiếp",
+            saveLabelText: "Lưu trữ",
+            endGameLabel: "Kết thúc trò chơi",
+
+            gameOverTitle: "Trò chơi kết thúc",
+            finalScoreLabelText: "Điểm của bạn: ",
+            newHighScoreMsg: "Đạt kỷ lục mới!",
+            highScoreMsgPrefix: "Điểm cao: ",
+            maxComboLabelText: "Chuỗi tối đa: ",
+            mainMenuLabel: "Menu chính"
+        }
+    };
+
+    function setLanguage(lang) {
+        currentLanguage = lang;
+        localStorage.setItem('gameLanguage', lang);
+        languageSelector.value = lang;
+
+        const t = translations[lang] || translations.en;
+
+        pageTitleElement.textContent = t.pageTitle;
+        mainMenuTitle.textContent = t.mainMenuTitle;
+        relaxModeBtn.textContent = t.relaxMode;
+        timedModeBtn.textContent = t.timedMode;
+        pressureModeBtn.textContent = t.pressureMode;
+        howToPlayBtn.textContent = t.howToPlay;
+        languageLabel.textContent = t.languageSelectorLabel;
+
+        htpTitle.textContent = t.howToPlayTitle;
+        htpObjectiveLabelStrong.innerHTML = t.htpObjectiveLabelStrong;
+        htpObjectiveText.innerHTML = t.htpObjectiveText;
+        htpGameplayLabel.innerHTML = t.htpGameplayLabel;
+        htpGameplayRule1.innerHTML = t.htpGameplayRule1;
+        htpGameplayRule2.innerHTML = t.htpGameplayRule2;
+        htpGameplayRule3.innerHTML = t.htpGameplayRule3;
+        htpGameplayRule4.innerHTML = t.htpGameplayRule4;
+        htpGameplayRule5.innerHTML = t.htpGameplayRule5;
+        htpGameplayRule6.innerHTML = t.htpGameplayRule6;
+        htpGameplayRule7.innerHTML = t.htpGameplayRule7;
+        htpGameplayRule8.innerHTML = t.htpGameplayRule8;
+        htpGameModesLabel.innerHTML = t.htpGameModesLabel;
+        htpRelaxModeLabel.innerHTML = t.htpRelaxModeLabel;
+        htpRelaxModeDesc.innerHTML = t.htpRelaxModeDesc;
+        htpTimedModeLabel.innerHTML = t.htpTimedModeLabel;
+        htpTimedModeDesc.innerHTML = t.htpTimedModeDesc;
+        htpPressureModeLabel.innerHTML = t.htpPressureModeLabel;
+        htpPressureModeDesc.innerHTML = t.htpPressureModeDesc;
+        closeHowToPlayBtn.textContent = t.gotIt;
+
+        document.querySelector('#score-area .label').textContent = t.scoreLabelText;
+        document.querySelector('#highscore-area .label').textContent = t.highscoreLabelText;
+        document.querySelector('#combo-area .label').textContent = t.comboLabelText; // updateComboDisplay will handle value
+        document.querySelector('#timer-area-container .label').textContent = t.timeLabelText;
+
+        nowLabel.innerHTML = t.nowLabel;
+        nextLabel.textContent = t.nextLabel;
+        saveBtnTextLabel.textContent = t.saveLabelText;
+        endgameBtn.textContent = t.endGameLabel;
+
+        gameOverTitle.textContent = t.gameOverTitle;
+        document.querySelector('#final-score-line .label').textContent = t.finalScoreLabelText;
+        // highscoreMessageLine handled in handleGameOver
+        document.querySelector('#max-combo-line .label').textContent = t.maxComboLabelText;
+        mainmenuBtn.textContent = t.mainMenuLabel;
+
+        // Update dynamic parts if game is active or over
+        updateComboDisplay(); // Ensures combo label text is updated
+    }
+
+    function loadLanguage() {
+        const savedLang = localStorage.getItem('gameLanguage');
+        if (savedLang && translations[savedLang]) {
+            setLanguage(savedLang);
+        } else {
+            setLanguage('en'); // Default to English
+        }
+    }
+
+    languageSelector.addEventListener('change', (event) => {
+        setLanguage(event.target.value);
+    });
+
 
     // --- High Score Functions ---
     function getHighScore(mode) {
@@ -579,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameOverModal.style.display = 'none';
         howToPlayModal.style.display = 'none';
         gameInterface.style.display = 'flex';
-        savePairBtn.style.display = 'flex'; // Show save button
+        savePairBtn.style.display = 'flex';
 
         finalScoreLine.style.display = 'block';
         highscoreMessageLine.style.display = 'none';
@@ -603,26 +830,24 @@ document.addEventListener('DOMContentLoaded', () => {
         score = 0;
         combo = 0;
         maxcombo = 0;
-        currentHighScore = getHighScore(gameMode);
+        currentHighScore = getHighScore(gameMode); // High score is now language-dependent if desired, or make key universal
         updateScoreDisplay();
         highscoreDisplay.textContent = currentHighScore;
-        updateComboDisplay();
+        updateComboDisplay(); // Also ensures label text is correct via setLanguage call
         clearPlayfield();
         generatePlayfieldCells();
-		savedPair = { primary: null, secondary: null }; // Reset saved pair
-        adjustCellSize(); // Calls updateSavedPairDisplay internally now
+		savedPair = { primary: null, secondary: null };
+        adjustCellSize();
 
-        
-        // updateSavedPairDisplay(); // Called by adjustCellSize
 
-        generateNewPair(); // currentPair = nextPair (null initially), nextPair = random; currentPair becomes random due to safeguard
-        generateNewPair(); // currentPair = first random, nextPair = second random
-        updatePreviewDisplays(); // Ensure initial current/next are shown
-        
+        generateNewPair();
+        generateNewPair();
+        updatePreviewDisplays();
+
         allowInput = true;
         isFalling = false;
 
-        console.log("Game initialized in mode:", gameMode, ", High Score:", currentHighScore);
+        console.log("Game initialized in mode:", gameMode, ", High Score:", currentHighScore, "Lang:", currentLanguage);
     }
 
     function updateSavedPairDisplay() {
@@ -686,8 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
             b.style.height = `${nextPairBlockSize}px`;
             b.style.borderRadius = `${Math.floor(nextPairBlockSize * 0.2)}px`;
         });
-        
-        // Update saved pair display as well, since its blocks are based on nextPairBlockSize
+
         updateSavedPairDisplay();
 
         playfieldElement.style.width = `${COLS * cellSize + (COLS - 1) * 2}px`;
@@ -718,25 +942,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Pair Generation ---
     function getRandomColor() {
         return COLORS[Math.floor(Math.random() * COLORS.length)];
     }
 
     function generateNewPair() {
-        currentPair = nextPair; // currentPair becomes what nextPair was
-        nextPair = {            // A new nextPair is generated
+        currentPair = nextPair;
+        nextPair = {
             primary: getRandomColor(),
             secondary: getRandomColor()
         };
-        // Safeguard: if the game just started and nextPair was null, currentPair might be null.
-        if (!currentPair.primary) { // This handles the very first pair generation.
+        if (!currentPair.primary) {
             currentPair = {
                 primary: getRandomColor(),
                 secondary: getRandomColor()
             };
         }
-        updatePreviewDisplays(); // Update visual for current and next
+        updatePreviewDisplays();
     }
 
     function updatePreviewDisplays() {
@@ -750,7 +972,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Player Input ---
     playfieldElement.addEventListener('mousedown', handleDragStart);
     playfieldElement.addEventListener('touchstart', handleDragStart, { passive: false });
 
@@ -937,7 +1158,7 @@ async function handleDragEnd(e) {
 			console.log(currentPressureTimeLimit);
         }
 
-        generateNewPair(); // Generate the next pair to be ready
+        generateNewPair();
         await handleGravityAndMatches();
     }
 
@@ -988,7 +1209,6 @@ async function handleDragEnd(e) {
     }
 
 
-    // --- Game Logic: Gravity & Matches ---
     async function handleGravityAndMatches() {
         isFalling = true;
         allowInput = false;
@@ -1065,7 +1285,7 @@ async function applyGravity() {
     }
 
     if (blocksFell) {
-        const waitDuration = maxFallDistanceInPass * FALL_SPEED + 50; // Simplified: maxFallDistance * time_per_row + buffer
+        const waitDuration = maxFallDistanceInPass * FALL_SPEED + 50;
         await new Promise(resolve => setTimeout(resolve, waitDuration));
     }
     return blocksFell;
@@ -1148,7 +1368,6 @@ async function findAndClearMatches() {
 }
 
 
-    // --- Timers ---
     function startTimedModeTimer() {
         remainingTimedModeTime = TIMED_MODE_DURATION;
         updateTimerDisplay(remainingTimedModeTime);
@@ -1159,7 +1378,7 @@ async function findAndClearMatches() {
                 return;
             }
             if (!allowInput) {
-                return; 
+                return;
             }
             remainingTimedModeTime -= 100;
             if (remainingTimedModeTime <= 0) {
@@ -1227,7 +1446,7 @@ async function findAndClearMatches() {
         }
         console.log("Pressure mode timeout! Attempting auto-placement.");
         allowInput = false;
-        removePlacementPreview(); 
+        removePlacementPreview();
 
         const availableColumns = [];
         for (let c = 0; c < COLS; c++) {
@@ -1238,14 +1457,14 @@ async function findAndClearMatches() {
 
         if (availableColumns.length === 0) {
             console.log("No available columns for auto-placement. Game over.");
-            handleGameOver(); 
-            return; 
+            handleGameOver();
+            return;
         }
 
         const randomColumnIndex = Math.floor(Math.random() * availableColumns.length);
         const chosenCol = availableColumns[randomColumnIndex];
-        const secondaryRow = 0; 
-        const primaryRow = 1;  
+        const secondaryRow = 0;
+        const primaryRow = 1;
         const primaryCol = chosenCol;
         const secondaryCol = chosenCol;
 
@@ -1253,15 +1472,15 @@ async function findAndClearMatches() {
         updateComboDisplay();
 
         let pBlockData = {
-            finalRow: primaryRow, 
-            finalCol: primaryCol, 
+            finalRow: primaryRow,
+            finalCol: primaryCol,
             color: currentPair.primary,
-            isPrimary: true, 
+            isPrimary: true,
             id: Date.now() + '_ap_p'
         };
         let sBlockData = {
-            finalRow: secondaryRow, 
-            finalCol: secondaryCol, 
+            finalRow: secondaryRow,
+            finalCol: secondaryCol,
             color: currentPair.secondary,
             isPrimary: false,
             id: Date.now() + '_ap_s'
@@ -1294,31 +1513,30 @@ async function findAndClearMatches() {
         await handleGravityAndMatches();
 
         if (isGameOver()) {
-             handleGameOver(); 
+             handleGameOver();
         } else {
-             allowInput = true; 
+             allowInput = true;
              startPressureTurnTimer();
         }
     }
 
 
-    // --- Game Over & Restart ---
     function isGameOver() {
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 if (!playfield[r][c]) {
-                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]; 
+                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
                     for (const [dr, dc] of dirs) {
-                        const sr = r + dr; 
-                        const sc = c + dc; 
+                        const sr = r + dr;
+                        const sc = c + dc;
                         if (isValidCell(sr, sc) && !playfield[sr][sc]) {
-                            return false; 
+                            return false;
                         }
                     }
                 }
             }
         }
-        return true; 
+        return true;
     }
 
     function handleGameOver() {
@@ -1328,8 +1546,10 @@ async function findAndClearMatches() {
         if (gameTimerInterval) clearInterval(gameTimerInterval);
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
 
+        const currentTranslations = translations[currentLanguage] || translations.en;
+
         finalScoreDisplay.textContent = score;
-        finalScoreLine.style.display = 'block'; 
+        finalScoreLine.style.display = 'block';
 
         maxcomboDisplay.textContent = maxcombo;
         maxcomboLine.style.display = 'block';
@@ -1337,34 +1557,40 @@ async function findAndClearMatches() {
         const oldHighScore = getHighScore(gameMode);
         if (score > oldHighScore) {
             setHighScore(gameMode, score);
-            highscoreMessageLine.innerHTML = "New High Score!";
+            highscoreMessageLine.innerHTML = currentTranslations.newHighScoreMsg;
             highscoreMessageLine.style.display = 'block';
-            finalHighscoreDisplay.textContent = score; 
-            currentHighScore = score; 
+            finalHighscoreDisplay.textContent = score;
+            currentHighScore = score;
         } else {
-            highscoreMessageLine.innerHTML = `High Score: <span id="final-highscore">${oldHighScore}</span>`;
+            highscoreMessageLine.innerHTML = `${currentTranslations.highScoreMsgPrefix}<span id="final-highscore">${oldHighScore}</span>`;
             highscoreMessageLine.style.display = 'block';
             finalHighscoreDisplay.textContent = oldHighScore;
         }
 
-        gameInterface.style.display = 'flex'; // Keep interface visible for modal
+        gameInterface.style.display = 'flex';
         gameOverModal.style.display = 'flex';
     }
 
     function updateScoreDisplay() {
         scoreDisplay.textContent = score;
     }
+
     function updateComboDisplay() {
-        comboDisplay.textContent = `${combo}x`;
-        const comboArea = document.getElementById('combo-area');
+        const currentTranslations = translations[currentLanguage] || translations.en;
+        const comboAreaLabel = document.querySelector('#combo-area .label');
+        if (comboAreaLabel) { // Ensure label is updated if language changed mid-game (unlikely but good practice)
+            comboAreaLabel.textContent = currentTranslations.comboLabelText;
+        }
+
+        const comboValueDisplay = document.getElementById('combo-value-display');
         if (combo > 1) {
-            comboArea.innerHTML = `Combo <span id="combo">${combo}</span>x!`;
+            comboValueDisplay.textContent = `${combo}x!`;
         } else {
-            comboArea.innerHTML = `Combo <span id="combo">${combo}</span>x`;
+            comboValueDisplay.textContent = `${combo}x`;
         }
     }
 
-    // --- Event Listeners for Mode Selection & Restart ---
+
     relaxModeBtn.addEventListener('click', () => {
         gameMode = 'relax';
         initGame();
@@ -1390,35 +1616,36 @@ async function findAndClearMatches() {
     mainmenuBtn.addEventListener('click', () => {
         gameOverModal.style.display = 'none';
         gameInterface.style.display = 'none';
-        savePairBtn.style.display = 'none'; // Hide save button when going to main menu
+        savePairBtn.style.display = 'none';
         modeSelectionModal.style.display = 'flex';
 		allowInput = false;
+        loadLanguage(); // Re-apply language to ensure main menu texts are correct
     });
 
     endgameBtn.addEventListener('click', () => {
 		handleGameOver();
-        // updateScoreDisplay and updateComboDisplay are called within handleGameOver or subsequent logic
     });
 
     savePairBtn.addEventListener('click', () => {
         if (!allowInput || isFalling) return;
 
-        if (!savedPair || !savedPair.primary) { // No pair saved yet
-            savedPair = { ...currentPair }; // Save the current pair
-            generateNewPair(); // Advances next to current, and generates a new next
-        } else { // A pair is already saved, so swap
+        if (!savedPair || !savedPair.primary) {
+            savedPair = { ...currentPair };
+            generateNewPair();
+        } else {
             const tempCurrentPair = { ...currentPair };
             currentPair = { ...savedPair };
             savedPair = tempCurrentPair;
         }
 
-        updatePreviewDisplays();    // Update current and next pair visuals in the preview area
-        updateSavedPairDisplay();   // Update the saved pair visual in the save button
+        updatePreviewDisplays();
+        updateSavedPairDisplay();
     });
 
-    // Initial setup: Show mode selection
+    // Initial setup:
+    loadLanguage(); // Load and apply language preference
     modeSelectionModal.style.display = 'flex';
-    savePairBtn.style.display = 'none'; // Ensure save button is hidden initially
+    savePairBtn.style.display = 'none';
     allowInput = false;
 });
 </script>
