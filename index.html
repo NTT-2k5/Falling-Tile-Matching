@@ -109,6 +109,19 @@ body {
     background-color: #1c7cd6; /* Darker blue on hover */
 }
 
+.confirm-btn-yes {
+    background-color: #F44336 !important; /* Red for confirmation */
+}
+.confirm-btn-yes:hover {
+    background-color: #d32f2f !important; /* Darker red */
+}
+.confirm-btn-no {
+    background-color: #757575 !important; /* Grey for cancel */
+}
+.confirm-btn-no:hover {
+    background-color: #616161 !important; /* Darker grey */
+}
+
 .language-selector-container {
     margin-top: 15px;
     margin-bottom: 5px;
@@ -274,15 +287,15 @@ body {
     margin: 10px auto; /* Ensure consistent margin */
     border: none;
     border-radius: 5px;
-    background-color: #4CAF50;
+    background-color: #ec4d45; /* Red */
     color: white;
     font-size: 16px;
     cursor: pointer;
-    width: clamp(60px, 90%, 110px); /* Match save button width for consistency */
+    width: clamp(60px, 90%, 110px); /* Match save button width */
     box-sizing: border-box;
 }
 #end-game-btn:hover {
-    background-color: #45a049;
+    background-color: #d32f2f;
 }
 
 .block {
@@ -500,6 +513,14 @@ body {
                 </div>
             </div>
         </div>
+		
+		<div id="confirm-end-game-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2 id="confirm-end-game-title">Confirm</h2>
+                <button id="confirm-end-game-yes-btn" class="confirm-btn-yes">Yes</button>
+                <button id="confirm-end-game-no-btn" class="confirm-btn-no">No</button>
+            </div>
+        </div>
 
         <div id="game-over-modal" class="modal" style="display: none;">
             <div class="modal-content">
@@ -518,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameInterface = document.getElementById('game-interface');
     const gameOverModal = document.getElementById('game-over-modal');
     const howToPlayModal = document.getElementById('how-to-play-modal');
+    const confirmEndGameModal = document.getElementById('confirm-end-game-modal');
 
     const relaxModeBtn = document.getElementById('relax-mode-btn');
     const timedModeBtn = document.getElementById('timed-mode-btn');
@@ -526,6 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeHowToPlayBtn = document.getElementById('close-how-to-play-btn');
     const mainmenuBtn = document.getElementById('main-menu-btn');
     const endgameBtn = document.getElementById('end-game-btn');
+    const confirmEndGameYesBtn = document.getElementById('confirm-end-game-yes-btn');
+    const confirmEndGameNoBtn = document.getElementById('confirm-end-game-no-btn');
 
     const scoreDisplay = document.getElementById('score');
     const highscoreDisplay = document.getElementById('highscore');
@@ -580,6 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextLabel = document.getElementById('next-label');
     const saveBtnTextLabel = document.getElementById('save-btn-text-label');
     const gameOverTitle = document.getElementById('game-over-title');
+    const confirmEndGameTitle = document.getElementById('confirm-end-game-title');
 
 
     // Game Constants
@@ -670,7 +695,11 @@ document.addEventListener('DOMContentLoaded', () => {
             newHighScoreMsg: "New High Score!",
             highScoreMsgPrefix: "High Score: ",
             maxComboLabelText: "Max Combo: ",
-            mainMenuLabel: "Main Menu"
+            mainMenuLabel: "Main Menu",
+			
+            confirmEndGameTitle: "Confirm End Game?",
+            confirmEndGameYes: "Yes, End Game",
+            confirmEndGameNo: "No, Continue"
         },
         vi: {
             pageTitle: "Trò chơi xếp cặp khối rơi",
@@ -717,7 +746,11 @@ document.addEventListener('DOMContentLoaded', () => {
             newHighScoreMsg: "Đạt kỷ lục mới!",
             highScoreMsgPrefix: "Điểm cao: ",
             maxComboLabelText: "Chuỗi tối đa: ",
-            mainMenuLabel: "Menu chính"
+            mainMenuLabel: "Menu chính",
+			
+			confirmEndGameTitle: "Xác nhận Kết thúc trò chơi?",
+            confirmEndGameYes: "Có, Kết thúc",
+            confirmEndGameNo: "Không, Tiếp tục"
         }
     };
 
@@ -771,6 +804,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#final-score-line .label').textContent = t.finalScoreLabelText;
         document.querySelector('#max-combo-line .label').textContent = t.maxComboLabelText;
         mainmenuBtn.textContent = t.mainMenuLabel;
+		
+		confirmEndGameTitle.textContent = t.confirmEndGameTitle;
+        confirmEndGameYesBtn.textContent = t.confirmEndGameYes;
+        confirmEndGameNoBtn.textContent = t.confirmEndGameNo;
 
         updateComboDisplay();
     }
@@ -891,6 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modeSelectionModal.style.display = 'none';
         gameOverModal.style.display = 'none';
         howToPlayModal.style.display = 'none';
+        confirmEndGameModal.style.display = 'none';
         gameInterface.style.display = 'flex';
         savePairBtn.style.display = 'flex';
 
@@ -1524,9 +1562,10 @@ async function findAndClearMatches() {
     function startPressureTurnTimer() {
         pressureTurnStartTime = Date.now();
         updateTimerDisplay(currentPressureTimeLimit);
+		if (!allowInput) return;
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
         pressureTimerInterval = setTimeout(() => {
-            if (!allowInput) return;
+            //if (!allowInput) return;
             autoPlacePressureBlock();
         }, currentPressureTimeLimit);
 
@@ -1569,10 +1608,6 @@ async function findAndClearMatches() {
     }
 
     async function autoPlacePressureBlock() {
-        if (!allowInput) {
-            console.log("Auto-place skipped: input not allowed.");
-            return;
-        }
         console.log("Pressure mode timeout! Attempting auto-placement.");
         allowInput = false;
         removePlacementPreview();
@@ -1676,6 +1711,7 @@ async function findAndClearMatches() {
         isFalling = true; // Set to true to prevent any lingering input processing
         if (gameTimerInterval) clearInterval(gameTimerInterval);
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
+		confirmEndGameModal.style.display = 'none';
 
         const currentTranslations = translations[currentLanguage] || translations.en;
 
@@ -1748,13 +1784,28 @@ async function findAndClearMatches() {
         gameOverModal.style.display = 'none';
         gameInterface.style.display = 'none';
         savePairBtn.style.display = 'none';
+		confirmEndGameModal.style.display = 'none';
         modeSelectionModal.style.display = 'flex';
 		allowInput = false;
         loadLanguage();
     });
 
     endgameBtn.addEventListener('click', () => {
-		handleGameOver();
+		confirmEndGameModal.style.display = 'flex';
+		gameInterface.style.display = 'none';
+		allowInput = false;
+    });
+	
+	confirmEndGameYesBtn.addEventListener('click', () => {
+        confirmEndGameModal.style.display = 'none';
+        handleGameOver();
+		allowInput = false;
+    });
+
+    confirmEndGameNoBtn.addEventListener('click', () => {
+        confirmEndGameModal.style.display = 'none';
+		gameInterface.style.display = 'flex';
+		allowInput = true;
     });
 
     savePairBtn.addEventListener('click', () => {
