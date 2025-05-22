@@ -529,7 +529,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const scoreDisplay = document.getElementById('score');
     const highscoreDisplay = document.getElementById('highscore');
-    // const comboDisplay = document.getElementById('combo'); // Replaced by combo-value-display
     const timerAreaContainer = document.getElementById('timer-area-container');
     const timeLeftDisplay = document.getElementById('time-left');
     const timeBar = document.getElementById('time-bar');
@@ -587,6 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ROWS = 12;
     const COLS = 6;
     const COLORS = ['green', 'blue', 'red', 'purple', 'orange'];
+    const BLOCKS_PER_COLOR_IN_BAG = 20;
     const FALL_SPEED = 50; // ms per row
     const TIMED_MODE_DURATION = 100 * 1000;
     const PRESSURE_MODE_INITIAL_TIME = 10 * 1000;
@@ -621,6 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let startDragPos = null;
     let startCell = null;
     let currentLanguage = 'en';
+    let blockBag = []; // New: For the block bag generator
 
 
     const translations = {
@@ -758,7 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelector('#score-area .label').textContent = t.scoreLabelText;
         document.querySelector('#highscore-area .label').textContent = t.highscoreLabelText;
-        document.querySelector('#combo-area .label').textContent = t.comboLabelText; // updateComboDisplay will handle value
+        document.querySelector('#combo-area .label').textContent = t.comboLabelText;
         document.querySelector('#timer-area-container .label').textContent = t.timeLabelText;
 
         nowLabel.innerHTML = t.nowLabel;
@@ -768,12 +769,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gameOverTitle.textContent = t.gameOverTitle;
         document.querySelector('#final-score-line .label').textContent = t.finalScoreLabelText;
-        // highscoreMessageLine handled in handleGameOver
         document.querySelector('#max-combo-line .label').textContent = t.maxComboLabelText;
         mainmenuBtn.textContent = t.mainMenuLabel;
 
-        // Update dynamic parts if game is active or over
-        updateComboDisplay(); // Ensures combo label text is updated
+        updateComboDisplay();
     }
 
     function loadLanguage() {
@@ -781,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedLang && translations[savedLang]) {
             setLanguage(savedLang);
         } else {
-            setLanguage('en'); // Default to English
+            setLanguage('en');
         }
     }
 
@@ -790,7 +789,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- High Score Functions ---
     function getHighScore(mode) {
         return parseInt(localStorage.getItem(`highscore_${mode}`) || '0', 10);
     }
@@ -799,8 +797,96 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(`highscore_${mode}`, newScore.toString());
     }
 
+    // --- New Block Bag Generator Logic ---
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
 
-    // --- Initialization ---
+    function generateBlockBag() {
+        console.log("Generating new block bag...");
+        let tempBag = [];
+        let attempts = 0;
+        const MAX_ATTEMPTS = 100; // To prevent infinite loops
+
+        while (attempts < MAX_ATTEMPTS) {
+            attempts++;
+            tempBag = [];
+            for (const color of COLORS) {
+                for (let i = 0; i < BLOCKS_PER_COLOR_IN_BAG; i++) {
+                    tempBag.push(color);
+                }
+            }
+            shuffleArray(tempBag);
+
+            if (isValidBag(tempBag)) {
+                blockBag = tempBag;
+                console.log("Valid bag generated:", blockBag.slice(0,12)); // Log first 12 for brevity
+                return;
+            }
+        }
+        console.warn("Failed to generate a valid bag after MAX_ATTEMPTS. Using last shuffled bag (may not meet all criteria).");
+        blockBag = tempBag; // Use the last shuffled bag if criteria not met after many attempts
+    }
+
+    function isValidBag(bag) {
+        if (bag.length < 8) return true; // Not enough pairs to check all conditions
+
+        // Condition 1: No three identical color pairs (including reversed) in a range of 8 blocks (4 pairs)
+        for (let i = 0; i <= bag.length - 8; i += 2) { // Check 4 pairs (8 blocks) at a time
+            const pairsInRange = [];
+            for (let j = 0; j < 4; j++) {
+                if (i + (j*2) + 1 < bag.length) {
+                    pairsInRange.push([bag[i + (j*2)], bag[i + (j*2) + 1]]);
+                }
+            }
+
+            const pairCounts = {};
+            for (const pair of pairsInRange) {
+                const p1 = pair[0];
+                const p2 = pair[1];
+                // Normalize pair to count (e.g., [red, blue] is same as [blue, red])
+                const key = p1 <= p2 ? `${p1}-${p2}` : `${p2}-${p1}`;
+                pairCounts[key] = (pairCounts[key] || 0) + 1;
+                if (pairCounts[key] >= 3) {
+                    console.log("Validation fail: 3 identical pairs in range of 8 blocks.", pairsInRange, pairCounts);
+                    return false; // Found three identical pairs
+                }
+            }
+        }
+
+
+        // Condition 2: First two pairs in the bag are restricted to three different colors
+        if (bag.length >= 4) {
+            const firstTwoPairsColors = new Set();
+            firstTwoPairsColors.add(bag[0]);
+            firstTwoPairsColors.add(bag[1]);
+            firstTwoPairsColors.add(bag[2]);
+            firstTwoPairsColors.add(bag[3]);
+            if (firstTwoPairsColors.size > 3) {
+                console.log("Validation fail: First two pairs have more than 3 unique colors.", Array.from(firstTwoPairsColors));
+                return false;
+            }
+        }
+
+
+        // Condition 3: First four pairs in the bag are restricted to four different colors
+        if (bag.length >= 8) {
+            const firstFourPairsColors = new Set();
+            for (let i = 0; i < 8; i++) { // First 4 pairs = 8 blocks
+                if (i < bag.length) firstFourPairsColors.add(bag[i]);
+            }
+            if (firstFourPairsColors.size > 4) {
+                 console.log("Validation fail: First four pairs have more than 4 unique colors.", Array.from(firstFourPairsColors));
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     function initGame() {
         modeSelectionModal.style.display = 'none';
         gameOverModal.style.display = 'none';
@@ -830,18 +916,37 @@ document.addEventListener('DOMContentLoaded', () => {
         score = 0;
         combo = 0;
         maxcombo = 0;
-        currentHighScore = getHighScore(gameMode); // High score is now language-dependent if desired, or make key universal
+        currentHighScore = getHighScore(gameMode);
         updateScoreDisplay();
         highscoreDisplay.textContent = currentHighScore;
-        updateComboDisplay(); // Also ensures label text is correct via setLanguage call
+        updateComboDisplay();
         clearPlayfield();
         generatePlayfieldCells();
 		savedPair = { primary: null, secondary: null };
         adjustCellSize();
 
+        blockBag = []; // Clear bag before new game
+        generateBlockBag(); // Generate initial bag
 
-        generateNewPair();
-        generateNewPair();
+        // Initialize currentPair and nextPair from the bag
+        if (blockBag.length >= 2) {
+            currentPair.primary = blockBag.shift();
+            currentPair.secondary = blockBag.shift();
+        } else { // Fallback if bag generation had issues or was too short
+            console.error("Block bag too short for initial currentPair, using random.");
+            currentPair.primary = getRandomColorFallback();
+            currentPair.secondary = getRandomColorFallback();
+        }
+
+        if (blockBag.length >= 2) {
+            nextPair.primary = blockBag.shift();
+            nextPair.secondary = blockBag.shift();
+        } else { // Fallback
+            console.error("Block bag too short for initial nextPair, using random.");
+            nextPair.primary = getRandomColorFallback();
+            nextPair.secondary = getRandomColorFallback();
+        }
+
         updatePreviewDisplays();
 
         allowInput = true;
@@ -942,24 +1047,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function getRandomColor() {
+    // Fallback random color function if bag generation fails critically
+    function getRandomColorFallback() {
         return COLORS[Math.floor(Math.random() * COLORS.length)];
     }
 
     function generateNewPair() {
-        currentPair = nextPair;
-        nextPair = {
-            primary: getRandomColor(),
-            secondary: getRandomColor()
-        };
+        currentPair = { ...nextPair }; // shallow copy is fine here as colors are strings
+
+        if (blockBag.length < 2) {
+            console.log("Block bag empty or near empty, regenerating...");
+            generateBlockBag();
+        }
+
+        if (blockBag.length >= 2) {
+            nextPair.primary = blockBag.shift();
+            nextPair.secondary = blockBag.shift();
+        } else {
+            // This case should ideally not be hit if generateBlockBag works correctly
+            // and is called when bag is low.
+            console.error("Block bag is critically low after attempted regeneration. Using fallback for nextPair.");
+            nextPair.primary = getRandomColorFallback();
+            nextPair.secondary = getRandomColorFallback();
+            // To prevent infinite loops if bag generation fails, ensure we always have a next pair.
+            // If currentPair was also set by fallback, this might lead to issues.
+            // Consider how to handle a complete failure of bag generation.
+        }
+
+
+        // If currentPair is somehow still null (e.g., first pair generation and bag issues)
         if (!currentPair.primary) {
-            currentPair = {
-                primary: getRandomColor(),
-                secondary: getRandomColor()
-            };
+             console.warn("Current pair was not initialized, pulling from bag (or fallback).");
+            if (blockBag.length >= 2) {
+                currentPair.primary = blockBag.shift();
+                currentPair.secondary = blockBag.shift();
+            } else {
+                currentPair.primary = getRandomColorFallback();
+                currentPair.secondary = getRandomColorFallback();
+            }
         }
         updatePreviewDisplays();
     }
+
 
     function updatePreviewDisplays() {
         if (currentPair.primary) {
@@ -1155,10 +1284,10 @@ async function handleDragEnd(e) {
         if (gameMode === 'pressure') {
             clearTimeout(pressureTimerInterval);
              currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
-			console.log(currentPressureTimeLimit);
+			//console.log(currentPressureTimeLimit);
         }
 
-        generateNewPair();
+        generateNewPair(); // Generate new pair AFTER current one is used
         await handleGravityAndMatches();
     }
 
@@ -1463,8 +1592,8 @@ async function findAndClearMatches() {
 
         const randomColumnIndex = Math.floor(Math.random() * availableColumns.length);
         const chosenCol = availableColumns[randomColumnIndex];
-        const secondaryRow = 0;
-        const primaryRow = 1;
+        const secondaryRow = 0; // Secondary block on top
+        const primaryRow = 1;   // Primary block below
         const primaryCol = chosenCol;
         const secondaryCol = chosenCol;
 
@@ -1509,7 +1638,7 @@ async function findAndClearMatches() {
         ]);
          currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
 
-        generateNewPair();
+        generateNewPair(); // Generate new pair AFTER auto-placement
         await handleGravityAndMatches();
 
         if (isGameOver()) {
@@ -1524,25 +1653,27 @@ async function findAndClearMatches() {
     function isGameOver() {
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
-                if (!playfield[r][c]) {
-                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+                if (!playfield[r][c]) { // Found an empty cell
+                    // Check if any adjacent cell (for secondary block) is also empty
+                    const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // Up, Down, Left, Right
                     for (const [dr, dc] of dirs) {
-                        const sr = r + dr;
-                        const sc = c + dc;
+                        const sr = r + dr; // Secondary row
+                        const sc = c + dc; // Secondary col
                         if (isValidCell(sr, sc) && !playfield[sr][sc]) {
-                            return false;
+                            return false; // Found a valid placement for a pair
                         }
                     }
                 }
             }
         }
+        // If we iterate through the whole board and find no valid placement for a pair
         return true;
     }
 
     function handleGameOver() {
         console.log("Game Over!");
         allowInput = false;
-        isFalling = true;
+        isFalling = true; // Set to true to prevent any lingering input processing
         if (gameTimerInterval) clearInterval(gameTimerInterval);
         if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
 
@@ -1559,15 +1690,15 @@ async function findAndClearMatches() {
             setHighScore(gameMode, score);
             highscoreMessageLine.innerHTML = currentTranslations.newHighScoreMsg;
             highscoreMessageLine.style.display = 'block';
-            finalHighscoreDisplay.textContent = score;
+            finalHighscoreDisplay.textContent = score; // Ensure this is updated
             currentHighScore = score;
         } else {
             highscoreMessageLine.innerHTML = `${currentTranslations.highScoreMsgPrefix}<span id="final-highscore">${oldHighScore}</span>`;
             highscoreMessageLine.style.display = 'block';
-            finalHighscoreDisplay.textContent = oldHighScore;
+            finalHighscoreDisplay.textContent = oldHighScore; // Ensure this is updated
         }
 
-        gameInterface.style.display = 'flex';
+        gameInterface.style.display = 'flex'; // Keep game interface visible behind modal
         gameOverModal.style.display = 'flex';
     }
 
@@ -1578,7 +1709,7 @@ async function findAndClearMatches() {
     function updateComboDisplay() {
         const currentTranslations = translations[currentLanguage] || translations.en;
         const comboAreaLabel = document.querySelector('#combo-area .label');
-        if (comboAreaLabel) { // Ensure label is updated if language changed mid-game (unlikely but good practice)
+        if (comboAreaLabel) {
             comboAreaLabel.textContent = currentTranslations.comboLabelText;
         }
 
@@ -1619,7 +1750,7 @@ async function findAndClearMatches() {
         savePairBtn.style.display = 'none';
         modeSelectionModal.style.display = 'flex';
 		allowInput = false;
-        loadLanguage(); // Re-apply language to ensure main menu texts are correct
+        loadLanguage();
     });
 
     endgameBtn.addEventListener('click', () => {
@@ -1629,10 +1760,10 @@ async function findAndClearMatches() {
     savePairBtn.addEventListener('click', () => {
         if (!allowInput || isFalling) return;
 
-        if (!savedPair || !savedPair.primary) {
+        if (!savedPair || !savedPair.primary) { // No pair saved yet
             savedPair = { ...currentPair };
-            generateNewPair();
-        } else {
+            generateNewPair(); // Get a new current pair
+        } else { // Swap
             const tempCurrentPair = { ...currentPair };
             currentPair = { ...savedPair };
             savedPair = tempCurrentPair;
@@ -1643,10 +1774,10 @@ async function findAndClearMatches() {
     });
 
     // Initial setup:
-    loadLanguage(); // Load and apply language preference
+    loadLanguage();
     modeSelectionModal.style.display = 'flex';
-    savePairBtn.style.display = 'none';
-    allowInput = false;
+    savePairBtn.style.display = 'none'; // Hide save button initially
+    allowInput = false; // Ensure input is off until a game mode is selected
 });
 </script>
 </body>
