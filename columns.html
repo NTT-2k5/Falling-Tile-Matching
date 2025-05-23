@@ -323,8 +323,8 @@ body {
 
 .block {
     /* width and height will be set by JS for preview blocks to be relative to cell size */
-    margin: 1px 0; /* Reduced margin for tighter stacking in preview */
-    border-radius: clamp(3px, 0.8vw, 6px); /* Slightly smaller radius for stacked appearance */
+    margin: 1px 0;
+    border-radius: clamp(4px, 1vw, 8px); /* Responsive border-radius */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -332,9 +332,9 @@ body {
     color: white;
     position: relative;
     box-shadow:
-        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
-        inset -1px -1px 2px rgba(0, 0, 0, 0.2),
-        1px 1px 3px rgba(0, 0, 0, 0.3);
+        inset 2px 2px 3px rgba(255, 255, 255, 0.3),
+        inset -2px -2px 3px rgba(0, 0, 0, 0.2),
+        2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Block Colors */
@@ -348,7 +348,7 @@ body {
 
 .target-block::after {
     content: '×'; /* Cross mark */
-    font-size: 1.8em; /* Adjust size of cross mark */
+    font-size: 2.5em; /* Adjust size of cross mark */
     color: rgba(255, 255, 255, 0.85);
     -webkit-text-stroke: 1px rgba(0,0,0,0.7); /* Outline for better visibility */
     text-stroke: 1px rgba(0,0,0,0.7);
@@ -406,7 +406,7 @@ body {
 }
 
 .preview-block {
-    opacity: 0.65; /* Transparent for preview */
+    opacity: 0.5; /* Transparent for preview */
     z-index: 5;
      box-shadow:
         inset 1px 1px 2px rgba(255, 255, 255, 0.2),
@@ -703,8 +703,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const PRESSURE_MODE_INITIAL_TIME = 10 * 1000;
     const PRESSURE_MODE_DECREMENT = 100;
     const PRESSURE_MODE_MIN_TIME = 500;
-    const PRESSURE_MODE_THRESHOLD_TIME = 2000;
-    const TARGET_MODE_START_SCORE = 2000; // Integer score, 1 point per decisecond
+    const PRESSURE_MODE_THRESHOLD_TIME = 3000;
+    const TARGET_MODE_START_SCORE = 3000; // Integer score, 1 point per decisecond
     const TARGET_BLOCK_ROW = ROWS - 1; // 0-indexed (row 12)
     const TARGET_BLOCK_COL = 3;      // 0-indexed (col 4)
 
@@ -773,7 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
             htpGameplayRule2: "Tap/click and drag on the playfield to choose a column. A preview will show where the piece will land.",
             htpGameplayRule3: "Release to drop the column into the chosen spot. It will stack on any existing blocks or fall to the bottom.",
             htpGameplayRule4: "When 3 or more blocks of the same color align horizontally, vertically, or diagonally, they clear, and you score points. Blocks above will fall.",
-            htpGameplayRule5: "Use the \"Cycle Pos.\" button (or Spacebar) to change the order of colors in the NOW piece.",
+            htpGameplayRule5: "Use the \"Cycle Order\" button (or Spacebar) to change the order of colors in the NOW piece.",
             htpGameplayRule6: "The game ends if a new column cannot be placed at the top of any playfield column.",
             htpGameModesLabel: "<strong>Game Modes:</strong>",
             htpRelaxModeLabel: "<strong>Relax Mode:</strong>",
@@ -783,7 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
             htpPressureModeLabel: "<strong>Pressure Mode:</strong>",
             htpPressureModeDesc: "You have limited time for each move. This time decreases with each placement! If time runs out, a piece is auto-placed.",
             htpTargetModeLabel: "<strong>Target Mode:</strong>",
-            htpTargetModeDesc: "A specific block at the bottom of the playfield is the Target (marked '×'). Clear it before your score (starting at 2000, decreasing with time) reaches zero. If Start Height is 0 or 1, it will be auto-set to 2.", // Updated
+            htpTargetModeDesc: "A specific block at the bottom of the playfield is the Target (marked '×'). Clear it before your score (starting at 3000, decreasing with time) reaches zero. If Start Height is 0 or 1, it will be auto-set to 2.", // Updated
             gotIt: "Got it!",
 
             scoreLabelText: "Score: ", // Used for all modes now
@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             nowLabel: "<b>NOW</b>",
             nextLabel: "Next",
-            cyclePosLabelText: "Cycle Pos.",
+            cyclePosLabelText: "Cycle Order",
             endGameLabel: "End Game",
 
             gameOverTitle: "Game Over",
@@ -830,19 +830,19 @@ document.addEventListener('DOMContentLoaded', () => {
             htpGameplayLabel: "<strong>Cách chơi:</strong>",
             htpGameplayRule1: "Một cột gồm ba khối (khối HIỆN TẠI) sẽ xuất hiện, cùng với khối KẾ TIẾP.",
             htpGameplayRule2: "Chạm/nhấp và kéo trên khu vực chơi để chọn một cột. Một hình xem trước sẽ hiện ra nơi khối sẽ rơi xuống.",
-            htpGameplayRule3: "Thả tay để thả cột khối vào vị trí đã chọn. Nó sẽ chồng lên các khối hiện có hoặc rơi xuống đáy.",
+            htpGameplayRule3: "Thả tay để thả cột khối vào vị trí đã chọn. Cột khối sẽ chồng lên các khối hiện có hoặc rơi xuống đáy.",
             htpGameplayRule4: "Khi 3 khối cùng màu trở lên thẳng hàng ngang, dọc, hoặc chéo, chúng sẽ bị phá và bạn ghi điểm. Các khối ở trên sẽ rơi xuống.",
-            htpGameplayRule5: "Sử dụng nút \"Đảo vị trí\" (hoặc phím cách, Space) để thay đổi thứ tự màu sắc trong khối HIỆN TẠI.",
+            htpGameplayRule5: "Sử dụng nút \"Đảo thứ tự\" (hoặc phím cách) để thay đổi thứ tự màu sắc trong khối HIỆN TẠI.",
             htpGameplayRule6: "Trò chơi kết thúc nếu một cột khối mới không thể được đặt ở đầu bất kỳ cột nào trên khu vực chơi.",
             htpGameModesLabel: "<strong>Chế độ chơi:</strong>",
             htpRelaxModeLabel: "<strong>Chế độ Thư giãn:</strong>",
             htpRelaxModeDesc: "Chơi theo tốc độ của riêng bạn. Không giới hạn thời gian!",
-            htpTimedModeLabel: "<strong>Chếng Tính giờ:</strong>",
+            htpTimedModeLabel: "<strong>Chế độ Tính giờ:</strong>",
             htpTimedModeDesc: "Ghi càng nhiều điểm càng tốt trước khi hết 100 giây.",
             htpPressureModeLabel: "<strong>Chế độ Áp lực:</strong>",
             htpPressureModeDesc: "Bạn có giới hạn thời gian cho mỗi nước đi. Thời gian này sẽ giảm dần sau mỗi lần đặt khối! Nếu hết giờ, một khối sẽ tự động được đặt.",
             htpTargetModeLabel: "<strong>Chế độ Mục tiêu:</strong>",
-            htpTargetModeDesc: "Một khối ở đáy khu vực chơi được đặt là Mục tiêu (đánh dấu '×'). Hãy phá nó trước khi điểm của bạn (bắt đầu từ 2000, giảm dần theo thời gian) về không. Nếu Chiều cao ban đầu là 0 hoặc 1, nó sẽ tự động được đặt thành 2.", // Updated
+            htpTargetModeDesc: "Một khối ở đáy khu vực chơi được đặt là Mục tiêu (đánh dấu '×'). Hãy phá nó trước khi điểm của bạn (bắt đầu từ 3000, giảm dần theo thời gian) về không. Nếu Chiều cao ban đầu là 0 hoặc 1, nó sẽ tự động được đặt thành 2.", // Updated
             gotIt: "Đã hiểu!",
 
             scoreLabelText: "Điểm: ", // Used for all modes now
@@ -852,7 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             nowLabel: "<b>HIỆN TẠI</b>",
             nextLabel: "Kế tiếp",
-            cyclePosLabelText: "Đảo vị trí",
+            cyclePosLabelText: "Đảo thứ tự",
             endGameLabel: "Kết thúc",
 
             gameOverTitle: "Trò chơi kết thúc",
