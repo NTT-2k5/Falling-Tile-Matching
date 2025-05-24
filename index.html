@@ -247,13 +247,74 @@ body {
     align-items: center;
 }
 
+/* The main container for the "Next" label and the "Next" pair blocks */
+.pair-container.next-pair-container {
+    /* text-align: center; if you want the label centered above */
+    /* margin-bottom: clamp(10px, 3vh, 20px); Keep your desired spacing */
+}
+
+/* The label for "Next" */
+#next-label {
+    position: relative;
+    z-index: 3;
+    margin-bottom: 5px;
+}
+
+#next-pair {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* No specific z-index needed here, its children will handle it */
+}
+
+/* Styling for the actual "Next" blocks (#next-secondary, #next-primary) */
+#next-pair > .block { /* Target direct children blocks of #next-pair */
+    position: relative;
+    z-index: 2;         /* HIGHER z-index: These blocks go ON TOP of next-next */
+    /* width, height, etc., are already set by .block and JS */
+}
+
+/* Container for the "Next-Next" preview */
+.next-next-pair-container {
+    position: absolute;   /* Positioned relative to #next-pair */
+    top: 10px;            /* Adjust: Offset DOWN from the top of #next-pair blocks */
+    left: 10px;           /* Adjust: Offset RIGHT from the left of #next-pair blocks */
+    width: 100%;          /* Takes the width of #next-pair for alignment */
+    opacity: 0.5;         /* Faded */
+    z-index: 1;           /* LOWER z-index: This goes BEHIND #next-pair > .block */
+    display: flex;
+    justify-content: center; /* Centers the #next-next-pair div inside */
+}
+
+/* The div holding the next-next blocks */
+#next-next-pair {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Adjust pairs-preview-area if needed to accommodate the new preview */
+#pairs-preview-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: top;
+    margin-top: 20px;
+    padding-right: clamp(10px, 3vw, 20px);
+    flex-shrink: 0;
+    flex-basis: clamp(70px, 20vw, 120px);
+    position: relative;
+}
+
 #save-pair-btn {
     display: flex; /* Changed by JS to flex when visible */
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 8px;
-    margin: 10px auto;
+    margin: 10px auto; /* Adjusted margin, was 10px auto */
+    margin-top: 10px; /* Reduce top margin if next-next makes it too low */
     border: none;
     border-radius: 5px;
     background-color: #e0e0e0;
@@ -261,6 +322,8 @@ body {
     width: clamp(60px, 90%, 110px); /* Responsive width */
     font-size: clamp(0.9em, 2vw, 1.1em);
     box-sizing: border-box;
+    position: relative; /* Add relative positioning */
+    z-index: 5;         /* Ensure it's above the next-next pair if overlapping occurs */
 }
 
 #save-pair-btn .save-btn-text {
@@ -300,7 +363,7 @@ body {
 
 .block {
     /* width and height will be set by JS for preview blocks to be relative to cell size */
-    margin: 2px 0;
+    margin: 1px 0;
     border-radius: clamp(4px, 1vw, 8px); /* Responsive border-radius */
     display: flex;
     justify-content: center;
@@ -491,12 +554,20 @@ body {
                         </div>
                     </div>
                     <div class="line"></div>
-                    <div class="pair-container next-pair-container">
+
+                    <div class="pair-container next-pair-container"> 
                         <div class="pair-label" id="next-label">Next</div>
                         <div id="next-pair">
                             <div class="block secondary-block" id="next-secondary"></div>
                             <div class="block primary-block" id="next-primary"></div>
+							<div class="next-next-pair-container"> 
+                            <div id="next-next-pair">
+                                <div class="block secondary-block" id="next-next-secondary"></div>
+                                <div class="block primary-block" id="next-next-primary"></div>
+                            </div>
                         </div>
+                        </div>
+                        
                     </div>
                     <button id="save-pair-btn" style="display: none;">
                         <span class="save-btn-text" id="save-btn-text-label">Save</span>
@@ -561,8 +632,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSecondaryDisplay = document.getElementById('current-secondary');
     const nextPrimaryDisplay = document.getElementById('next-primary');
     const nextSecondaryDisplay = document.getElementById('next-secondary');
-
-    const savePairBtn = document.getElementById('save-pair-btn');
+    const nextNextPrimaryDisplay = document.getElementById('next-next-primary');
+    const nextNextSecondaryDisplay = document.getElementById('next-next-secondary');
+    
+	const savePairBtn = document.getElementById('save-pair-btn');
     const savedPrimaryDisplay = document.getElementById('saved-primary-preview');
     const savedSecondaryDisplay = document.getElementById('saved-secondary-preview');
 
@@ -631,6 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let playfield = [];
     let currentPair = { primary: null, secondary: null };
     let nextPair = { primary: null, secondary: null };
+	let nextNextPair = { primary: null, secondary: null };
     let savedPair = { primary: null, secondary: null };
     let cellSize = 40;
     let allowInput = false;
@@ -966,11 +1040,11 @@ document.addEventListener('DOMContentLoaded', () => {
         blockBag = []; // Clear bag before new game
         generateBlockBag(); // Generate initial bag
 
-        // Initialize currentPair and nextPair from the bag
+        // Initialize currentPair, nextPair, and nextNextPair from the bag
         if (blockBag.length >= 2) {
             currentPair.primary = blockBag.shift();
             currentPair.secondary = blockBag.shift();
-        } else { // Fallback if bag generation had issues or was too short
+        } else {
             console.error("Block bag too short for initial currentPair, using random.");
             currentPair.primary = getRandomColorFallback();
             currentPair.secondary = getRandomColorFallback();
@@ -979,13 +1053,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (blockBag.length >= 2) {
             nextPair.primary = blockBag.shift();
             nextPair.secondary = blockBag.shift();
-        } else { // Fallback
+        } else {
             console.error("Block bag too short for initial nextPair, using random.");
             nextPair.primary = getRandomColorFallback();
             nextPair.secondary = getRandomColorFallback();
         }
 
-        updatePreviewDisplays();
+        if (blockBag.length >= 2) { // New: Initialize nextNextPair
+            nextNextPair.primary = blockBag.shift();
+            nextNextPair.secondary = blockBag.shift();
+        } else {
+            console.error("Block bag too short for initial nextNextPair, using random.");
+            nextNextPair.primary = getRandomColorFallback();
+            nextNextPair.secondary = getRandomColorFallback();
+        }
+
+        updatePreviewDisplays(); // This will now also call updateNextNextPreviewDisplay internally or separately
 
         allowInput = true;
         isFalling = false;
@@ -1049,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             b.style.height = `${currentPairBlockSize}px`;
             b.style.borderRadius = `${Math.floor(currentPairBlockSize * 0.2)}px`;
         });
-        document.querySelectorAll('#next-pair .block').forEach(b => {
+        document.querySelectorAll('#next-pair .block, #next-next-pair .block').forEach(b => { // Added #next-next-pair .block
             b.style.width = `${nextPairBlockSize}px`;
             b.style.height = `${nextPairBlockSize}px`;
             b.style.borderRadius = `${Math.floor(nextPairBlockSize * 0.2)}px`;
@@ -1091,31 +1174,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generateNewPair() {
-        currentPair = { ...nextPair }; // shallow copy is fine here as colors are strings
+        currentPair = { ...nextPair };
+        nextPair = { ...nextNextPair }; // nextNext becomes next
 
         if (blockBag.length < 2) {
-            console.log("Block bag empty or near empty, regenerating...");
+            console.log("Block bag empty or near empty for nextNextPair, regenerating...");
             generateBlockBag();
         }
 
         if (blockBag.length >= 2) {
-            nextPair.primary = blockBag.shift();
-            nextPair.secondary = blockBag.shift();
+            nextNextPair.primary = blockBag.shift(); // Get new nextNext primary
+            nextNextPair.secondary = blockBag.shift(); // Get new nextNext secondary
         } else {
-            // This case should ideally not be hit if generateBlockBag works correctly
-            // and is called when bag is low.
-            console.error("Block bag is critically low after attempted regeneration. Using fallback for nextPair.");
-            nextPair.primary = getRandomColorFallback();
-            nextPair.secondary = getRandomColorFallback();
-            // To prevent infinite loops if bag generation fails, ensure we always have a next pair.
-            // If currentPair was also set by fallback, this might lead to issues.
-            // Consider how to handle a complete failure of bag generation.
+            console.error("Block bag is critically low after attempted regeneration for nextNextPair. Using fallback.");
+            nextNextPair.primary = getRandomColorFallback();
+            nextNextPair.secondary = getRandomColorFallback();
         }
 
-
-        // If currentPair is somehow still null (e.g., first pair generation and bag issues)
+        // Fallback for currentPair if it was somehow not set (e.g., initial empty nextNextPair)
         if (!currentPair.primary) {
-             console.warn("Current pair was not initialized, pulling from bag (or fallback).");
+            console.warn("Current pair was not properly set from nextPair, pulling from bag/fallback.");
             if (blockBag.length >= 2) {
                 currentPair.primary = blockBag.shift();
                 currentPair.secondary = blockBag.shift();
@@ -1124,6 +1202,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentPair.secondary = getRandomColorFallback();
             }
         }
+        // Fallback for nextPair if it was somehow not set
+        if (!nextPair.primary) {
+             console.warn("Next pair was not properly set from nextNextPair, pulling from bag/fallback.");
+            if (blockBag.length >= 2) {
+                nextPair.primary = blockBag.shift();
+                nextPair.secondary = blockBag.shift();
+            } else {
+                nextPair.primary = getRandomColorFallback();
+                nextPair.secondary = getRandomColorFallback();
+            }
+        }
+
         updatePreviewDisplays();
     }
 
@@ -1136,6 +1226,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (nextPair.primary) {
             nextPrimaryDisplay.className = `block primary-block ${nextPair.primary}`;
             nextSecondaryDisplay.className = `block secondary-block ${nextPair.secondary}`;
+        }
+		
+        if (nextNextPair.primary && nextNextPrimaryDisplay && nextNextSecondaryDisplay) {
+            nextNextPrimaryDisplay.className = `block primary-block ${nextNextPair.primary}`;
+            nextNextSecondaryDisplay.className = `block secondary-block ${nextNextPair.secondary}`;
+        } else if (nextNextPrimaryDisplay && nextNextSecondaryDisplay) {
+            // Handle case where nextNextPair might be temporarily empty or elements not found
+            nextNextPrimaryDisplay.className = `block primary-block`; // Clear class
+            nextNextSecondaryDisplay.className = `block secondary-block`; // Clear class
         }
     }
 
