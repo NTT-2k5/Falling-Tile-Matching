@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title id="page-title">Columns Matching Game</title>
+    <title id="page-title">Columns Game</title>
     <style>
 body {
     font-family: Arial, sans-serif;
@@ -55,7 +55,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 90%; /* Ensure modal fits on smaller screens */
+    max-width: 75%;
     max-height: 90vh; /* Prevent modal from being too tall */
     overflow-y: auto; /* Allow scrolling if content overflows */
 }
@@ -122,55 +122,22 @@ body {
     background-color: #616161 !important; /* Darker grey */
 }
 
-.game-options-container {
+.selector-container {
     margin-top: 10px;
-    margin-bottom: 5px;
-    display: flex;
-    flex-direction: column; /* Stack dropdowns vertically */
-    align-items: stretch; /* Make children take full width */
-    gap: 8px; /* Space between dropdowns */
-    width: 80%;
-    max-width: 250px; /* Max width for dropdowns */
-}
-
-.game-options-container > div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Align label left, select right */
-}
-
-
-.game-options-container label {
-    margin-right: 8px;
-    font-size: 1em;
-    color: #555;
-    white-space: nowrap;
-}
-
-.game-options-container select {
-    padding: 5px 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 0.95em;
-    flex-grow: 1; /* Allow select to take available space */
-}
-
-
-.language-selector-container {
-    margin-top: 15px;
     margin-bottom: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%; /* Ensure full width for centering */
 }
 
-.language-selector-container label {
+.selector-container label {
     margin-right: 8px;
     font-size: 1em;
     color: #555;
 }
 
-.language-selector-container select {
+.selector-container select {
     padding: 5px 8px;
     border-radius: 4px;
     border: 1px solid #ccc;
@@ -180,71 +147,65 @@ body {
 
 /* Game Interface Styles */
 #game-interface {
-    display: flex; /* CHANGED: Use flexbox */
-    flex-direction: column; /* CHANGED: Stack children vertically */
-    align-items: center; /* CHANGED: Center children like stats-area if its width is not 100% of parent*/
-    width: 100%; /* Make game-interface take full width of game-container */
-    flex-grow: 1; /* Allow game interface to take available vertical space */
-    overflow: hidden; /* Prevent internal scrolling if content overflows due to sizing issues */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex-grow: 1;
+    overflow: hidden;
     /* display: none; is handled by JS */
 }
 
 #stats-area {
     display: flex;
-    flex-direction: column; /* Stack rows vertically */
+    flex-direction: row; /* Single row */
+    align-items: center; /* Vertically align items */
+    justify-content: space-around; /* Distribute space, helps when timer is hidden */
     width: 100%;
-    padding: 8px 0;
-    margin-bottom: 8px;
+    padding: 5px 12px;
     background-color: #e0e0e0;
     border-radius: 5px;
-    font-size: clamp(0.8em, 2.5vw, 1.2em);
+    font-size: clamp(0.9em, 2.5vw, 1.1em); /* Base font size for the area */
     flex-shrink: 0;
+    box-sizing: border-box;
+    min-height: 50px; /* Ensure a minimum height for better vertical centering of larger items */
 }
 
-.stats-row {
+.stat-item {
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
+    align-items: center; /* Align emoji and number vertically */
+    margin: 0 8px; /* Space between stat items, reduced slightly */
 }
 
-.stats-row:first-child {
-    margin-bottom: 5px; /* Add some space between rows */
+.stat-emoji {
+    font-size: 1.7em; /* Larger emoji */
+    margin-right: 6px; /* Space between emoji and number */
+    line-height: 1; /* Improve vertical alignment of emoji */
 }
 
-
-#score-area, #highscore-area, #combo-area, #timer-area-container { /* Renamed timer-area to timer-area-container */
-    padding: 0 5px;
-    text-align: center;
-    flex-grow: 1;
-    white-space: nowrap;
+.stat-value {
+    font-size: 1.7em; /* Larger number */
+    font-weight: bold;
+    line-height: 1; /* Improve vertical alignment of numbers */
 }
 
-#timer-area-container { /* Styles for the container of timer text and bar */
-    display: flex;
+#time-left { /* Inherits .stat-value, specific for color */
+    color: #4CAF50; /* Default green */
+}
+
+#pause-game-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 2.1em; /* Large pause emoji */
+    color: #333; /* Default text color */
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px; /* Space from the timer or highscore */
+    line-height: 1; /* Crucial for emoji vertical alignment */
+    display: flex; /* For centering emoji if it has intrinsic padding */
     align-items: center;
     justify-content: center;
 }
-
-
-#time-bar-container {
-    width: clamp(70px, 50vw, 200px); /* Responsive width */
-    height: 15px; /* Adjusted height */
-    background-color: #ccc;
-    border-radius: 5px;
-    margin-left: 8px; /* Adjusted margin */
-    overflow: hidden;
-}
-
-#time-bar {
-    height: 100%;
-    width: 100%;
-    background-color: #4CAF50;
-    border-radius: 5px;
-    transition: background-color 0.2s linear, width 0.05s linear;
-}
-
-
 #game-display-area {
     display: flex;
     width: 100%;
@@ -252,7 +213,7 @@ body {
     min-height: 0; /* Important for flex children that need to scroll or manage overflow */
 }
 
-#piece-preview-area { /* Renamed from pairs-preview-area */
+#columns-preview-area { /* Renamed from pairs-preview-area */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -260,71 +221,70 @@ body {
     margin-top: 20px;
     padding-right: clamp(10px, 3vw, 20px); /* Responsive padding */
     flex-shrink: 0;
-    flex-basis: clamp(70px, 20vw, 120px); /* Adjusted base width */
+    flex-basis: clamp(80px, 22vw, 130px); /* Adjusted base width for cycle button + less previews */
     position: relative;
 }
 
-.piece-container { /* Renamed from pair-container */
-    margin-bottom: clamp(10px, 3vh, 20px); /* Adjusted margin */
+.column-container { /* Renamed from pair-container */
+    margin-bottom: clamp(15px, 3vh, 25px); /* Adjusted margin for fewer previews */
     text-align: center;
 }
 
-.piece-label { /* Renamed from pair-label */
+.column-label { /* Renamed from pair-label */
     font-size: clamp(0.9em, 2vw, 1.1em);
-    margin-top: 15px;
+    margin-top: 10px; /* Adjusted margin */
     margin-bottom: 5px;
 }
 
-#current-piece, #next-piece { /* Renamed from current-pair, next-pair */
+#current-column-display, #next-column-display { /* Combined, no next2 */
     display: flex;
     flex-direction: column; /* Stack blocks vertically */
     align-items: center;
 }
 
-#cycle-pos-btn { /* Renamed from save-pair-btn */
+#next-label {
+    position: relative;
+    z-index: 3;
+    margin-bottom: 5px;
+}
+
+/* Styling for the 3-block column previews */
+#current-column-display .block {
+    margin: 2px 0; /* Small margin between blocks in the column */
+}
+#next-column-display .block {
+    margin: 1px 0; /* Slightly smaller margin for next previews */
+}
+
+#cycle-order-btn { /* Renamed from save-pair-btn */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 8px;
-    margin: 10px auto;
+    margin: 15px auto; /* Increased top margin due to less previews */
     border: none;
     border-radius: 5px;
     background-color: #e0e0e0;
     cursor: pointer;
-    width: clamp(80px, 90%, 110px); /* Responsive width */
-    /* font-size: clamp(0.9em, 2vw, 1.1em); */
-	font-size: 16px;
+    width: clamp(70px, 90%, 110px); /* Slightly wider for new text */
+    font-size: clamp(0.9em, 2vw, 1.1em); /* Adjusted font size */
     box-sizing: border-box;
-    min-height: 60px; /* Ensure button has some height */
+    position: relative;
+    z-index: 5;
+    min-height: 50px; /* Ensure enough height */
 }
 
-#cycle-pos-btn .cycle-btn-text {
-    /* font-style: italic; */
-    font-weight: bold;
+#cycle-btn-text-label { /* Renamed from save-btn-text-label */
+    margin-bottom: 0; /* No blocks below it */
+	// font-style: italic;
+	font-weight: bold;
 }
 
-
-#end-game-btn {
-    padding: 10px 10px;
-    margin: 10px auto; /* Ensure consistent margin */
-    border: none;
-    border-radius: 5px;
-    background-color: #ec4d45; /* Red */
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    width: clamp(80px, 90%, 110px); /* Match button width */
-    box-sizing: border-box;
-}
-#end-game-btn:hover {
-    background-color: #d32f2f;
-}
 
 .block {
-    /* width and height will be set by JS for preview blocks to be relative to cell size */
     margin: 1px 0;
-    border-radius: clamp(4px, 1vw, 8px); /* Responsive border-radius */
+    border-radius: clamp(4px, 1vw, 8px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -334,40 +294,27 @@ body {
     box-shadow:
         inset 2px 2px 3px rgba(255, 255, 255, 0.3),
         inset -2px -2px 3px rgba(0, 0, 0, 0.2),
-        2px 2px 4px rgba(0, 0, 0, 0.3);
+        2px 2px 5px rgba(0, 0, 0, 0.3);
+    /* font-size will be set dynamically or based on context */
 }
 
-/* Block Colors */
+/* Block Colors (add yellow) */
 .block.green { background-color: #4CAF50; }
 .block.blue { background-color: #2196F3; }
 .block.red { background-color: #F44336; }
 .block.purple { background-color: #9C27B0; }
 .block.orange { background-color: #FF9800; }
-.block.yellow { background-color: #FFEB3B; color: #333; } /* Added Yellow */
-
-
-.target-block::after {
-    content: '×'; /* Cross mark */
-    font-size: 2.5em; /* Adjust size of cross mark */
-    color: rgba(255, 255, 255, 0.85);
-    -webkit-text-stroke: 1px rgba(0,0,0,0.7); /* Outline for better visibility */
-    text-stroke: 1px rgba(0,0,0,0.7);
-    font-weight: bolder;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    line-height: 1; /* Ensure cross is centered */
-}
+.block.yellow { background-color: #FFEB3B; color: #333; } /* Yellow color with dark text */
 
 
 #playfield-container {
     flex-grow: 1;
     display: flex;
     justify-content: center;
-    align-items: top; /* Center the playfield vertically if there's extra space */
+    align-items: top;
     margin-top: 15px;
-    min-width: 0; /* Important for flex children */
+    min-width: 0;
+    position: relative;
 }
 
 #playfield {
@@ -380,19 +327,36 @@ body {
     gap: 2px;
     padding: 2px;
     position: relative;
-    overflow: hidden;
-    max-width: 100%; /* Ensure it doesn't overflow its container if calculation is off */
+    overflow: hidden; /* Important: This will clip blocks visually falling from above */
+    max-width: 100%;
     max-height: 100%;
-    box-sizing: content-box; /* Important if padding is used to represent grid lines border */
+    box-sizing: content-box;
 }
 
 .playfield-cell {
     background-color: #e0e0e0;
+    position: relative; /* For target marker */
 }
+
+.target-cell-marker::after {
+    content: '×'; /* Cross mark */
+    font-size: calc(var(--cell-size) * 0.9); /* Adjusted size relative to cell */
+    color: rgba(255, 255, 255, 0.85);
+    -webkit-text-stroke: 1px rgba(0,0,0,0.7); /* Outline for better visibility */
+    text-stroke: 1px rgba(0,0,0,0.7);
+    font-weight: bolder;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1; /* Ensure cross is centered */
+    z-index: 15; /* Above blocks but below combo display */
+    pointer-events: none; /* So it doesn't interfere with clicks on the cell */
+}
+
 
 .playfield-block {
     position: absolute;
-    /* width, height, left, top set by JS */
     z-index: 10;
     margin: 0 !important;
 }
@@ -401,21 +365,23 @@ body {
   width: 65px;
   height: 0;
   border: 1px solid #C4C4C4;
-  margin: 3px auto 5px auto; /* Added auto for horizontal centering and bottom margin */
-  display:block; /* Ensure it takes up its own line */
+  margin: 3px auto 5px auto;
+  display:block;
 }
 
-.preview-block {
-    opacity: 0.5; /* Transparent for preview */
-    z-index: 5;
+.preview-column-block { /* For blocks shown during drag preview */
+    opacity: 0.6;
+    z-index: 5; /* Lower than placed blocks, higher than grid cells */
+    position: absolute; /* Positioned by JS */
      box-shadow:
         inset 1px 1px 2px rgba(255, 255, 255, 0.2),
         inset -1px -1px 2px rgba(0, 0, 0, 0.1),
-        1px 1px 2px rgba(0, 0, 0, 0.2); /* Softer shadow for preview */
+        1px 1px 3px rgba(0, 0, 0, 0.2); /* Softer shadow for preview */
 }
 
+
 .clearing {
-    animation: clearAnimation 0.5s forwards;
+    animation: clearAnimation 0.6s forwards;
 }
 
 @keyframes clearAnimation {
@@ -424,32 +390,81 @@ body {
     100% { transform: scale(0); opacity: 0; }
 }
 
+#dynamic-combo-display {
+    position: absolute;
+    font-size: 3.3rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 3px 3px 3px rgba(0,0,0,0.6), 0 0 8px rgba(0,0,0,0.5);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+    transition: opacity 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform, opacity;
+}
+
+#dynamic-combo-display.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#dynamic-combo-display.hide {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+}
+
+
+#dynamic-combo-display.high-combo {
+    color: #FFD700;
+    text-shadow: 1px 1px 2px #A0522D, 0 0 5px #B8860B, 0 0 10px #FF8C00;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
+	.modal-content {
+		max-width: 90%; /* Ensure modal fits on smaller screens */
+	}
     #stats-area {
-        font-size: 1em;
+        font-size: 1em; /* Base for em units in stat items */
+        padding: 6px 8px;
     }
-     .stats-row {
-        flex-wrap: wrap;
+    .stat-emoji {
+        font-size: 1.7em;
     }
-    #timer-area-container {
-        flex-basis: 100%;
-        margin-top: 5px;
+    .stat-value {
+        font-size: 1.65em;
+    }
+    #pause-game-btn {
+        font-size: 2em;
+    }
+}
+@media (max-width: 400px) { /* Added finer grained responsive step */
+    #stats-area {
+        font-size: 0.9em;
+        padding: 5px 6px;
+        min-height: 40px;
+    }
+    .stat-item {
+        margin: 0 4px;
+    }
+    .stat-emoji {
+        font-size: 1.6em;
+        margin-right: 3px;
+    }
+    .stat-value {
+        font-size: 1.6em;
     }
 }
 @media (max-width: 300px) {
     #stats-area {
-        font-size: 0.9em;
+        font-size: 0.8em; /* Further reduction for very small screens */
     }
-     .stats-row {
-        flex-wrap: wrap;
+     .stat-emoji {
+        font-size: 1.5em;
     }
-    #timer-area-container {
-        flex-basis: 100%;
-        margin-top: 5px;
-    }
-    #time-bar-container {
-        width: 90px;
+    .stat-value {
+        font-size: 1.5em;
     }
 }
     </style>
@@ -458,38 +473,40 @@ body {
     <div id="game-container">
         <div id="mode-selection-modal" class="modal">
             <div class="modal-content">
-                <h2 id="main-menu-title">Columns Matching Game</h2>
-                <div class="game-options-container">
-                    <div>
-                        <label for="difficulty-selector" id="difficulty-label">Difficulty:</label>
-                        <select id="difficulty-selector">
-                            <option value="easy">Easy (4 Colors)</option>
-                            <option value="normal" selected>Normal (5 Colors)</option>
-                            <option value="hard">Hard (6 Colors)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="height-selector" id="height-label">Start Height:</label>
-                        <select id="height-selector">
-                            <option value="0">0</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                        </select>
-                    </div>
+                <h2 id="main-menu-title">Columns Game</h2>
+
+                <div class="selector-container">
+                    <label for="difficulty-selector" id="difficulty-label">Difficulty:</label>
+                    <select id="difficulty-selector">
+                        <option value="easy">Easy (4 Colors)</option>
+                        <option value="normal" selected>Normal (5 Colors)</option>
+                        <option value="hard">Hard (6 Colors)</option>
+                    </select>
                 </div>
+
+                <div class="selector-container">
+                    <label for="start-height-selector" id="start-height-label">Start Height:</label>
+                    <select id="start-height-selector">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5" selected>5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select>
+                </div>
+
                 <button id="relax-mode-btn">Relax Mode</button>
                 <button id="timed-mode-btn">Timed Mode</button>
                 <button id="pressure-mode-btn">Pressure Mode</button>
                 <button id="target-mode-btn">Target Mode</button>
                 <button id="how-to-play-btn">How to Play</button>
-                <div class="language-selector-container">
+
+                <div class="selector-container" style="margin-top: 15px;">
                     <label for="language-selector" id="language-label">Language:</label>
                     <select id="language-selector">
                         <option value="en">English</option>
@@ -503,16 +520,19 @@ body {
         <div id="how-to-play-modal" class="modal" style="display: none;">
             <div class="modal-content">
                 <h2 id="htp-title">How to Play</h2>
-                <p><span id="htp-objective-label-strong"><strong>Objective:</strong></span> <span id="htp-objective-text">Score points by matching groups of 3 or more same-colored blocks!</span></p>
-
+                <p><strong id="htp-objective-label">Objective:</strong> <span id="htp-objective-text"></span></p>
                 <p><strong id="htp-gameplay-label">Gameplay:</strong></p>
                 <ul>
                     <li id="htp-gameplay-rule1"></li>
                     <li id="htp-gameplay-rule2"></li>
                     <li id="htp-gameplay-rule3"></li>
                     <li id="htp-gameplay-rule4"></li>
-                    <li id="htp-gameplay-rule5"></li>
-                    <li id="htp-gameplay-rule6"></li>
+                </ul>
+                <p><strong id="htp-controls-label">Controls:</strong></p>
+                <ul>
+                    <li id="htp-controls-rule1"></li>
+                    <li id="htp-controls-rule2"></li>
+                    <li id="htp-controls-rule3"></li>
                 </ul>
                 <p><strong id="htp-gamemodes-label">Game Modes:</strong></p>
                 <ul>
@@ -528,52 +548,53 @@ body {
 
         <div id="game-interface" style="display: none;">
             <div id="stats-area">
-                <div class="stats-row">
-                    <div id="score-area"><span class="label">Score: </span><span id="score">0</span></div>
-                    <div id="highscore-area"><span class="label">High Score: </span><span id="highscore">0</span></div>
-                    <div id="combo-area"><span class="label">Combo </span><span id="combo-value-display">0x</span></div>
+                <div id="score-stat" class="stat-item">
+                    <span class="stat-emoji">⭐</span>
+                    <span id="score" class="stat-value">0</span>
                 </div>
-                <div class="stats-row">
-                    <div id="timer-area-container" style="display: none;"><span class="label">Time: </span>&nbsp;<span id="time-left">0.0</span>
-                        <div id="time-bar-container">
-                            <div id="time-bar"></div>
-                        </div>
-                    </div>
+                <div id="highscore-stat" class="stat-item">
+                    <span class="stat-emoji">🏆</span>
+                    <span id="highscore" class="stat-value">0</span>
                 </div>
+                <div id="timer-stat" class="stat-item" style="display: none;"> <span class="stat-emoji">⌛</span>
+                    <span id="time-left" class="stat-value">0.0</span>
+                </div>
+                <button id="pause-game-btn" title="Pause/End Game">⏸</button>
             </div>
 
             <div id="game-display-area">
-                <div id="piece-preview-area">
-                    <div class="piece-container current-piece-container">
-                        <div class="piece-label" id="now-label"><b>NOW</b></div>
-                        <div id="current-piece">
-                            <div class="block" id="current-top"></div>
-                            <div class="block" id="current-mid"></div>
-                            <div class="block" id="current-bot"></div>
+                <div id="columns-preview-area">
+                    <div class="column-container current-column-container">
+                        <div class="column-label" id="now-label"><b>NOW</b></div>
+                        <div id="current-column-display">
+                            <div class="block" id="current-block-top"></div>
+                            <div class="block" id="current-block-middle"></div>
+                            <div class="block" id="current-block-bottom"></div>
                         </div>
                     </div>
                     <div class="line"></div>
-                    <div class="piece-container next-piece-container">
-                        <div class="piece-label" id="next-label">Next</div>
-                        <div id="next-piece">
-                            <div class="block" id="next-top"></div>
-                            <div class="block" id="next-mid"></div>
-                            <div class="block" id="next-bot"></div>
+
+                    <div class="column-container next-column-container">
+                        <div class="column-label" id="next-label">Next</div>
+                        <div id="next-column-display">
+                             <div class="block" id="next-block-top"></div>
+                             <div class="block" id="next-block-middle"></div>
+                             <div class="block" id="next-block-bottom"></div>
                         </div>
-                    </div>
-                    <button id="cycle-pos-btn" style="display: none;">
-                        <span class="cycle-btn-text" id="cycle-btn-text-label">Cycle Pos.</span>
+                        </div>
+                    <button id="cycle-order-btn">
+                        <span id="cycle-btn-text-label">Cycle Order</span>
                     </button>
-                    <button id="end-game-btn">End Game</button>
                 </div>
                 <div id="playfield-container">
                     <div id="playfield">
                         </div>
+                    <div id="dynamic-combo-display"></div>
                 </div>
             </div>
         </div>
-        
-        <div id="confirm-end-game-modal" class="modal" style="display: none;">
+
+		<div id="confirm-end-game-modal" class="modal" style="display: none;">
             <div class="modal-content">
                 <h2 id="confirm-end-game-title">Confirm</h2>
                 <button id="confirm-end-game-yes-btn" class="confirm-btn-yes">Yes</button>
@@ -583,20 +604,10 @@ body {
 
         <div id="game-over-modal" class="modal" style="display: none;">
             <div class="modal-content">
-                <h2 id="game-over-title">Game Over</h2>
-                <p id="final-score-line"><span class="label">Your Final Score: </span><span id="final-score">0</span></p>
+                <h2 id="game-over-title">Game Over</h2> <p id="final-score-line"><span class="label">Your Final Score: </span><span id="final-score">0</span></p>
                 <p id="highscore-message-line" style="display: none;">High Score: <span id="final-highscore">0</span></p>
                 <p id="max-combo-line"><span class="label">Max Combo: </span><span id="max-combo">0</span></p><br>
                 <button id="main-menu-btn">Main Menu</button>
-            </div>
-        </div>
-
-        <div id="you-win-modal" class="modal" style="display: none;"> <div class="modal-content">
-                <h2 id="you-win-title">You Win!</h2>
-                <p id="win-final-score-line"><span class="label">Your Score: </span><span id="win-final-score">0</span></p>
-                <p id="win-highscore-message-line" style="display: none;">High Score: <span id="win-final-highscore">0</span></p>
-                <p id="win-max-combo-line"><span class="label">Max Combo: </span><span id="win-max-combo">0</span></p><br>
-                <button id="win-main-menu-btn">Main Menu</button>
             </div>
         </div>
     </div>
@@ -606,12 +617,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeSelectionModal = document.getElementById('mode-selection-modal');
     const gameInterface = document.getElementById('game-interface');
     const gameOverModal = document.getElementById('game-over-modal');
-    const youWinModal = document.getElementById('you-win-modal');
     const howToPlayModal = document.getElementById('how-to-play-modal');
     const confirmEndGameModal = document.getElementById('confirm-end-game-modal');
 
     const difficultySelector = document.getElementById('difficulty-selector');
-    const heightSelector = document.getElementById('height-selector');
+    const startHeightSelector = document.getElementById('start-height-selector');
     const relaxModeBtn = document.getElementById('relax-mode-btn');
     const timedModeBtn = document.getElementById('timed-mode-btn');
     const pressureModeBtn = document.getElementById('pressure-mode-btn');
@@ -619,25 +629,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const howToPlayBtn = document.getElementById('how-to-play-btn');
     const closeHowToPlayBtn = document.getElementById('close-how-to-play-btn');
     const mainmenuBtn = document.getElementById('main-menu-btn');
-    const winMainmenuBtn = document.getElementById('win-main-menu-btn');
-    const endgameBtn = document.getElementById('end-game-btn');
     const confirmEndGameYesBtn = document.getElementById('confirm-end-game-yes-btn');
     const confirmEndGameNoBtn = document.getElementById('confirm-end-game-no-btn');
 
+    const pauseGameBtn = document.getElementById('pause-game-btn');
+
     const scoreDisplay = document.getElementById('score');
     const highscoreDisplay = document.getElementById('highscore');
-    const timerAreaContainer = document.getElementById('timer-area-container');
+    const timerStatDisplay = document.getElementById('timer-stat');
     const timeLeftDisplay = document.getElementById('time-left');
-    const timeBar = document.getElementById('time-bar');
 
-    const currentTopDisplay = document.getElementById('current-top');
-    const currentMidDisplay = document.getElementById('current-mid');
-    const currentBotDisplay = document.getElementById('current-bot');
-    const nextTopDisplay = document.getElementById('next-top');
-    const nextMidDisplay = document.getElementById('next-mid');
-    const nextBotDisplay = document.getElementById('next-bot');
+    // Current Column Display
+    const currentBlockTopDisplay = document.getElementById('current-block-top');
+    const currentBlockMiddleDisplay = document.getElementById('current-block-middle');
+    const currentBlockBottomDisplay = document.getElementById('current-block-bottom');
 
-    const cyclePosBtn = document.getElementById('cycle-pos-btn');
+    // Next Column Display
+    const nextBlockTopDisplay = document.getElementById('next-block-top');
+    const nextBlockMiddleDisplay = document.getElementById('next-block-middle');
+    const nextBlockBottomDisplay = document.getElementById('next-block-bottom');
+
+    const cycleOrderBtn = document.getElementById('cycle-order-btn');
 
     const playfieldElement = document.getElementById('playfield');
     const playfieldContainer = document.getElementById('playfield-container');
@@ -648,32 +660,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const highscoreMessageLine = document.getElementById('highscore-message-line');
     const finalHighscoreDisplay = document.getElementById('final-highscore');
 
-    const winFinalScoreDisplay = document.getElementById('win-final-score');
-    const winFinalScoreLine = document.getElementById('win-final-score-line');
-    const winMaxcomboDisplay = document.getElementById('win-max-combo');
-    const winMaxcomboLine = document.getElementById('win-max-combo-line');
-    const winHighscoreMessageLine = document.getElementById('win-highscore-message-line');
-    const winFinalHighscoreDisplay = document.getElementById('win-final-highscore');
-
+    const dynamicComboDisplayElement = document.getElementById('dynamic-combo-display');
+    let dynamicComboTimeout = null;
 
     // Language Elements
     const languageSelector = document.getElementById('language-selector');
     const languageLabel = document.getElementById('language-label');
     const pageTitleElement = document.getElementById('page-title');
     const difficultyLabel = document.getElementById('difficulty-label');
-    const heightLabel = document.getElementById('height-label');
-
+    const startHeightLabel = document.getElementById('start-height-label');
     const mainMenuTitle = document.getElementById('main-menu-title');
     const htpTitle = document.getElementById('htp-title');
-    const htpObjectiveLabelStrong = document.getElementById('htp-objective-label-strong');
+    const htpObjectiveLabel = document.getElementById('htp-objective-label');
     const htpObjectiveText = document.getElementById('htp-objective-text');
     const htpGameplayLabel = document.getElementById('htp-gameplay-label');
     const htpGameplayRule1 = document.getElementById('htp-gameplay-rule1');
     const htpGameplayRule2 = document.getElementById('htp-gameplay-rule2');
     const htpGameplayRule3 = document.getElementById('htp-gameplay-rule3');
     const htpGameplayRule4 = document.getElementById('htp-gameplay-rule4');
-    const htpGameplayRule5 = document.getElementById('htp-gameplay-rule5');
-    const htpGameplayRule6 = document.getElementById('htp-gameplay-rule6');
+    const htpControlsLabel = document.getElementById('htp-controls-label');
+    const htpControlsRule1 = document.getElementById('htp-controls-rule1');
+    const htpControlsRule2 = document.getElementById('htp-controls-rule2');
+    const htpControlsRule3 = document.getElementById('htp-controls-rule3');
     const htpGameModesLabel = document.getElementById('htp-gamemodes-label');
     const htpRelaxModeLabel = document.getElementById('htp-relaxmode-label');
     const htpRelaxModeDesc = document.getElementById('htp-relaxmode-desc');
@@ -687,8 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nowLabel = document.getElementById('now-label');
     const nextLabel = document.getElementById('next-label');
     const cycleBtnTextLabel = document.getElementById('cycle-btn-text-label');
-    const gameOverTitle = document.getElementById('game-over-title');
-    const youWinTitle = document.getElementById('you-win-title');
+    const gameOverTitleElement = document.getElementById('game-over-title');
     const confirmEndGameTitle = document.getElementById('confirm-end-game-title');
 
 
@@ -696,20 +703,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const ROWS = 12;
     const COLS = 6;
     const ALL_POSSIBLE_COLORS = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'];
-    let COLORS_IN_USE = []; // Determined by difficulty
-
-    const FALL_SPEED = 50; // ms per row for gravity after clear
-    const TIMED_MODE_DURATION = 100 * 1000; // 100 seconds
+    let CURRENT_COLORS = [];
+    const BLOCKS_PER_COLOR_IN_BAG = 20;
+    const FALL_SPEED = 50;
+    const TIMED_MODE_DURATION = 100 * 1000;
     const PRESSURE_MODE_INITIAL_TIME = 10 * 1000;
-    const PRESSURE_MODE_DECREMENT = 100;
+    const PRESSURE_MODE_DECREMENT = 80;
     const PRESSURE_MODE_MIN_TIME = 500;
-    const PRESSURE_MODE_THRESHOLD_TIME = 3000;
-    const TARGET_MODE_START_SCORE = 3000; // Integer score, 1 point per decisecond
-    const TARGET_BLOCK_ROW = ROWS - 1; // 0-indexed (row 12)
-    const TARGET_BLOCK_COL = 3;      // 0-indexed (col 4)
-
+    const PRESSURE_MODE_THRESHOLD_TIME = 2000;
+    const TARGET_MODE_START_SCORE = 3000;
+    const TARGET_MODE_SCORE_DECREMENT_INTERVAL = 100;
+    const TARGET_BLOCK_ROW = ROWS - 1;
+    const TARGET_BLOCK_COL = 3;
     const GRID_PADDING = 2;
     const GRID_GAP = 2;
+    const MAX_INITIAL_FILL_ATTEMPTS = 10000;
 
 
     // Game State Variables
@@ -720,44 +728,44 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentHighScore = 0;
     let combo = 0;
     let maxcombo = 0;
-    let playfield = []; // Logical grid of blocks
-    let currentPiece = []; // Array of 3 colors [top, middle, bottom]
-    let nextPiece = [];   // Array of 3 colors
+    let playfield = [];
+    let currentColumn = { blocks: [null, null, null] }; // top, middle, bottom
+    let nextColumn = { blocks: [null, null, null] };
     let cellSize = 40;
     let allowInput = false;
-    let isProcessingPlacement = false; // For gravity and matching after a piece is placed
+    let isFalling = false;
     let gameTimerInterval = null;
     let pressureTimerInterval = null;
-	let pressureFrameId = null; // ADD THIS: For requestAnimationFrame ID
-	let pressureTimeRemainingOnPause = -1; // ADD THIS: Stores remaining ms of current segment when paused (-1 means not paused)
-    let pressureTurnFullDurationCurrentTurn = 0; // ADD THIS: Stores the full original time limit for the active turn (for bar scaling)
-    let pressureCurrentSegmentTargetDuration = 0; // ADD THIS: Stores the duration the current timer segment is aiming for
-	let timedModeTimeRemainingOnPause = -1; // ADD THIS: -1 indicates not paused or not relevant for timed mode
-
     let targetModeScoreInterval = null;
+
     let currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+    let pressureTurnEffectiveTimeLimit = 0;
     let pressureTurnStartTime = 0;
     let remainingTimedModeTime = 0;
 
-    let placementPreviewBlocks = []; // DOM elements for the 3 preview blocks on playfield
-    let currentPreviewCol = -1;      // Column where preview is shown
-    let currentPreviewPositions = null; // {top: {r,c}, mid: {r,c}, bot: {r,c}}
-
-    let isDragging = false;
-    let cancelDragDueToMultitouch = false;
+    let previewBlocks = [];
+    let dragStartPos = null;
+    let dragCurrentCol = -1;
+    let dragStartClientY = 0;
 
     let currentLanguage = 'en';
+    let blockBag = [];
+
+    let isGamePaused = false;
+    let pressureTimerRemainingBeforePause = 0;
+    let pressureAnimationRequestFrameId = null;
+    let targetModeScoreBeforePause = 0;
 
 
     const translations = {
         en: {
             pageTitle: "Columns Matching Game",
             mainMenuTitle: "Columns Matching Game",
-            difficulty: "Difficulty:",
-            easy: "Easy (4 Colors)", // Updated
-            normal: "Normal (5 Colors)", // Updated
-            hard: "Hard (6 Colors)", // Updated
-            startHeight: "Start Height:",
+            difficultyLabel: "Difficulty:",
+            startHeightLabel: "Start Height:",
+            easyDifficulty: "Easy (4 Colors)",
+            normalDifficulty: "Normal (5 Colors)",
+            hardDifficulty: "Hard (6 Colors)",
             relaxMode: "Relax Mode",
             timedMode: "Timed Mode",
             pressureMode: "Pressure Mode",
@@ -766,57 +774,56 @@ document.addEventListener('DOMContentLoaded', () => {
             languageSelectorLabel: "Language:",
 
             howToPlayTitle: "How to Play",
-            htpObjectiveLabelStrong: "<strong>Objective:</strong>",
+            htpObjectiveLabel: "<strong>Objective:</strong>",
             htpObjectiveText: "Arrange falling columns of three blocks to create matches of 3 or more same-colored blocks horizontally, vertically, or diagonally.",
             htpGameplayLabel: "<strong>Gameplay:</strong>",
-            htpGameplayRule1: "A column of three blocks (NOW piece) will appear, along with a preview of the NEXT piece.",
-            htpGameplayRule2: "Tap/click and drag on the playfield to choose a column. A preview will show where the piece will land.",
-            htpGameplayRule3: "Release to drop the column into the chosen spot. It will stack on any existing blocks or fall to the bottom.",
-            htpGameplayRule4: "When 3 or more blocks of the same color align horizontally, vertically, or diagonally, they clear, and you score points. Blocks above will fall.",
-            htpGameplayRule5: "Use the \"Cycle Order\" button (or Spacebar) to change the order of colors in the NOW piece.",
-            htpGameplayRule6: "The game ends if a new column cannot be placed at the top of any playfield column.",
+            htpGameplayRule1: "A column of three blocks (NOW piece) will appear, along with a preview of the NEXT piece, which you can drop in the playfield.",
+			htpGameplayRule2: "When 3 or more blocks of the same color align horizontally, vertically, or diagonally, they are cleared and you score points.",
+            htpGameplayRule3: "Other blocks will fall down right after breaking a block, which can cause a chain reaction (combo). Creating more combos will score more points!",
+            htpGameplayRule4: "The game ends if the playfield fills up and there's no space to place a new column at the top.",
+
+            htpControlsLabel: "<strong>Controls:</strong>",
+            htpControlsRule1: "Tap/click and drag left or right on the playfield to choose the column where the blocks column will drop. A preview will show the landing spot.",
+            htpControlsRule2: "Release your finger/mouse to drop the column. You can drag off the playfield to cancel the drop.",
+            htpControlsRule3: "Press the 'Cycle Order' button or Spacebar to change the order of blocks in the 'NOW' column.",
+
             htpGameModesLabel: "<strong>Game Modes:</strong>",
             htpRelaxModeLabel: "<strong>Relax Mode:</strong>",
-            htpRelaxModeDesc: "Play at your own pace. No timers!",
+            htpRelaxModeDesc: "Play at your own pace. No timers, no pressure!",
             htpTimedModeLabel: "<strong>Timed Mode:</strong>",
             htpTimedModeDesc: "Score as many points as you can before the 100-second timer runs out.",
             htpPressureModeLabel: "<strong>Pressure Mode:</strong>",
-            htpPressureModeDesc: "You have limited time for each move. This time decreases with each placement! If time runs out, a piece is auto-placed.",
+            htpPressureModeDesc: "You have limited time for each move. This time gets shorter with each placement! If time runs out, a column drops automatically at random position.",
             htpTargetModeLabel: "<strong>Target Mode:</strong>",
-            htpTargetModeDesc: "A specific block at the bottom of the playfield is the Target (marked '×'). Clear it before your score (starting at 3000, decreasing with time) reaches zero. If Start Height is 0 or 1, it will be auto-set to 2.", // Updated
+            htpTargetModeDesc: "Clear the target block (marked '×') at the bottom-center before your score reaches zero (starting at 3000, decreasing with time). If Start Height is 0 or 1, it will be auto-set to 2.", // Updated
             gotIt: "Got it!",
-
-            scoreLabelText: "Score: ", // Used for all modes now
-            highscoreLabelText: "High Score: ",
-            comboLabelText: "Combo ",
-            timeLabelText: "Time: ", 
 
             nowLabel: "<b>NOW</b>",
             nextLabel: "Next",
-            cyclePosLabelText: "Cycle Order",
-            endGameLabel: "End Game",
+            cycleOrderLabelText: "Cycle Order",
 
             gameOverTitle: "Game Over",
             youWinTitle: "You Win!",
-            finalScoreLabelText: "Your Final Score: ", // General, Target Win uses this too but shows remaining score
-            // targetWinScoreLabelText: "Your Score: ", // Not strictly needed if finalScoreLabelText is used carefully
+            finalScoreLabelText: "Your Final Score: ",
+            remainingTimeLabelText: "Time Score: ",
             newHighScoreMsg: "New High Score!",
             highScoreMsgPrefix: "High Score: ",
             maxComboLabelText: "Max Combo: ",
             mainMenuLabel: "Main Menu",
-            
+
             confirmEndGameTitle: "Confirm End Game?",
             confirmEndGameYes: "Yes, End Game",
-            confirmEndGameNo: "No, Continue"
+            confirmEndGameNo: "No, Continue",
+            pauseButtonTitle: "Pause / End Game"
         },
         vi: {
             pageTitle: "Trò chơi Xếp Cột khối",
             mainMenuTitle: "Trò chơi Xếp Cột khối",
-            difficulty: "Độ khó:",
-            easy: "Dễ (4 màu)", // Updated
-            normal: "Thường (5 màu)", // Updated
-            hard: "Khó (6 màu)", // Updated
-            startHeight: "Chiều cao:",
+            difficultyLabel: "Độ khó:",
+            startHeightLabel: "Chiều cao bắt đầu:",
+            easyDifficulty: "Dễ (4 màu)",
+            normalDifficulty: "Thường (5 màu)",
+            hardDifficulty: "Khó (6 màu)",
             relaxMode: "Chế độ Thư giãn",
             timedMode: "Chế độ Tính giờ",
             pressureMode: "Chế độ Áp lực",
@@ -825,81 +832,87 @@ document.addEventListener('DOMContentLoaded', () => {
             languageSelectorLabel: "Ngôn ngữ:",
 
             howToPlayTitle: "Hướng dẫn chơi",
-            htpObjectiveLabelStrong: "<strong>Mục tiêu:</strong>",
+            htpObjectiveLabel: "<strong>Mục tiêu:</strong>",
             htpObjectiveText: "Sắp xếp các cột khối rơi gồm ba khối để tạo thành các nhóm từ 3 khối cùng màu trở lên theo hàng ngang, hàng dọc, hoặc đường chéo.",
             htpGameplayLabel: "<strong>Cách chơi:</strong>",
-            htpGameplayRule1: "Một cột gồm ba khối (khối HIỆN TẠI) sẽ xuất hiện, cùng với khối KẾ TIẾP.",
-            htpGameplayRule2: "Chạm/nhấp và kéo trên khu vực chơi để chọn một cột. Một hình xem trước sẽ hiện ra nơi khối sẽ rơi xuống.",
-            htpGameplayRule3: "Thả tay để thả cột khối vào vị trí đã chọn. Cột khối sẽ chồng lên các khối hiện có hoặc rơi xuống đáy.",
-            htpGameplayRule4: "Khi 3 khối cùng màu trở lên thẳng hàng ngang, dọc, hoặc chéo, chúng sẽ bị phá và bạn ghi điểm. Các khối ở trên sẽ rơi xuống.",
-            htpGameplayRule5: "Sử dụng nút \"Đảo thứ tự\" (hoặc phím cách) để thay đổi thứ tự màu sắc trong khối HIỆN TẠI.",
-            htpGameplayRule6: "Trò chơi kết thúc nếu một cột khối mới không thể được đặt ở đầu bất kỳ cột nào trên khu vực chơi.",
+            htpGameplayRule1: "Một cột gồm ba khối (khối HIỆN TẠI) sẽ xuất hiện, cùng với khối KẾ TIẾP, bạn có thể thả các cột khối này trên khu vực chơi.",
+            htpGameplayRule2: "Khi 3 khối cùng màu trở lên thẳng hàng ngang, dọc, hoặc chéo, chúng sẽ bị phá và bạn ghi điểm.",
+            htpGameplayRule3: "Các khối khác sẽ rơi xuống ngay sau khi phá khối, có thể gây ra phản ứng dây chuyền (chuỗi). Tạo nhiều chuỗi sẽ ghi được nhiều điểm hơn!",
+            htpGameplayRule4: "Trò chơi kết thúc nếu khu vực chơi bị lấp đầy và không còn đủ chỗ trống để đặt thêm một cột khối mới.",
+
+            htpControlsLabel: "<strong>Điều khiển:</strong>",
+            htpControlsRule1: "Chạm/nhấp chuột và kéo sang trái hoặc phải trên khu vực chơi để chọn cột mà cột khối sẽ rơi xuống. Một hình xem trước sẽ hiện ra nơi khối sẽ rơi xuống.",
+            htpControlsRule2: "Thả tay/chuột để thả cột khối. Bạn có thể hủy đặt khối bằng cách kéo ra khỏi khu vực chơi.",
+            htpControlsRule3: "Nhấn nút 'Đảo thứ tự' hoặc phím cách (Space) để thay đổi thứ tự các khối trong cột 'HIỆN TẠI'.",
+
             htpGameModesLabel: "<strong>Chế độ chơi:</strong>",
             htpRelaxModeLabel: "<strong>Chế độ Thư giãn:</strong>",
-            htpRelaxModeDesc: "Chơi theo tốc độ của riêng bạn. Không giới hạn thời gian!",
+            htpRelaxModeDesc: "Chơi theo tốc độ của bạn. Không giới hạn thời gian, không áp lực!",
             htpTimedModeLabel: "<strong>Chế độ Tính giờ:</strong>",
             htpTimedModeDesc: "Ghi càng nhiều điểm càng tốt trước khi hết 100 giây.",
             htpPressureModeLabel: "<strong>Chế độ Áp lực:</strong>",
-            htpPressureModeDesc: "Bạn có giới hạn thời gian cho mỗi nước đi. Thời gian này sẽ giảm dần sau mỗi lần đặt khối! Nếu hết giờ, một khối sẽ tự động được đặt.",
+            htpPressureModeDesc: "Bạn có thời gian giới hạn cho mỗi lần di chuyển. Thời gian này sẽ ngắn dần sau mỗi lần đặt thành công! Nếu hết giờ, một cột sẽ tự động rơi tại một vị trí ngẫu nhiên.",
             htpTargetModeLabel: "<strong>Chế độ Mục tiêu:</strong>",
-            htpTargetModeDesc: "Một khối ở đáy khu vực chơi được đặt là Mục tiêu (đánh dấu '×'). Hãy phá nó trước khi điểm của bạn (bắt đầu từ 3000, giảm dần theo thời gian) về không. Nếu Chiều cao ban đầu là 0 hoặc 1, nó sẽ tự động được đặt thành 2.", // Updated
+            htpTargetModeDesc: "Hãy phá khối Mục tiêu (đánh dấu '×') ở đáy khu vực chơi trước khi điểm của bạn giảm về không (bắt đầu từ 3000, giảm dần theo thời gian). Nếu Chiều cao ban đầu là 0 hoặc 1, nó sẽ tự động được đặt thành 2.", // Updated
             gotIt: "Đã hiểu!",
-
-            scoreLabelText: "Điểm: ", // Used for all modes now
-            highscoreLabelText: "Điểm cao: ",
-            comboLabelText: "Chuỗi ",
-            timeLabelText: "Thời gian: ",
 
             nowLabel: "<b>HIỆN TẠI</b>",
             nextLabel: "Kế tiếp",
-            cyclePosLabelText: "Đảo thứ tự",
-            endGameLabel: "Kết thúc",
+            cycleOrderLabelText: "Đảo thứ tự",
 
             gameOverTitle: "Trò chơi kết thúc",
             youWinTitle: "Bạn đã thắng!",
             finalScoreLabelText: "Điểm của bạn: ",
+            remainingTimeLabelText: "Điểm thời gian: ",
             newHighScoreMsg: "Kỷ lục mới!",
             highScoreMsgPrefix: "Điểm cao: ",
             maxComboLabelText: "Chuỗi tối đa: ",
             mainMenuLabel: "Menu chính",
-            
+
             confirmEndGameTitle: "Xác nhận Kết thúc trò chơi?",
             confirmEndGameYes: "Có, Kết thúc",
-            confirmEndGameNo: "Không, Tiếp tục"
+            confirmEndGameNo: "Không, Tiếp tục",
+            pauseButtonTitle: "Tạm dừng / Kết thúc"
         }
     };
 
     function setLanguage(lang) {
         currentLanguage = lang;
-        localStorage.setItem('gameLanguage_columns', lang);
+        localStorage.setItem('columnsGameLanguage', lang);
         languageSelector.value = lang;
 
         const t = translations[lang] || translations.en;
 
         pageTitleElement.textContent = t.pageTitle;
         mainMenuTitle.textContent = t.mainMenuTitle;
-        difficultyLabel.textContent = t.difficulty;
-        difficultySelector.options[0].textContent = t.easy; // Updated text from translations
-        difficultySelector.options[1].textContent = t.normal; // Updated text from translations
-        difficultySelector.options[2].textContent = t.hard; // Updated text from translations
-        heightLabel.textContent = t.startHeight;
+        difficultyLabel.textContent = t.difficultyLabel;
+        startHeightLabel.textContent = t.startHeightLabel;
+
+        difficultySelector.options[0].textContent = t.easyDifficulty;
+        difficultySelector.options[1].textContent = t.normalDifficulty;
+        difficultySelector.options[2].textContent = t.hardDifficulty;
+
         relaxModeBtn.textContent = t.relaxMode;
         timedModeBtn.textContent = t.timedMode;
         pressureModeBtn.textContent = t.pressureMode;
         targetModeBtn.textContent = t.targetMode;
         howToPlayBtn.textContent = t.howToPlay;
-        languageLabel.textContent = t.languageSelectorLabel;
+        languageLabel.textContent = t.languageSelectorLabel; // This was the error line
 
         htpTitle.textContent = t.howToPlayTitle;
-        htpObjectiveLabelStrong.innerHTML = t.htpObjectiveLabelStrong;
+        htpObjectiveLabel.innerHTML = t.htpObjectiveLabel;
         htpObjectiveText.innerHTML = t.htpObjectiveText;
         htpGameplayLabel.innerHTML = t.htpGameplayLabel;
         htpGameplayRule1.innerHTML = t.htpGameplayRule1;
         htpGameplayRule2.innerHTML = t.htpGameplayRule2;
         htpGameplayRule3.innerHTML = t.htpGameplayRule3;
         htpGameplayRule4.innerHTML = t.htpGameplayRule4;
-        htpGameplayRule5.innerHTML = t.htpGameplayRule5;
-        htpGameplayRule6.innerHTML = t.htpGameplayRule6;
+
+        htpControlsLabel.innerHTML = t.htpControlsLabel;
+        htpControlsRule1.innerHTML = t.htpControlsRule1;
+        htpControlsRule2.innerHTML = t.htpControlsRule2;
+        htpControlsRule3.innerHTML = t.htpControlsRule3;
+
         htpGameModesLabel.innerHTML = t.htpGameModesLabel;
         htpRelaxModeLabel.innerHTML = t.htpRelaxModeLabel;
         htpRelaxModeDesc.innerHTML = t.htpRelaxModeDesc;
@@ -910,61 +923,36 @@ document.addEventListener('DOMContentLoaded', () => {
         htpTargetModeLabel.innerHTML = t.htpTargetModeLabel;
         htpTargetModeDesc.innerHTML = t.htpTargetModeDesc;
         closeHowToPlayBtn.textContent = t.gotIt;
-        
-        document.querySelector('#score-area .label').textContent = t.scoreLabelText; // Same label for all modes
-        document.querySelector('#highscore-area .label').textContent = t.highscoreLabelText;
-        document.querySelector('#combo-area .label').textContent = t.comboLabelText;
-        document.querySelector('#timer-area-container .label').textContent = t.timeLabelText;
-
 
         nowLabel.innerHTML = t.nowLabel;
         nextLabel.textContent = t.nextLabel;
-        cycleBtnTextLabel.textContent = t.cyclePosLabelText;
-        endgameBtn.textContent = t.endGameLabel;
+        cycleBtnTextLabel.textContent = t.cycleOrderLabelText;
 
-        gameOverTitle.textContent = t.gameOverTitle;
-        youWinTitle.textContent = t.youWinTitle;
-        document.querySelector('#final-score-line .label').textContent = t.finalScoreLabelText;
-        document.querySelector('#win-final-score-line .label').textContent = t.finalScoreLabelText; // Use same label, content will differ
         document.querySelector('#max-combo-line .label').textContent = t.maxComboLabelText;
-        document.querySelector('#win-max-combo-line .label').textContent = t.maxComboLabelText;
         mainmenuBtn.textContent = t.mainMenuLabel;
-        winMainmenuBtn.textContent = t.mainMenuLabel;
-        
+
         confirmEndGameTitle.textContent = t.confirmEndGameTitle;
         confirmEndGameYesBtn.textContent = t.confirmEndGameYes;
         confirmEndGameNoBtn.textContent = t.confirmEndGameNo;
-        
-        updateUIDependingOnMode();
-        updateComboDisplay(); // Update combo display with new rule
+
+        if (pauseGameBtn) pauseGameBtn.title = t.pauseButtonTitle;
     }
 
     function loadLanguage() {
-        const savedLang = localStorage.getItem('gameLanguage_columns');
-        if (savedLang && translations[savedLang]) {
-            setLanguage(savedLang);
-        } else {
-            setLanguage('en'); // Default to English
-        }
+        const savedLang = localStorage.getItem('columnsGameLanguage');
+        setLanguage(savedLang && translations[savedLang] ? savedLang : 'en');
     }
 
-    languageSelector.addEventListener('change', (event) => {
-        setLanguage(event.target.value);
-    });
-    
-    heightSelector.addEventListener('change', () => {
-        // No direct action needed here now, targetModeBtn click handles height adjustment
-        // const selectedHeight = parseInt(heightSelector.value, 10);
-        // targetModeBtn.disabled = selectedHeight === 0; // This was old logic
-    });
+    languageSelector.addEventListener('change', (event) => setLanguage(event.target.value));
 
-
-    function getHighScore(mode, diff, h) {
-        return parseInt(localStorage.getItem(`highscore_cols_${mode}_${diff}_${h}`) || '0', 10);
+    function getHighScoreKey() {
+        return `columnsHighScore_${gameMode}_${difficulty}_${startHeight}`;
     }
-
-    function setHighScore(mode, diff, h, newScore) {
-        localStorage.setItem(`highscore_cols_${mode}_${diff}_${h}`, newScore.toString());
+    function getHighScore() {
+        return parseInt(localStorage.getItem(getHighScoreKey()) || '0', 10);
+    }
+    function setHighScore(newScore) {
+        localStorage.setItem(getHighScoreKey(), newScore.toString());
     }
 
     function shuffleArray(array) {
@@ -974,1139 +962,812 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function selectColorsForDifficulty(diff) {
-        const allColors = [...ALL_POSSIBLE_COLORS];
-        shuffleArray(allColors);
-        let numColors;
-        if (diff === 'easy') numColors = 4;
-        else if (diff === 'normal') numColors = 5;
-        else numColors = 6; // hard
-        COLORS_IN_USE = allColors.slice(0, numColors);
-    }
-    
-    function getRandomColorFromPool() {
-        if (COLORS_IN_USE.length === 0) return ALL_POSSIBLE_COLORS[0]; // Fallback
-        return COLORS_IN_USE[Math.floor(Math.random() * COLORS_IN_USE.length)];
-    }
-
-    function generateColumnColors() {
-        const roll = Math.random() * 100;
-        let c1, c2, c3;
-
-        if (COLORS_IN_USE.length === 0) { 
-            c1 = ALL_POSSIBLE_COLORS[0]; c2 = c1; c3 = c1;
-            return [c1, c2, c3];
+    function setDifficultyColors() {
+        difficulty = difficultySelector.value;
+        switch (difficulty) {
+            case 'easy': CURRENT_COLORS = getRandomElements(ALL_POSSIBLE_COLORS, 4); break;
+            case 'hard': CURRENT_COLORS = [...ALL_POSSIBLE_COLORS]; break;
+            default: CURRENT_COLORS = getRandomElements(ALL_POSSIBLE_COLORS, 5); break;
         }
-        
-        if (roll < 6) { // 6% all same
-            c1 = getRandomColorFromPool();
-            c2 = c1;
-            c3 = c1;
-        } else if (roll < 6 + 24) { // 24% all different (total 30%)
-            c1 = getRandomColorFromPool();
-            if (COLORS_IN_USE.length >= 3) {
-                do { c2 = getRandomColorFromPool(); } while (c2 === c1);
-                do { c3 = getRandomColorFromPool(); } while (c3 === c1 || c3 === c2);
-            } else if (COLORS_IN_USE.length === 2) {
-                c2 = (c1 === COLORS_IN_USE[0]) ? COLORS_IN_USE[1] : COLORS_IN_USE[0];
-                c3 = getRandomColorFromPool(); 
-            } else { 
-                c2 = c1; c3 = c1;
-            }
-        } else if (roll < 6 + 24 + 30) { // 30% first and second same, third different (total 60%)
-            c1 = getRandomColorFromPool();
-            c2 = c1;
-            if (COLORS_IN_USE.length > 1) {
-                do { c3 = getRandomColorFromPool(); } while (c3 === c1);
-            } else {
-                c3 = c1; 
-            }
-        } else { // 40% all random (total 100%)
-            c1 = getRandomColorFromPool();
-            c2 = getRandomColorFromPool();
-            c3 = getRandomColorFromPool();
-        }
-        return [c1, c2, c3]; 
     }
 
+    function getRandomElements(arr, count) {
+        return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+
+    function generateBlockBag() {
+        blockBag = [];
+        CURRENT_COLORS.forEach(color => {
+            for (let i = 0; i < BLOCKS_PER_COLOR_IN_BAG; i++) blockBag.push(color);
+        });
+        shuffleArray(blockBag);
+    }
+
+    function drawFromBag(count = 1) {
+        const drawn = [];
+        for (let i = 0; i < count; i++) {
+            if (blockBag.length === 0) generateBlockBag();
+            if (blockBag.length === 0) { // Safety net
+                drawn.push(ALL_POSSIBLE_COLORS[Math.floor(Math.random() * ALL_POSSIBLE_COLORS.length)]);
+                continue;
+            }
+            drawn.push(blockBag.shift());
+        }
+        return drawn;
+    }
 
     function initGame() {
         modeSelectionModal.style.display = 'none';
         gameOverModal.style.display = 'none';
-        youWinModal.style.display = 'none';
         howToPlayModal.style.display = 'none';
         confirmEndGameModal.style.display = 'none';
         gameInterface.style.display = 'flex';
-        cyclePosBtn.style.display = 'flex';
+        cycleOrderBtn.style.display = 'flex';
 
-        finalScoreLine.style.display = 'block';
-        highscoreMessageLine.style.display = 'none';
-        maxcomboLine.style.display = 'none';
-        winFinalScoreLine.style.display = 'block';
-        winHighscoreMessageLine.style.display = 'none';
-        winMaxcomboLine.style.display = 'none';
+        isGamePaused = false;
+        if (pressureAnimationRequestFrameId) cancelAnimationFrame(pressureAnimationRequestFrameId);
+        if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
+        if (gameTimerInterval) clearInterval(gameTimerInterval);
+        if (targetModeScoreInterval) clearInterval(targetModeScoreInterval);
 
-        difficulty = difficultySelector.value;
-        startHeight = parseInt(heightSelector.value, 10); // This will use adjusted height if target mode changed it
-        selectColorsForDifficulty(difficulty);
-
-        updateUIDependingOnMode();
-
-
-        if (gameMode === 'timed') {
-            timerAreaContainer.style.display = 'flex';
-			timedModeTimeRemainingOnPause = -1;
-            startTimedModeTimer();
-        } else if (gameMode === 'pressure') {
-            timerAreaContainer.style.display = 'flex';
-            currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME; // Time for the *first* turn
-            pressureTurnFullDurationCurrentTurn = PRESSURE_MODE_INITIAL_TIME; // Set for the first turn
-            pressureTimeRemainingOnPause = -1; // Reset pause state
-            startPressureTurnTimer(); // Initial call without arguments
-        } else if (gameMode === 'target') {
-            timerAreaContainer.style.display = 'none'; 
-            score = TARGET_MODE_START_SCORE; 
-            startTargetModeScoreTimer();
-        } else { // Relax mode
-            timerAreaContainer.style.display = 'none';
-        }
-        
-        playfieldContainer.style.marginBottom = '15px';
-        playfieldContainer.style.marginRight = '4px';
-
-        if (gameMode !== 'target') score = 0; 
-        combo = 0;
-        maxcombo = 0;
-        currentHighScore = getHighScore(gameMode, difficulty, startHeight);
+        setDifficultyColors();
+        startHeight = parseInt(startHeightSelector.value, 10);
+        score = 0; combo = 0; maxcombo = 0;
+        currentHighScore = getHighScore();
         updateScoreDisplay();
         highscoreDisplay.textContent = currentHighScore;
-        updateComboDisplay();
-        
-        clearPlayfieldData();
-        generatePlayfieldCells(); 
-        fillInitialBlocks(startHeight);
-        
-        if (gameMode === 'target' && startHeight > 0) { // startHeight should be >= 2 now for target
-            if (playfield[TARGET_BLOCK_ROW][TARGET_BLOCK_COL]) {
-                playfield[TARGET_BLOCK_ROW][TARGET_BLOCK_COL].isTarget = true;
-            } else { 
-                 playfield[TARGET_BLOCK_ROW][TARGET_BLOCK_COL] = {color: getRandomColorFromPool(), id: `target_${TARGET_BLOCK_ROW}_${TARGET_BLOCK_COL}`, isTarget: true};
-            }
+        timerStatDisplay.style.display = 'none';
+        scoreDisplay.style.color = '#000';
+
+        if (gameMode === 'timed') {
+            timerStatDisplay.style.display = 'flex';
+            startTimedModeTimer();
+        } else if (gameMode === 'pressure') {
+            timerStatDisplay.style.display = 'flex';
+            currentPressureTimeLimit = PRESSURE_MODE_INITIAL_TIME;
+            pressureTurnEffectiveTimeLimit = currentPressureTimeLimit;
+            startPressureTurnTimer();
+        } else if (gameMode === 'target') {
+            score = TARGET_MODE_START_SCORE;
+            updateScoreDisplay();
+            if (startHeight < 2) startHeight = 2;
+            startTargetModeTimer();
         }
-        
+
+        clearPlayfieldArray();
+        generatePlayfieldCells();
         adjustCellSize(); 
 
-        currentPiece = generateColumnColors();
-        nextPiece = generateColumnColors();
+        generateBlockBag();
+        currentColumn = generateNewColumnDefinition();
+        nextColumn = generateNewColumnDefinition();
+
         updatePreviewDisplays();
 
-        allowInput = true;
-        isProcessingPlacement = false;
-        currentPreviewCol = -1;
-        currentPreviewPositions = null;
+        allowInput = true; isFalling = false;
+        dynamicComboDisplayElement.classList.remove('show', 'hide');
+        removeTargetMarker();
+        if (gameMode === 'target') addTargetMarker();
 
-        console.log(`Game initialized: Mode=${gameMode}, Diff=${difficulty}, Height=${startHeight}, HS=${currentHighScore}`);
+        console.log(`Game initialized: Mode=${gameMode}, Difficulty=${difficulty}, StartHeight=${startHeight}, HighScore=${currentHighScore}`);
     }
-    
-    function updateUIDependingOnMode() {
-        const t = translations[currentLanguage] || translations.en;
-        const scoreLabelEl = document.querySelector('#score-area .label');
-        scoreLabelEl.textContent = t.scoreLabelText; // Use same label for all modes
-
-        if (gameMode === 'timed' || gameMode === 'pressure') {
-            timerAreaContainer.style.display = 'flex';
-        } else {
-            timerAreaContainer.style.display = 'none'; // Relax and Target mode don't use this timer bar
-        }
-    }
-
-    function clearPlayfieldData() {
-        playfield = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
-    }
-    
-    function fillInitialBlocks(height) {
-        if (height === 0) return;
-        let attempts = 0;
-        const MAX_FILL_ATTEMPTS = 10000;
-
-        while (attempts < MAX_FILL_ATTEMPTS) {
-            clearPlayfieldData();
-            for (let r = ROWS - 1; r >= ROWS - height; r--) {
-                for (let c = 0; c < COLS; c++) {
-                    playfield[r][c] = { color: getRandomColorFromPool(), id: `initial_${r}_${c}_${Date.now()}` };
-                }
-            }
-            if (!checkAllMatches(false).length) { 
-                console.log("Board height",height,"succesfully generated after",attempts,"attempts");
-				return;
-            }
-            attempts++;
-        }
-        console.warn("Could not fill initial blocks without matches after attempts. Starting with fewer or empty if necessary.");
-        if (height > 1 && attempts >= MAX_FILL_ATTEMPTS) {
-            fillInitialBlocks(height -1); 
-        } else {
-            clearPlayfieldData(); 
-        }
-    }
-
 
     function adjustCellSize() {
         const playfieldPaddingAndGapsHorizontal = GRID_PADDING * 2 + (COLS - 1) * GRID_GAP;
         const playfieldPaddingAndGapsVertical = GRID_PADDING * 2 + (ROWS - 1) * GRID_GAP;
-
         const gameDisplayAreaWidth = document.getElementById('game-display-area').offsetWidth;
-        const previewAreaWidth = document.getElementById('piece-preview-area').offsetWidth;
-        playfieldContainer.style.width = `calc(${gameDisplayAreaWidth}px - ${previewAreaWidth}px)`;
-
-
-        const availableWidthForPlayfield = playfieldContainer.offsetWidth - playfieldPaddingAndGapsHorizontal;
-        const availableHeightForPlayfield = playfieldContainer.offsetHeight - playfieldPaddingAndGapsVertical;
-
+        const previewAreaWidth = document.getElementById('columns-preview-area').offsetWidth;
+        const playfieldCont = document.getElementById('playfield-container');
+        playfieldCont.style.width = `calc(${gameDisplayAreaWidth}px - ${previewAreaWidth}px - 10px)`;
+        const availableWidthForPlayfield = playfieldCont.clientWidth - playfieldPaddingAndGapsHorizontal;
+        const availableHeightForPlayfield = playfieldCont.clientHeight - playfieldPaddingAndGapsVertical;
         const cellSizeBasedOnWidth = Math.floor(availableWidthForPlayfield / COLS);
         const cellSizeBasedOnHeight = Math.floor(availableHeightForPlayfield / ROWS);
-
         cellSize = Math.max(10, Math.min(cellSizeBasedOnWidth, cellSizeBasedOnHeight));
-
         document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
 
-        const previewBlockSize = Math.max(12, Math.floor(cellSize * 0.75));
-        const currentPieceBlockSize = Math.max(15, Math.floor(previewBlockSize * 1.15));
-
-        document.querySelectorAll('#current-piece .block').forEach(b => {
-            b.style.width = `${currentPieceBlockSize}px`;
-            b.style.height = `${currentPieceBlockSize}px`;
-            b.style.borderRadius = `${Math.floor(currentPieceBlockSize * 0.15)}px`;
+        const previewBlockSize = Math.max(15, Math.floor(cellSize * 0.80));
+        const currentPreviewBlockSize = Math.max(18, Math.floor(previewBlockSize * 1.15));
+        document.querySelectorAll('#current-column-display .block').forEach(b => {
+            b.style.width = `${currentPreviewBlockSize}px`; b.style.height = `${currentPreviewBlockSize}px`;
+            b.style.fontSize = `${currentPreviewBlockSize * 0.5}px`; b.style.borderRadius = `${Math.floor(currentPreviewBlockSize * 0.2)}px`;
         });
-        document.querySelectorAll('#next-piece .block').forEach(b => {
-            b.style.width = `${previewBlockSize}px`;
-            b.style.height = `${previewBlockSize}px`;
-            b.style.borderRadius = `${Math.floor(previewBlockSize * 0.15)}px`;
+        document.querySelectorAll('#next-column-display .block').forEach(b => {
+            b.style.width = `${previewBlockSize}px`; b.style.height = `${previewBlockSize}px`;
+            b.style.fontSize = `${previewBlockSize * 0.5}px`; b.style.borderRadius = `${Math.floor(previewBlockSize * 0.2)}px`;
         });
-        
-        playfieldElement.style.width = `${COLS * cellSize + (COLS - 1) * GRID_GAP + GRID_PADDING * 2}px`;
-        playfieldElement.style.height = `${ROWS * cellSize + (ROWS - 1) * GRID_GAP + GRID_PADDING * 2}px`;
+        document.documentElement.style.setProperty('--column-preview-height', `${previewBlockSize * 3 + 4}px`);
 
+        playfieldElement.style.width = `${COLS * cellSize + (COLS - 1) * GRID_GAP}px`;
+        playfieldElement.style.height = `${ROWS * cellSize + (ROWS - 1) * GRID_GAP}px`;
+
+        fillInitialBlocks();
         renderPlayfield();
+        if (gameMode === 'target') addTargetMarker();
     }
 
+    window.addEventListener('resize', () => {
+        if (gameInterface.style.display === 'flex') adjustCellSize();
+    });
 
-    window.addEventListener('resize', adjustCellSize);
+    function clearPlayfieldArray() {
+        playfield = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
+    }
 
-
-    function generatePlayfieldCells() { 
+    function generatePlayfieldCells() {
         playfieldElement.innerHTML = '';
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 const cell = document.createElement('div');
                 cell.classList.add('playfield-cell');
-                cell.dataset.row = r;
-                cell.dataset.col = c;
+                cell.dataset.row = r; cell.dataset.col = c;
                 playfieldElement.appendChild(cell);
             }
         }
     }
 
-    function generateNewPiece() {
-        currentPiece = [...nextPiece];
-        nextPiece = generateColumnColors();
-        updatePreviewDisplays();
+    function fillInitialBlocks() {
+        if (startHeight === 0) return;
+        let attempts = 0;
+        while (attempts < MAX_INITIAL_FILL_ATTEMPTS) {
+            attempts++;
+            clearPlayfieldArray();
+            let possible = true;
+            for (let r = ROWS - 1; r >= ROWS - startHeight; r--) {
+                for (let c = 0; c < COLS; c++) {
+                    let placedWithoutMatch = false;
+                    const shuffledColors = [...CURRENT_COLORS].sort(() => 0.5 - Math.random());
+                    for (const color of shuffledColors) {
+                        playfield[r][c] = { color: color, id: `init_${r}_${c}_${Math.random()}`.slice(0,15), isTarget: (gameMode === 'target' && r === TARGET_BLOCK_ROW && c === TARGET_BLOCK_COL) };
+                        if (!checkMatchesAt(r, c, color) && !checkMatchesAround(r,c)) {
+                            placedWithoutMatch = true; break;
+                        }
+                    }
+                    if (!placedWithoutMatch) {
+                        playfield[r][c] = null; possible = false; break;
+                    }
+                }
+                if (!possible) break;
+            }
+            if (possible && !checkAllMatches().length > 0) { // Simpler checkAllMatches call
+                console.log(`Initial fill successful after ${attempts} attempts.`); return;
+            }
+        }
+        console.warn(`Failed to fill initial blocks without matches after ${MAX_INITIAL_FILL_ATTEMPTS} attempts. Clearing playfield.`);
+        clearPlayfieldArray();
     }
 
+    function checkMatchesAt(r, c, color) {
+        const directions = [{ dr: 0, dc: 1 }, { dr: 1, dc: 0 }, { dr: 1, dc: 1 }, { dr: 1, dc: -1 }];
+        for (const dir of directions) {
+            let count = 1;
+            for (let i = 1; i < 3; i++) {
+                const nr = r + dir.dr * i, nc = c + dir.dc * i;
+                if (isValidCell(nr, nc) && playfield[nr][nc] && playfield[nr][nc].color === color) count++; else break;
+            }
+            for (let i = 1; i < 3; i++) {
+                const nr = r - dir.dr * i, nc = c - dir.dc * i;
+                if (isValidCell(nr, nc) && playfield[nr][nc] && playfield[nr][nc].color === color) count++; else break;
+            }
+            if (count >= 3) return true;
+        }
+        return false;
+    }
+    function checkMatchesAround(r,c) {
+        const neighbors = getNeighbors(r,c, true);
+        for(const n of neighbors) {
+            if(playfield[n.r][n.c] && checkMatchesAt(n.r, n.c, playfield[n.r][n.c].color)) return true;
+        }
+        return false;
+    }
+
+    function generateNewColumnDefinition() {
+        const rand = Math.random(); let colors;
+        if (rand < 0.10) { const color = drawFromBag(1)[0]; colors = [color, color, color]; }
+        else if (rand < 0.40) { const d = drawFromBag(2); colors = [d[0], d[0], d[1]]; }
+        else { colors = drawFromBag(3); }
+        return { blocks: [colors[0], colors[1], colors[2]] };
+    }
+
+    function advanceColumns() {
+        currentColumn = { ...nextColumn };
+        nextColumn = generateNewColumnDefinition();
+        updatePreviewDisplays();
+    }
 
     function updatePreviewDisplays() {
-        if (currentPiece.length === 3) {
-            currentTopDisplay.className = `block ${currentPiece[0]}`;
-            currentMidDisplay.className = `block ${currentPiece[1]}`;
-            currentBotDisplay.className = `block ${currentPiece[2]}`;
-        }
-        if (nextPiece.length === 3) {
-            nextTopDisplay.className = `block ${nextPiece[0]}`;
-            nextMidDisplay.className = `block ${nextPiece[1]}`;
-            nextBotDisplay.className = `block ${nextPiece[2]}`;
-        }
+        const displays = [
+            { column: currentColumn, top: currentBlockTopDisplay, middle: currentBlockMiddleDisplay, bottom: currentBlockBottomDisplay },
+            { column: nextColumn, top: nextBlockTopDisplay, middle: nextBlockMiddleDisplay, bottom: nextBlockBottomDisplay },
+        ];
+        displays.forEach(d => {
+            if (d.column && d.column.blocks) {
+                d.top.className = `block ${d.column.blocks[0] || ''}`;
+                d.middle.className = `block ${d.column.blocks[1] || ''}`;
+                d.bottom.className = `block ${d.column.blocks[2] || ''}`;
+                d.top.textContent = ''; d.middle.textContent = ''; d.bottom.textContent = '';
+            } else {
+                d.top.className = 'block'; d.middle.className = 'block'; d.bottom.className = 'block';
+                d.top.textContent = ''; d.middle.textContent = ''; d.bottom.textContent = '';
+            }
+        });
     }
-    
-    function cycleCurrentPiece() {
-        if (!currentPiece || currentPiece.length !== 3 || !allowInput || isProcessingPlacement) return;
-        const colorFromBot = currentPiece[2]; 
-        currentPiece[2] = currentPiece[1];    
-        currentPiece[1] = currentPiece[0];    
-        currentPiece[0] = colorFromBot;
-        updatePreviewDisplays();
-        if (currentPreviewPositions && placementPreviewBlocks.length === 3) {
-            placementPreviewBlocks[0].className = `block playfield-block preview-block ${currentPiece[0]}`; 
-            placementPreviewBlocks[1].className = `block playfield-block preview-block ${currentPiece[1]}`; 
-            placementPreviewBlocks[2].className = `block playfield-block preview-block ${currentPiece[2]}`; 
-        }
-    }
-    cyclePosBtn.addEventListener('click', cycleCurrentPiece);
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' && gameInterface.style.display === 'flex' && allowInput && !isProcessingPlacement) {
-            e.preventDefault();
-            cycleCurrentPiece();
-        }
-    });
 
     playfieldElement.addEventListener('mousedown', handleDragStart);
     playfieldElement.addEventListener('touchstart', handleDragStart, { passive: false });
 
-    document.addEventListener('touchstart', (e) => { 
-        if (isDragging && e.touches.length > 1) {
-            cancelDragDueToMultitouch = true;
-            handleDragCancel("multitouch");
-        }
-    }, { capture: true });
+    function handleDragStart(e) {
+        if (!allowInput || isFalling || isGamePaused) return;
+        e.preventDefault();
+        const rect = playfieldElement.getBoundingClientRect();
+        const clientX = e.clientX || e.touches[0].clientX;
+        dragStartClientY = e.clientY || e.touches[0].clientY; // Retain for potential future use
+        dragStartPos = { x: clientX }; // Store initial X
 
-
-function handleDragStart(e) {
-    if (!allowInput || isProcessingPlacement || (e.type === 'mousedown' && e.button !== 0)) return;
-    e.preventDefault();
-    isDragging = true;
-    cancelDragDueToMultitouch = false;
-
-    updatePreviewForDrag(e); 
-
-    document.addEventListener('mousemove', handleDragMove);
-    document.addEventListener('touchmove', handleDragMove, { passive: false });
-    document.addEventListener('mouseup', handleDragEnd);
-    document.addEventListener('touchend', handleDragEnd);
-}
-
-function handleDragMove(e) {
-    if (!isDragging || cancelDragDueToMultitouch) return;
-    e.preventDefault();
-    updatePreviewForDrag(e);
-}
-
-function updatePreviewForDrag(e) {
-    const rect = playfieldElement.getBoundingClientRect();
-    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : 0));
-    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : 0));
-
-    const tolerance = cellSize * 1.5; 
-    if (clientX < rect.left || clientX > rect.right ||
-        clientY < rect.top - tolerance || clientY > rect.bottom + tolerance) {
-        handleDragCancel("outside");
-        return;
-    }
-    
-    const x = clientX - rect.left;
-    const effectiveX = x - GRID_PADDING;
-    let newCol = -1;
-
-    for (let c = 0; c < COLS; c++) {
-        const cellStartPos = c * (cellSize + GRID_GAP);
-        const cellEndPos = cellStartPos + cellSize;
-        if (effectiveX >= cellStartPos && effectiveX <= cellEndPos) {
-            newCol = c;
-            break;
-        }
-    }
-    if (newCol === -1) { 
-      if (currentPreviewCol !== -1) newCol = currentPreviewCol; 
-      else { handleDragCancel("outside_horizontal"); return; }
-    }
-
-
-    if (newCol !== currentPreviewCol || !currentPreviewPositions) {
-        currentPreviewCol = newCol;
-        removePlacementPreviewDOM();
-        
-        let r_bot = -1;
-        for (let r = ROWS - 1; r >= 2; r--) { 
-            if (!playfield[r][currentPreviewCol] &&
-                !playfield[r - 1][currentPreviewCol] &&
-                !playfield[r - 2][currentPreviewCol]) {
-                r_bot = r;
-                break; 
-            }
-        }
-
-        if (r_bot !== -1) {
-            const r_top = r_bot - 2;
-            const r_mid = r_bot - 1;
-            currentPreviewPositions = {
-                top: { r: r_top, c: currentPreviewCol },
-                mid: { r: r_mid, c: currentPreviewCol },
-                bot: { r: r_bot, c: currentPreviewCol }
-            };
-            placementPreviewBlocks.push(createVisualBlock(currentPiece[0], r_top, currentPreviewCol, false, null, true));
-            placementPreviewBlocks.push(createVisualBlock(currentPiece[1], r_mid, currentPreviewCol, false, null, true));
-            placementPreviewBlocks.push(createVisualBlock(currentPiece[2], r_bot, currentPreviewCol, false, null, true));
-            placementPreviewBlocks.forEach(b => playfieldElement.appendChild(b));
+        // Check if the initial click/touch is horizontally outside the playfield
+        if (clientX < rect.left || clientX > rect.right) {
+            dragCurrentCol = -1; // Mark as horizontally outside
+            clearPlacementPreview(); // Ensure no preview is shown
         } else {
-            currentPreviewPositions = null; 
-        }
-    }
-}
-
-function handleDragCancel(reason = "unknown") {
-    removePlacementPreviewDOM();
-    currentPreviewPositions = null;
-    currentPreviewCol = -1;
-    isDragging = false; 
-    document.removeEventListener('mousemove', handleDragMove);
-    document.removeEventListener('touchmove', handleDragMove);
-    document.removeEventListener('mouseup', handleDragEnd);
-    document.removeEventListener('touchend', handleDragEnd);
-}
-
-
-async function handleDragEnd(e) {
-    if (!isDragging) return; 
-    isDragging = false;
-    
-    document.removeEventListener('mousemove', handleDragMove);
-    document.removeEventListener('touchmove', handleDragMove);
-    document.removeEventListener('mouseup', handleDragEnd);
-    document.removeEventListener('touchend', handleDragEnd);
-
-    if (cancelDragDueToMultitouch) { 
-        cancelDragDueToMultitouch = false;
-        return;
-    }
-
-    const finalPreviewPositions = { ...currentPreviewPositions }; 
-    removePlacementPreviewDOM();
-    currentPreviewPositions = null; 
-
-    if (finalPreviewPositions && finalPreviewPositions.top && currentPiece.length === 3) {
-        allowInput = false; 
-        isProcessingPlacement = true;
-        combo = 0;
-        updateComboDisplay();
-
-        const { top, mid, bot } = finalPreviewPositions;
-        const pieceToPlace = [
-            { ...top, color: currentPiece[0], id: `${Date.now()}_0`},
-            { ...mid, color: currentPiece[1], id: `${Date.now()}_1`},
-            { ...bot, color: currentPiece[2], id: `${Date.now()}_2`}
-        ];
-
-        pieceToPlace.forEach(blockData => {
-            playfield[blockData.r][blockData.c] = { color: blockData.color, id: blockData.id, isTarget: (gameMode === 'target' && blockData.r === TARGET_BLOCK_ROW && blockData.c === TARGET_BLOCK_COL && playfield[blockData.r][blockData.c]?.isTarget) };
-        });
-        
-        renderPlayfield(); 
-
-        if (gameMode === 'pressure') {
-            clearTimeout(pressureTimerInterval); 
-            currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
+            // Horizontally inside or on edge, calculate column
+            let col = Math.floor((clientX - rect.left - GRID_PADDING) / (cellSize + GRID_GAP));
+            dragCurrentCol = Math.max(0, Math.min(COLS - 1, col)); // Clamp to valid column index
+            showPlacementPreview(dragCurrentCol); // Show preview for the targeted column
         }
 
-        generateNewPiece(); 
-        await handleGravityAndMatches(); 
-    } else {
-        currentPreviewCol = -1; 
-    }
-}
-
-function removePlacementPreviewDOM() {
-    placementPreviewBlocks.forEach(b => b.remove());
-    placementPreviewBlocks = [];
-}
-
-
-function isValidCell(row, col) {
-    return row >= 0 && row < ROWS && col >= 0 && col < COLS;
-}
-
-function createVisualBlock(color, row, col, isPrimaryOrTargetMarker, id = null, isPreview = false) {
-    const blockElement = document.createElement('div');
-    blockElement.classList.add('block', 'playfield-block', color);
-    if (isPreview) blockElement.classList.add('preview-block');
-    
-    if (isPrimaryOrTargetMarker && gameMode === 'target' && row === TARGET_BLOCK_ROW && col === TARGET_BLOCK_COL) {
-         blockElement.classList.add('target-block');
+        document.addEventListener('mousemove', handleDragMove);
+        document.addEventListener('touchmove', handleDragMove, { passive: false });
+        document.addEventListener('mouseup', handleDragEnd);
+        document.addEventListener('touchend', handleDragEnd);
     }
 
-    blockElement.style.width = `${cellSize}px`;
-    blockElement.style.height = `${cellSize}px`;
-    blockElement.style.left = `${GRID_PADDING + (col * cellSize) + (col * GRID_GAP)}px`;
-    blockElement.style.top = `${GRID_PADDING + (row * cellSize) + (row * GRID_GAP)}px`;
-    blockElement.style.borderRadius = `${Math.floor(cellSize * 0.15)}px`; 
-    if (id) blockElement.dataset.id = id;
-    return blockElement;
-}
+    function handleDragMove(e) {
+        if (!dragStartPos || isGamePaused) return; // Ensure drag has started and game is active
+        e.preventDefault();
+        const clientX = e.clientX || e.touches[0].clientX;
+        const playfieldRect = playfieldElement.getBoundingClientRect();
 
-function renderPlayfield() {
-    playfieldElement.querySelectorAll('.playfield-block:not(.preview-block)').forEach(b => b.remove());
+        let newTargetCol;
 
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            if (playfield[r][c]) {
-                const blockData = playfield[r][c];
-                const visualBlock = createVisualBlock(blockData.color, r, c, blockData.isTarget, blockData.id);
-                playfieldElement.appendChild(visualBlock);
+        if (clientX < playfieldRect.left || clientX > playfieldRect.right) {
+            newTargetCol = -1; // Drag is horizontally outside the playfield
+        } else {
+            // Drag is horizontally inside the playfield, calculate the column
+            let col = Math.floor((clientX - playfieldRect.left - GRID_PADDING) / (cellSize + GRID_GAP));
+            newTargetCol = Math.max(0, Math.min(COLS - 1, col)); // Clamp to a valid column index
+        }
+
+        if (newTargetCol !== dragCurrentCol) { // If the targeted column has changed (or changed to/from being outside)
+            dragCurrentCol = newTargetCol;
+            if (dragCurrentCol !== -1) {
+                showPlacementPreview(dragCurrentCol); // Now targeting a valid column, show preview
+            } else {
+                clearPlacementPreview(); // Moved outside, clear preview
             }
+        } else if (dragCurrentCol !== -1 && previewBlocks.length === 0) {
+            // Still targeting the same valid column, but no preview is shown (e.g., if dragged back in quickly)
+            showPlacementPreview(dragCurrentCol); // Re-show preview
         }
-    }
-}
-
-
-async function handleGravityAndMatches() {
-    isProcessingPlacement = true; 
-    allowInput = false;
-    let fell;
-    do {
-        fell = await applyGravity();
-        if (fell) await new Promise(resolve => setTimeout(resolve, FALL_SPEED * 2)); 
-    } while (fell);
-
-    let matchesFoundDetails;
-    let clearedDuringChain;
-    do {
-        clearedDuringChain = false;
-        matchesFoundDetails = checkAllMatches(true); 
-
-        if (matchesFoundDetails.length > 0) {
-            clearedDuringChain = true;
-            combo = combo === 0 ? 1 : combo + 1;
-            maxcombo = Math.max(maxcombo, combo);
-            
-            let pointsThisClear = 0;
-            let targetClearedThisTurn = false;
-            matchesFoundDetails.forEach(group => {
-                pointsThisClear += group.length; 
-                group.forEach(blockPos => {
-                    if (playfield[blockPos.r][blockPos.c]?.isTarget) {
-                        targetClearedThisTurn = true;
-                    }
-                });
-            });
-
-            if (gameMode !== 'target') { // Score normally for non-target modes
-                if (combo < 4) score += pointsThisClear * Math.pow(2, combo - 1);
-                else score += pointsThisClear * 8 * (combo - 3);
-            }
-            // In Target mode, score is time-based, not clearance-based
-            
-            updateScoreDisplay();
-            updateComboDisplay();
-            
-            await clearMarkedBlocks(matchesFoundDetails); 
-
-            if (targetClearedThisTurn && gameMode === 'target') {
-                handleGameWin(); 
-                return; 
-            }
-
-            do { 
-                fell = await applyGravity();
-                if (fell) await new Promise(resolve => setTimeout(resolve, FALL_SPEED * 2));
-            } while (fell);
-        }
-    } while (clearedDuringChain); 
-
-    isProcessingPlacement = false;
-    if (isGameOver()) {
-        handleGameOver();
-    } else {
-        allowInput = true;
-        if (gameMode === 'pressure' && !isProcessingPlacement) { 
-            startPressureTurnTimer();
-        }
-    }
-}
-
-
-async function applyGravity() {
-    let blocksFell = false;
-    let maxFallDistanceInPass = 0;
-
-    for (let c = 0; c < COLS; c++) {
-        let emptySpacesBelow = 0;
-        for (let r = ROWS - 1; r >= 0; r--) { 
-            if (playfield[r][c] === null) {
-                emptySpacesBelow++;
-            } else if (emptySpacesBelow > 0) {
-                const blockData = playfield[r][c];
-                playfield[r + emptySpacesBelow][c] = blockData;
-                playfield[r][c] = null;
-                blocksFell = true;
-                maxFallDistanceInPass = Math.max(maxFallDistanceInPass, emptySpacesBelow);
-
-                const visualBlock = playfieldElement.querySelector(`.playfield-block[data-id="${blockData.id}"]`);
-                if (visualBlock) {
-                    const newTop = GRID_PADDING + ((r + emptySpacesBelow) * cellSize) + ((r + emptySpacesBelow) * GRID_GAP);
-                    const fallDuration = emptySpacesBelow * (FALL_SPEED / 1000); 
-                    visualBlock.style.transition = `top ${fallDuration.toFixed(3)}s cubic-bezier(0.5, 0, 1, 1)`; 
-                    visualBlock.style.top = `${newTop}px`;
-                }
-            }
-        }
+        // If dragCurrentCol is -1 and newTargetCol is also -1 (still outside), do nothing.
+        // If dragCurrentCol is valid, newTargetCol is the same, and preview exists, do nothing.
     }
 
-    if (blocksFell) {
-        const waitDuration = maxFallDistanceInPass * FALL_SPEED + 50; 
-        await new Promise(resolve => setTimeout(resolve, waitDuration));
-        renderPlayfield();
-    }
-    return blocksFell;
-}
+    async function handleDragEnd(e) {
+        document.removeEventListener('mousemove', handleDragMove);
+        document.removeEventListener('touchmove', handleDragMove);
+        document.removeEventListener('mouseup', handleDragEnd);
+        document.addEventListener('touchend', handleDragEnd);
 
-function checkAllMatches(markForClear) {
-    const allMatchingGroups = [];
-    const DIRS = [
-        { dr: 0, dc: 1 },  
-        { dr: 1, dc: 0 },  
-        { dr: 1, dc: 1 },  
-        { dr: 1, dc: -1 } 
-    ];
-
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            if (playfield[r][c]) {
-                const currentColor = playfield[r][c].color;
-                DIRS.forEach(dir => {
-                    const group = [{r, c}];
-                    let cr = r + dir.dr;
-                    let cc = c + dir.dc;
-                    while (isValidCell(cr, cc) && playfield[cr][cc] && playfield[cr][cc].color === currentColor) {
-                        group.push({r: cr, c: cc});
-                        cr += dir.dr;
-                        cc += dir.dc;
-                    }
-                    if (group.length >= 3) {
-                        let newGroup = true;
-                        for(const existingGroup of allMatchingGroups) {
-                            if (group.some(bp => existingGroup.some(ebp => ebp.r === bp.r && ebp.c === bp.c))) {
-                                group.forEach(bp => {
-                                    if(!existingGroup.some(ebp => ebp.r === bp.r && ebp.c === bp.c)) {
-                                        existingGroup.push(bp);
-                                    }
-                                });
-                                newGroup = false;
-                                break;
-                            }
-                        }
-                        if (newGroup) allMatchingGroups.push(group);
-                        
-                        if (markForClear) {
-                           group.forEach(blockPos => {
-                               if (playfield[blockPos.r][blockPos.c]) playfield[blockPos.r][blockPos.c].markedForClear = true;
-                           });
-                        }
-                    }
-                });
-            }
+        if (!dragStartPos || isGamePaused) { // Basic checks
+            clearPlacementPreview();
+            dragStartPos = null;
+            dragCurrentCol = -1;
+            return;
         }
-    }
-    if (allMatchingGroups.length > 0) {
-        for (let i = 0; i < allMatchingGroups.length; i++) {
-            for (let j = i + 1; j < allMatchingGroups.length; j++) {
-                if (allMatchingGroups[i].some(b1 => allMatchingGroups[j].some(b2 => b1.r === b2.r && b1.c === b2.c))) {
-                    allMatchingGroups[j].forEach(b2 => {
-                        if (!allMatchingGroups[i].some(b1 => b1.r === b2.r && b1.c === b2.c)) {
-                            allMatchingGroups[i].push(b2);
-                        }
-                    });
-                    allMatchingGroups.splice(j, 1);
-                    j--; 
-                    i = -1; 
+
+        const playfieldRect = playfieldElement.getBoundingClientRect();
+        let finalClientX;
+
+        // Determine the final X coordinate from the event
+        if (e.type === 'mouseup' && typeof e.clientX === 'number') {
+            finalClientX = e.clientX;
+        } else if (e.type === 'touchend' && e.changedTouches && e.changedTouches.length > 0) {
+            finalClientX = e.changedTouches[0].clientX;
+        } else if (dragStartPos) { // Fallback to the initial drag X if current cannot be determined (e.g. a tap)
+            finalClientX = dragStartPos.x;
+        } else {
+            finalClientX = -1; // Cannot determine, assume invalid
+        }
+
+        clearPlacementPreview(); // Always clear the visual preview after the drag operation concludes.
+
+        // Cancel placement if:
+        // 1. The last known targeted column (dragCurrentCol) was invalid (-1), OR
+        // 2. The final release point (finalClientX) is horizontally outside the playfield bounds.
+        if (dragCurrentCol === -1 || finalClientX < playfieldRect.left || finalClientX > playfieldRect.right) {
+            console.log("Placement cancelled: Drag ended outside horizontal playfield bounds or no valid column was targeted.");
+            dragStartPos = null;
+            dragCurrentCol = -1; // Ensure state is reset
+            return;
+        }
+
+        // If dragCurrentCol is a valid column index (0 to COLS-1), proceed with placing the column.
+        if (dragCurrentCol !== -1) {
+            const targetCol = dragCurrentCol;
+            let lowestRow = -1;
+            // Find the lowest available spot in the target column
+            for (let r = ROWS - 1; r >= 0; r--) {
+                if (!playfield[r][targetCol]) {
+                    lowestRow = r;
                     break;
                 }
             }
-        }
-    }
-    return allMatchingGroups.filter(g => g.length >=3);
-}
 
+            // Check if there's space for the 3 blocks of the column
+            if (lowestRow >= 2 && !playfield[lowestRow][targetCol] && !playfield[lowestRow - 1][targetCol] && !playfield[lowestRow - 2][targetCol]) {
+                allowInput = false;
+                combo = 0; // Reset combo for a new piece drop
 
-async function clearMarkedBlocks(groupsToClear) {
-    const clearPromises = [];
-    let actualClearedCount = 0;
+                // Define block data for the current column being placed
+                const bData = { color: currentColumn.blocks[2], id: Date.now() + '_b' + Math.random(), isTarget: (gameMode === 'target' && lowestRow === TARGET_BLOCK_ROW && targetCol === TARGET_BLOCK_COL) };
+                const mData = { color: currentColumn.blocks[1], id: Date.now() + '_m' + Math.random(), isTarget: (gameMode === 'target' && lowestRow - 1 === TARGET_BLOCK_ROW && targetCol === TARGET_BLOCK_COL) };
+                const tData = { color: currentColumn.blocks[0], id: Date.now() + '_t' + Math.random(), isTarget: (gameMode === 'target' && lowestRow - 2 === TARGET_BLOCK_ROW && targetCol === TARGET_BLOCK_COL) };
 
-    groupsToClear.forEach(group => {
-        group.forEach(blockPos => {
-            const r = blockPos.r;
-            const c = blockPos.c;
-            if (playfield[r][c] && playfield[r][c].id) { 
-                const visualBlock = playfieldElement.querySelector(`.playfield-block[data-id="${playfield[r][c].id}"]`);
-                if (visualBlock && !visualBlock.classList.contains('clearing')) {
-                    visualBlock.classList.add('clearing');
-                    actualClearedCount++;
-                    clearPromises.push(new Promise(resolve => {
-                        visualBlock.addEventListener('animationend', () => {
-                            visualBlock.remove();
-                            resolve();
-                        }, { once: true });
-                    }));
+                // Update playfield array
+                playfield[lowestRow][targetCol] = bData;
+                playfield[lowestRow - 1][targetCol] = mData;
+                playfield[lowestRow - 2][targetCol] = tData;
+
+                // Create visual blocks on the playfield
+                createVisualBlock(bData.color, lowestRow, targetCol, bData.id);
+                createVisualBlock(mData.color, lowestRow - 1, targetCol, mData.id);
+                createVisualBlock(tData.color, lowestRow - 2, targetCol, tData.id);
+
+                // Handle game mode specific logic (e.g., Pressure mode timer)
+                if (gameMode === 'pressure') {
+                    if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
+                    if (pressureAnimationRequestFrameId) cancelAnimationFrame(pressureAnimationRequestFrameId);
+                    currentPressureTimeLimit = Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - (currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? PRESSURE_MODE_DECREMENT : Math.trunc(PRESSURE_MODE_DECREMENT / 10)));
                 }
-                playfield[r][c] = null; 
-            }
-        });
-    });
-    
-    await Promise.all(clearPromises);
-    return actualClearedCount;
-}
 
-
-
-function startTimedModeTimer(resumeTimeMs = null) { // Add resumeTimeMs parameter
-    if (gameTimerInterval) { // Always clear any existing interval before starting a new one
-        clearInterval(gameTimerInterval);
-        gameTimerInterval = null;
-    }
-
-    if (resumeTimeMs !== null && resumeTimeMs >= 0) {
-        remainingTimedModeTime = resumeTimeMs; // Set to paused time if resuming
-    } else {
-        remainingTimedModeTime = TIMED_MODE_DURATION; // Otherwise, start with full duration
-    }
-
-    updateTimerDisplay(remainingTimedModeTime, TIMED_MODE_DURATION); // Initial display update
-
-    gameTimerInterval = setInterval(() => {
-        if (gameMode !== 'timed') { // If mode changed for any reason, stop this timer
-            clearInterval(gameTimerInterval);
-            gameTimerInterval = null;
-            return;
-        }
-
-        // Timer should only count down if input is allowed and game is not processing placement
-        if (!allowInput || isProcessingPlacement) {
-            return; // Effectively pauses the countdown decrementing
-        }
-
-        remainingTimedModeTime -= 100; // Decrement time
-
-        if (remainingTimedModeTime <= 0) {
-            remainingTimedModeTime = 0;
-            clearInterval(gameTimerInterval); // Stop timer
-            gameTimerInterval = null;
-            updateTimerDisplay(remainingTimedModeTime, TIMED_MODE_DURATION);
-            // Ensure game over is triggered only if game is in a state to accept it
-            if (allowInput && !isProcessingPlacement) {
-                 handleGameOver();
-            }
-        } else {
-            updateTimerDisplay(remainingTimedModeTime, TIMED_MODE_DURATION);
-        }
-    }, 100);
-}
-    
-    function startTargetModeScoreTimer() {
-        if (targetModeScoreInterval) {
-			clearInterval(targetModeScoreInterval);
-			targetModeScoreInterval = null;
-		}
-        targetModeScoreInterval = setInterval(() => {
-            if (gameMode !== 'target' || (!allowInput && isProcessingPlacement)) { 
-                 if (gameOverModal.style.display === 'flex' || youWinModal.style.display === 'flex' ) {
-                    clearInterval(targetModeScoreInterval);
-					targetModeScoreInterval = null;
-                 }
-                return;
-            }
-            score -= 1; // Deduct 1 point per decisecond (100ms)
-            if (score <= 0) {
-                score = 0;
-                clearInterval(targetModeScoreInterval);
-				targetModeScoreInterval = null;
-                updateScoreDisplay();
-                handleGameOver(); 
+                advanceColumns(); // Prepare the next set of columns
+                await handleGravityAndMatches(); // Process gravity and any resulting matches
             } else {
-                updateScoreDisplay();
-            }
-        }, 100); // Interval is 100ms (1 decisecond)
-    }
-
-
-    function startPressureTurnTimer(resumeFromMs = null) {
-        const isResumingFromPause = (resumeFromMs !== null && resumeFromMs >= 0);
-
-        // Clear any existing timer/animation frame to prevent duplicates
-        if (pressureFrameId) {
-            cancelAnimationFrame(pressureFrameId);
-            pressureFrameId = null;
-        }
-        if (pressureTimerInterval) {
-            clearTimeout(pressureTimerInterval);
-            pressureTimerInterval = null;
-        }
-
-        // Determine the full duration for the current player's turn (for progress bar scaling)
-        if (!isResumingFromPause) {
-            // This is a fresh start of a turn (e.g., game start, or after a piece was placed).
-            // currentPressureTimeLimit should hold the full duration for this new turn.
-            pressureTurnFullDurationCurrentTurn = currentPressureTimeLimit;
-        }
-        // If resuming, pressureTurnFullDurationCurrentTurn should retain its value from the start of the interrupted turn.
-        // Fallback if pressureTurnFullDurationCurrentTurn wasn't properly set (e.g., edge cases).
-        if (pressureTurnFullDurationCurrentTurn <= 0) {
-            pressureTurnFullDurationCurrentTurn = currentPressureTimeLimit > 0 ? currentPressureTimeLimit : PRESSURE_MODE_INITIAL_TIME;
-        }
-
-        // Determine the actual duration for this specific timer segment (instance)
-        pressureCurrentSegmentTargetDuration = isResumingFromPause ? resumeFromMs : pressureTurnFullDurationCurrentTurn;
-
-        pressureTurnStartTime = Date.now(); // Mark the beginning of this timer segment
-
-        // Update display: show current segment's starting time against the turn's total original duration
-        updateTimerDisplay(pressureCurrentSegmentTargetDuration, pressureTurnFullDurationCurrentTurn);
-
-        // If game state doesn't permit timer to run (e.g., still processing, or input not allowed yet)
-        if (!allowInput || isProcessingPlacement) {
-            return; // Timer will be started later if needed (e.g., at the end of handleGravityAndMatches)
-        }
-
-        function updatePressureBarLoopInternal() {
-            // Check conditions under which the loop should stop
-            if (gameMode !== 'pressure' || !allowInput || isProcessingPlacement || gameOverModal.style.display === 'flex') {
-                if (pressureFrameId) cancelAnimationFrame(pressureFrameId); // Ensure it's stopped
-                pressureFrameId = null;
-                return;
-            }
-
-            const elapsedTime = Date.now() - pressureTurnStartTime;
-            const remainingTimeInSegment = pressureCurrentSegmentTargetDuration - elapsedTime;
-
-            if (remainingTimeInSegment <= 0) {
-                updateTimerDisplay(0, pressureTurnFullDurationCurrentTurn); // Show 0 time
-                if (pressureFrameId) cancelAnimationFrame(pressureFrameId);
-                pressureFrameId = null;
-                // Only auto-place if input is still allowed and not processing (important check)
-                if (allowInput && !isProcessingPlacement) {
-                    autoPlacePressureColumn(); // This will handle game logic & may start next turn's timer
+                // Not enough space or other issue, check for game over
+                if (isGameOver()) {
+                    handleGameOver();
+                } else {
+                    allowInput = true; // Re-enable input if game is not over
                 }
-                return;
             }
-
-            // Update display only if actively playing
-            if (allowInput && !isProcessingPlacement) {
-                updateTimerDisplay(Math.max(0, remainingTimeInSegment), pressureTurnFullDurationCurrentTurn);
-            }
-            pressureFrameId = requestAnimationFrame(updatePressureBarLoopInternal);
         }
-        pressureFrameId = requestAnimationFrame(updatePressureBarLoopInternal);
 
-        pressureTimerInterval = setTimeout(() => {
-            // This timeout acts as a final trigger if rAF is stopped or slow
-            if (gameMode === 'pressure' && allowInput && !isProcessingPlacement) {
-                if (pressureFrameId) cancelAnimationFrame(pressureFrameId); // Stop rAF
-                pressureFrameId = null;
-                updateTimerDisplay(0, pressureTurnFullDurationCurrentTurn); // Ensure display is zero
-                autoPlacePressureColumn();
-            }
-        }, pressureCurrentSegmentTargetDuration); // Timeout is for the current segment's duration
+        // Reset drag state for the next interaction
+        dragStartPos = null;
+        dragCurrentCol = -1;
     }
 
-
-    function updateTimerDisplay(ms, totalMs) { 
-        const seconds = (ms / 1000).toFixed(1);
-        timeLeftDisplay.textContent = `${seconds}`;
-        let percentage = 100;
-        if (totalMs > 0) {
-            percentage = (ms / totalMs) * 100;
-        } else if (ms === 0) {
-            percentage = 0;
+    function showPlacementPreview(col) {
+        clearPlacementPreview();
+        let lowestAvailableStartRow = -1;
+        for (let r = ROWS - 3; r >= 0; r--) {
+            if (!playfield[r][col] && !playfield[r+1][col] && !playfield[r+2][col]) {
+                let groundFound = (r + 2 === ROWS - 1);
+                if (!groundFound) {
+                    if (playfield[r+3] && playfield[r+3][col]) groundFound = true;
+                }
+                if(groundFound){ lowestAvailableStartRow = r; break; }
+            }
         }
-        
-        timeBar.style.width = `${Math.max(0, percentage)}%`;
-
-        if (percentage < 25) timeBar.style.backgroundColor = '#F44336'; 
-        else if (percentage < 50) timeBar.style.backgroundColor = '#FF9800'; 
-        else timeBar.style.backgroundColor = '#4CAF50'; 
-    }
-
-    async function autoPlacePressureColumn() {
-        if (!allowInput || isProcessingPlacement) return; 
-        console.log("Pressure mode timeout! Attempting auto-placement.");
-        allowInput = false;
-        isProcessingPlacement = true; 
-        removePlacementPreviewDOM();
-
-        const availableColumnsForPlacement = [];
-        for (let c = 0; c < COLS; c++) {
-            if (!playfield[0][c] && !playfield[1][c] && !playfield[2][c]) { 
-                availableColumnsForPlacement.push(c);
+        if(lowestAvailableStartRow === -1){
+            for(let r=0; r <= ROWS - 3; r++){
+                 if (!playfield[r][col] && !playfield[r+1][col] && !playfield[r+2][col]) {
+                    lowestAvailableStartRow = r; break;
+                 }
             }
         }
 
-        if (availableColumnsForPlacement.length === 0) {
+        if (lowestAvailableStartRow !== -1) {
+            previewBlocks.push(createVisualBlock(currentColumn.blocks[0], lowestAvailableStartRow, col, null, true));
+            previewBlocks.push(createVisualBlock(currentColumn.blocks[1], lowestAvailableStartRow + 1, col, null, true));
+            previewBlocks.push(createVisualBlock(currentColumn.blocks[2], lowestAvailableStartRow + 2, col, null, true));
+            previewBlocks.forEach(b => { if (b) playfieldElement.appendChild(b); });
+        }
+    }
+
+    function clearPlacementPreview() {
+        previewBlocks.forEach(block => { if (block && block.parentElement) block.remove(); });
+        previewBlocks = [];
+    }
+
+    function isValidCell(row, col) { return row >= 0 && row < ROWS && col >= 0 && col < COLS; }
+
+    function createVisualBlock(color, row, col, id = null, isPreview = false) {
+        const blockElement = document.createElement('div');
+        blockElement.classList.add('block', color || 'empty');
+        blockElement.classList.toggle('preview-column-block', isPreview);
+        blockElement.classList.toggle('playfield-block', !isPreview);
+        blockElement.style.width = `${cellSize}px`; blockElement.style.height = `${cellSize}px`;
+        blockElement.style.fontSize = `${cellSize * 0.5}px`;
+        blockElement.style.left = `${GRID_PADDING + col * (cellSize + GRID_GAP)}px`;
+        blockElement.style.top = `${GRID_PADDING + row * (cellSize + GRID_GAP)}px`;
+        blockElement.style.borderRadius = `${Math.floor(cellSize * 0.2)}px`;
+        if (id) blockElement.dataset.id = id;
+        if (!isPreview && playfieldElement) playfieldElement.appendChild(blockElement);
+        return blockElement;
+    }
+
+    function renderPlayfield() {
+        playfieldElement.querySelectorAll('.playfield-block').forEach(b => b.remove());
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (playfield[r][c]) {
+                    createVisualBlock(playfield[r][c].color, r, c, playfield[r][c].id, false);
+                }
+            }
+        }
+    }
+    function addTargetMarker() {
+        const cell = playfieldElement.querySelector(`.playfield-cell[data-row="${TARGET_BLOCK_ROW}"][data-col="${TARGET_BLOCK_COL}"]`);
+        if (cell) cell.classList.add('target-cell-marker');
+    }
+    function removeTargetMarker() {
+        const cell = playfieldElement.querySelector('.target-cell-marker');
+        if (cell) cell.classList.remove('target-cell-marker');
+    }
+
+    function showDynamicCombo(comboValue, clearedPositions) {
+        if (!clearedPositions || clearedPositions.length === 0) {
+            dynamicComboDisplayElement.classList.remove('show', 'high-combo'); return;
+        }
+        let avgR = 0, avgC = 0;
+        clearedPositions.forEach(p => { avgR += p.r; avgC += p.c; });
+        avgR /= clearedPositions.length; avgC /= clearedPositions.length;
+        dynamicComboDisplayElement.style.top = `${GRID_PADDING + avgR * (cellSize + GRID_GAP) + cellSize / 2}px`;
+        dynamicComboDisplayElement.style.left = `${GRID_PADDING + avgC * (cellSize + GRID_GAP) + cellSize / 2}px`;
+        dynamicComboDisplayElement.textContent = `${comboValue}×`;
+        dynamicComboDisplayElement.classList.toggle('high-combo', comboValue >= 5);
+        dynamicComboDisplayElement.classList.remove('hide');
+        dynamicComboDisplayElement.classList.add('show');
+        if (dynamicComboTimeout) clearTimeout(dynamicComboTimeout);
+        dynamicComboTimeout = setTimeout(() => {
+            dynamicComboDisplayElement.classList.remove('show');
+            dynamicComboDisplayElement.classList.add('hide');
+        }, 600);
+    }
+
+    async function handleGravityAndMatches() {
+        isFalling = true; allowInput = false;
+        let madeChange;
+        do {
+            madeChange = false;
+            let fell = await applyGravity();
+            if (fell) madeChange = true;
+
+            const matchResult = await findAndClearMatches();
+            if (matchResult.count > 0) {
+                madeChange = true;
+                combo = combo === 0 ? 1 : combo + 1;
+                maxcombo = Math.max(maxcombo, combo);
+                let pts = (combo < 4) ? matchResult.count * Math.pow(2, combo -1) : matchResult.count * 8 * (combo-3);
+                if (gameMode !== 'target') score += pts;
+                updateScoreDisplay();
+                showDynamicCombo(combo, matchResult.positions);
+
+                if (gameMode === 'target' && matchResult.targetCleared) {
+                    handleGameOver(true); return;
+                }
+            }
+        } while (madeChange);
+        isFalling = false;
+        if (isGameOver()) {
             handleGameOver();
+        } else {
+            if (!isGamePaused) {
+                allowInput = true;
+                if (gameMode === 'pressure') {
+                    pressureTurnEffectiveTimeLimit = currentPressureTimeLimit;
+                    startPressureTurnTimer();
+                }
+            }
+        }
+    }
+
+    async function applyGravity() {
+        let blocksFell = false; let maxFallDistance = 0;
+        for (let c = 0; c < COLS; c++) {
+            for (let r = ROWS - 2; r >= 0; r--) {
+                if (playfield[r][c] && !playfield[r + 1][c]) {
+                    let fallDist = 0;
+                    for (let lookR = r + 1; lookR < ROWS; lookR++) {
+                        if (!playfield[lookR][c]) fallDist++; else break;
+                    }
+                    if (fallDist > 0) {
+                        const blockData = playfield[r][c];
+                        playfield[r + fallDist][c] = blockData; playfield[r][c] = null;
+                        blocksFell = true; maxFallDistance = Math.max(maxFallDistance, fallDist);
+                        const visual = playfieldElement.querySelector(`.playfield-block[data-id="${blockData.id}"]`);
+                        if (visual) {
+                            const newTop = GRID_PADDING + (r + fallDist) * (cellSize + GRID_GAP);
+                            const fallTime = fallDist * (FALL_SPEED / 1000);
+                            visual.style.transition = 'none'; void visual.offsetHeight;
+                            visual.style.transition = `top ${fallTime.toFixed(3)}s linear`;
+                            visual.style.top = `${newTop}px`;
+                        }
+                    }
+                }
+            }
+        }
+        if (blocksFell) await new Promise(resolve => setTimeout(resolve, maxFallDistance * FALL_SPEED + 50));
+        return blocksFell;
+    }
+
+    function getNeighbors(r, c, includeDiagonals = false) {
+        const n = [];
+        const dirs = [ {dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1} ];
+        if (includeDiagonals) dirs.push({dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:-1},{dr:1,dc:1});
+        for (const dir of dirs) {
+            const nr = r + dir.dr, nc = c + dir.dc;
+            if (isValidCell(nr, nc)) n.push({ r: nr, c: nc });
+        }
+        return n;
+    }
+
+    function checkAllMatches() {
+        const toClearSet = new Set();
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (!playfield[r][c]) continue;
+                const color = playfield[r][c].color;
+                const directions = [ {dr:0,dc:1},{dr:1,dc:0},{dr:1,dc:1},{dr:1,dc:-1} ];
+                for (const dir of directions) {
+                    const line = [{r,c}];
+                    for (let i = 1; i < Math.max(ROWS,COLS); i++) {
+                        const nr = r + dir.dr * i, nc = c + dir.dc * i;
+                        if (isValidCell(nr,nc) && playfield[nr][nc] && playfield[nr][nc].color === color) {
+                            line.push({r:nr, c:nc});
+                        } else break;
+                    }
+                    if (line.length >= 3) line.forEach(cell => toClearSet.add(`${cell.r}-${cell.c}`));
+                }
+            }
+        }
+        return Array.from(toClearSet).map(s => { const [r,c] = s.split('-').map(Number); return {r,c}; });
+    }
+
+    async function findAndClearMatches() {
+        const matchedCellsRC = checkAllMatches();
+        let targetCleared = false;
+        if (matchedCellsRC.length > 0) {
+            const clrPromises = [], posForCombo = [];
+            for (const cellCoords of matchedCellsRC) {
+                const {r,c} = cellCoords;
+                posForCombo.push({r,c});
+                if (playfield[r][c]) {
+                    if (gameMode === 'target' && playfield[r][c].isTarget) targetCleared = true;
+                    const bId = playfield[r][c].id;
+                    const visual = playfieldElement.querySelector(`.playfield-block[data-id="${bId}"]`);
+                    if (visual && !visual.classList.contains('clearing')) {
+                        visual.classList.add('clearing');
+                        clrPromises.push(new Promise(res => visual.addEventListener('animationend', () => { visual.remove(); res(); }, {once:true})));
+                    } else if (visual) {
+                        clrPromises.push(new Promise(res => setTimeout(() => { if(visual.parentElement) visual.remove(); res(); }, 600)));
+                    }
+                    playfield[r][c] = null;
+                }
+            }
+            await Promise.all(clrPromises);
+            return { count: matchedCellsRC.length, positions: posForCombo, targetCleared };
+        }
+        return { count: 0, positions: [], targetCleared: false };
+    }
+
+    function startTimedModeTimer() {
+        remainingTimedModeTime = TIMED_MODE_DURATION; updateTimerDisplay(remainingTimedModeTime);
+        if(gameTimerInterval) clearInterval(gameTimerInterval);
+        gameTimerInterval = setInterval(() => {
+            if (isGamePaused || !allowInput || isFalling) return;
+            remainingTimedModeTime -= 100;
+            if (remainingTimedModeTime <= 0) {
+                remainingTimedModeTime = 0; clearInterval(gameTimerInterval); handleGameOver();
+            }
+            updateTimerDisplay(remainingTimedModeTime);
+        }, 100);
+    }
+
+    function startPressureTurnTimer() {
+        pressureTurnStartTime = Date.now(); updateTimerDisplay(pressureTurnEffectiveTimeLimit, pressureTurnEffectiveTimeLimit);
+        if (!allowInput || isGamePaused) return;
+        if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
+        pressureTimerInterval = setTimeout(() => {
+            if (allowInput && !isGamePaused && gameMode === 'pressure' && !isFalling) autoPlacePressureBlock();
+        }, pressureTurnEffectiveTimeLimit);
+        if (pressureAnimationRequestFrameId) cancelAnimationFrame(pressureAnimationRequestFrameId);
+        pressureAnimationRequestFrameId = requestAnimationFrame(updatePressureBar);
+    }
+
+    function updatePressureBar() {
+        if (gameMode !== 'pressure' || isGamePaused || (!allowInput && !isFalling)) return;
+        const elapTime = Date.now() - pressureTurnStartTime;
+        const remTime = pressureTurnEffectiveTimeLimit - elapTime;
+        if (remTime <= 0 && allowInput && !isFalling) {
+            updateTimerDisplay(0, pressureTurnEffectiveTimeLimit);
+            if(pressureAnimationRequestFrameId){cancelAnimationFrame(pressureAnimationRequestFrameId);pressureAnimationRequestFrameId=null;}
             return;
         }
-
-        const randomColIndex = Math.floor(Math.random() * availableColumnsForPlacement.length);
-        const chosenCol = availableColumnsForPlacement[randomColIndex];
-        
-        let r_bot_auto = -1;
-        for (let r = ROWS - 1; r >= 2; r--) {
-            if (!playfield[r][chosenCol] && !playfield[r-1][chosenCol] && !playfield[r-2][chosenCol]) {
-                r_bot_auto = r;
-                break;
-            }
-        }
-        if (r_bot_auto === -1) { 
-            handleGameOver(); return;
-        }
-
-        const r_top_auto = r_bot_auto - 2;
-        const r_mid_auto = r_bot_auto - 1;
-
-        combo = 0;
-        updateComboDisplay();
-
-        const pieceToPlace = [
-            { r: r_top_auto, c: chosenCol, color: currentPiece[0], id: `${Date.now()}_auto_0`},
-            { r: r_mid_auto, c: chosenCol, color: currentPiece[1], id: `${Date.now()}_auto_1`},
-            { r: r_bot_auto, c: chosenCol, color: currentPiece[2], id: `${Date.now()}_auto_2`}
-        ];
-        
-        pieceToPlace.forEach(blockData => {
-            playfield[blockData.r][blockData.c] = { color: blockData.color, id: blockData.id };
-        });
-        renderPlayfield(); 
-
-        currentPressureTimeLimit = currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? currentPressureTimeLimit - PRESSURE_MODE_DECREMENT : Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - Math.trunc(PRESSURE_MODE_DECREMENT/10));
-        
-        generateNewPiece(); 
-        await handleGravityAndMatches(); 
+        if (timerStatDisplay.style.display !== 'none') updateTimerDisplay(Math.max(0, remTime), pressureTurnEffectiveTimeLimit);
+        if (pressureAnimationRequestFrameId) pressureAnimationRequestFrameId = requestAnimationFrame(updatePressureBar);
     }
 
+    function startTargetModeTimer() {
+        if(targetModeScoreInterval) clearInterval(targetModeScoreInterval);
+        targetModeScoreInterval = setInterval(() => {
+            if (isGamePaused || !allowInput || isFalling) return;
+            score--; updateScoreDisplay();
+            if (score <= 0) {
+                score = 0; updateScoreDisplay(); clearInterval(targetModeScoreInterval); handleGameOver(false);
+            }
+        }, TARGET_MODE_SCORE_DECREMENT_INTERVAL);
+    }
+
+    function updateTimerDisplay(ms, totalMs = 0) {
+        const secs = (ms / 1000).toFixed(1); timeLeftDisplay.textContent = `${secs}`;
+        let perc = 100;
+        if (gameMode === 'timed') {
+            perc = (ms/TIMED_MODE_DURATION)*100; timeLeftDisplay.style.color = perc < 20 ? 'red':'#000';
+        } else if (gameMode === 'pressure') {
+            let den = totalMs > 0 ? totalMs : pressureTurnEffectiveTimeLimit;
+            if(den > 0) perc = (ms/den)*100; else perc = ms > 0 ? 100:0;
+            timeLeftDisplay.style.color = ms < PRESSURE_MODE_THRESHOLD_TIME ? 'red':'#000';
+        } else timeLeftDisplay.style.color = '#000';
+    }
+
+    async function autoPlacePressureBlock() {
+        if (!allowInput || isFalling || isGamePaused) return;
+        allowInput = false; clearPlacementPreview();
+        const availCols = [];
+        for (let c = 0; c < COLS; c++) {
+            if (!playfield[0][c] && !playfield[1][c] && !playfield[2][c]) availCols.push(c);
+        }
+        if (availCols.length === 0) { handleGameOver(); return; }
+        const randCol = availCols[Math.floor(Math.random() * availCols.length)]; combo = 0;
+        const bData={color:currentColumn.blocks[2],id:Date.now()+'_apb'+Math.random(),isTarget:(gameMode==='target'&&2===TARGET_BLOCK_ROW&&randCol===TARGET_BLOCK_COL)};
+        const mData={color:currentColumn.blocks[1],id:Date.now()+'_apm'+Math.random(),isTarget:(gameMode==='target'&&1===TARGET_BLOCK_ROW&&randCol===TARGET_BLOCK_COL)};
+        const tData={color:currentColumn.blocks[0],id:Date.now()+'_apt'+Math.random(),isTarget:(gameMode==='target'&&0===TARGET_BLOCK_ROW&&randCol===TARGET_BLOCK_COL)};
+        playfield[2][randCol]=bData; playfield[1][randCol]=mData; playfield[0][randCol]=tData;
+        createVisualBlock(bData.color,2,randCol,bData.id); createVisualBlock(mData.color,1,randCol,mData.id); createVisualBlock(tData.color,0,randCol,tData.id);
+        currentPressureTimeLimit = Math.max(PRESSURE_MODE_MIN_TIME, currentPressureTimeLimit - (currentPressureTimeLimit > PRESSURE_MODE_THRESHOLD_TIME ? PRESSURE_MODE_DECREMENT : Math.trunc(PRESSURE_MODE_DECREMENT/10)));
+        advanceColumns(); await handleGravityAndMatches();
+    }
 
     function isGameOver() {
-        for (let c = 0; c < COLS; c++) {
-            if (playfield[0][c] === null && playfield[1][c] === null && playfield[2][c] === null) {
-                return false; 
-            }
-        }
-        return true; 
+        for (let c=0; c<COLS; c++) if(!playfield[0][c]&&!playfield[1][c]&&!playfield[2][c]) return false;
+        return true;
     }
-    
-    function showEndGameStats(modalTitleEl, finalScoreEl, finalScoreLineEl, hsMessageLineEl, finalHsEl, maxComboEl, maxComboLineEl, isWin = false) {
-        const currentTranslations = translations[currentLanguage] || translations.en;
-        modalTitleEl.textContent = isWin ? currentTranslations.youWinTitle : currentTranslations.gameOverTitle;
 
-        const scoreForDisplay = isWin && gameMode === 'target' ? score : (gameMode === 'target' ? 0 : score);
-        finalScoreEl.textContent = scoreForDisplay;
-        
-        // Final score label is already set to general "Your Final Score" or "Your Score" by setLanguage
-        // No need to change finalScoreLineEl.querySelector('.label').textContent here
-
-        maxComboEl.textContent = maxcombo;
-        maxComboLineEl.style.display = 'block';
-
-        const oldHighScore = getHighScore(gameMode, difficulty, startHeight);
-        let newHighScoreAchieved = false;
-        let scoreToCompareForHS = score; // This is remaining points for target win, or 0 for target loss, or actual score for other modes
-
-        if (gameMode === 'target') {
-            if (!isWin) scoreToCompareForHS = 0; // If lost target mode, score for HS comparison is 0
-        }
-
-        if ((gameMode === 'target' && isWin && scoreToCompareForHS > oldHighScore) || 
-            (gameMode !== 'target' && scoreToCompareForHS > oldHighScore)) {
-            setHighScore(gameMode, difficulty, startHeight, scoreToCompareForHS);
-            newHighScoreAchieved = true;
-            currentHighScore = scoreToCompareForHS;
-        }
-
-
-        if (newHighScoreAchieved) {
-            hsMessageLineEl.innerHTML = currentTranslations.newHighScoreMsg;
-            finalHsEl.textContent = currentHighScore;
+    function handleGameOver(wonTargetMode = false) {
+        console.log("Game Over! Target Won: " + wonTargetMode);
+        allowInput = false; isFalling = true;
+        if(gameTimerInterval) clearInterval(gameTimerInterval);
+        if(pressureTimerInterval) clearTimeout(pressureTimerInterval);
+        if(pressureAnimationRequestFrameId) cancelAnimationFrame(pressureAnimationRequestFrameId);
+        if(targetModeScoreInterval) clearInterval(targetModeScoreInterval);
+        if(dynamicComboTimeout) clearTimeout(dynamicComboTimeout);
+        confirmEndGameModal.style.display = 'none'; isGamePaused = false;
+        const tr = translations[currentLanguage] || translations.en;
+        let finalScoreVal = score;
+        if (wonTargetMode) {
+            gameOverTitleElement.textContent = tr.youWinTitle;
+            document.querySelector('#final-score-line .label').textContent = tr.remainingTimeLabelText;
         } else {
-            hsMessageLineEl.innerHTML = `${currentTranslations.highScoreMsgPrefix}<span id="${isWin ? 'win-final-highscore-val' : 'final-highscore-val'}">${oldHighScore}</span>`;
-            const spanHs = document.getElementById(isWin ? 'win-final-highscore-val' : 'final-highscore-val');
-            if(spanHs) spanHs.textContent = oldHighScore; else finalHsEl.textContent = oldHighScore;
+            gameOverTitleElement.textContent = tr.gameOverTitle;
+            document.querySelector('#final-score-line .label').textContent = tr.finalScoreLabelText;
         }
-        hsMessageLineEl.style.display = 'block';
+        finalScoreDisplay.textContent = finalScoreVal;
+        maxcomboDisplay.textContent = maxcombo; maxcomboLine.style.display = 'block';
+        const oldHS = getHighScore();
+        if (finalScoreVal > oldHS) {
+            setHighScore(finalScoreVal);
+            highscoreMessageLine.innerHTML = tr.newHighScoreMsg;
+            highscoreMessageLine.style.display = 'block'; finalHighscoreDisplay.textContent = finalScoreVal;
+        } else if (oldHS > 0) {
+            highscoreMessageLine.innerHTML = `${tr.highScoreMsgPrefix}<span id="final-highscore">${oldHS}</span>`;
+            highscoreMessageLine.style.display = 'block'; finalHighscoreDisplay.textContent = oldHS;
+        } else highscoreMessageLine.style.display = 'none';
+        gameInterface.style.display = 'flex'; gameOverModal.style.display = 'flex';
     }
-
-
-    function handleGameOver() {
-        console.log("Game Over!");
-        allowInput = false;
-        isProcessingPlacement = true; 
-        if (gameTimerInterval) clearInterval(gameTimerInterval);
-        if (pressureTimerInterval) clearTimeout(pressureTimerInterval);
-        if (targetModeScoreInterval) clearInterval(targetModeScoreInterval);
-        confirmEndGameModal.style.display = 'none';
-
-        showEndGameStats(gameOverTitle, finalScoreDisplay, finalScoreLine, highscoreMessageLine, finalHighscoreDisplay, maxcomboDisplay, maxcomboLine, false);
-        
-        gameInterface.style.display = 'flex'; 
-        gameOverModal.style.display = 'flex';
-    }
-
-    function handleGameWin() { 
-        console.log("You Win! (Target Mode)");
-        allowInput = false;
-        isProcessingPlacement = true;
-        if (targetModeScoreInterval) clearInterval(targetModeScoreInterval); // Stop score deduction
-        confirmEndGameModal.style.display = 'none';
-
-        // Score variable already holds the remaining points
-        showEndGameStats(youWinTitle, winFinalScoreDisplay, winFinalScoreLine, winHighscoreMessageLine, winFinalHighscoreDisplay, winMaxcomboDisplay, winMaxcomboLine, true);
-
-        gameInterface.style.display = 'flex';
-        youWinModal.style.display = 'flex';
-    }
-
 
     function updateScoreDisplay() {
-        scoreDisplay.textContent = score; // Integer display for all modes now
+        scoreDisplay.textContent = score;
+        if (gameMode === 'target') scoreDisplay.style.color = score < 500 ? 'red' : '#000';
     }
 
-    function updateComboDisplay() {
-        const currentTranslations = translations[currentLanguage] || translations.en;
-        const comboAreaLabel = document.querySelector('#combo-area .label');
-        if (comboAreaLabel) {
-            comboAreaLabel.textContent = currentTranslations.comboLabelText;
+    function cycleCurrentColumnOrder() {
+        if (!allowInput || isFalling || isGamePaused) {
+            if (!(dragStartPos && !isFalling && !isGamePaused)) return;
         }
-
-        const comboValueDisplay = document.getElementById('combo-value-display');
-        if (combo > 1) {
-            comboValueDisplay.textContent = `${combo}x!`;
-        } else {
-            comboValueDisplay.textContent = `${combo}x`; // Show 0x, 1x
+        const oldTop = currentColumn.blocks[0];
+        currentColumn.blocks[0] = currentColumn.blocks[2];
+        currentColumn.blocks[2] = currentColumn.blocks[1];
+        currentColumn.blocks[1] = oldTop;
+        updatePreviewDisplays();
+        if (dragStartPos && dragCurrentCol !== -1 && !isFalling && !isGamePaused) {
+            showPlacementPreview(dragCurrentCol);
         }
     }
-
+    cycleOrderBtn.addEventListener('click', cycleCurrentColumnOrder);
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && gameInterface.style.display === 'flex' && !isGamePaused) {
+            e.preventDefault(); cycleCurrentColumnOrder();
+        }
+    });
 
     relaxModeBtn.addEventListener('click', () => { gameMode = 'relax'; initGame(); });
     timedModeBtn.addEventListener('click', () => { gameMode = 'timed'; initGame(); });
     pressureModeBtn.addEventListener('click', () => { gameMode = 'pressure'; initGame(); });
-    
-    targetModeBtn.addEventListener('click', () => {
-        let currentHeight = parseInt(heightSelector.value, 10);
-        if (currentHeight < 2) {
-            heightSelector.value = '2'; // Auto-set height to 2
-            // Optionally alert the user:
-            // alert(currentLanguage === 'vi' ? "Chiều cao bắt đầu đã được tự động đặt thành 2 cho Chế độ Mục tiêu." : "Start height automatically set to 2 for Target Mode.");
-        }
-        gameMode = 'target'; 
-        initGame();
-    });
-
+    targetModeBtn.addEventListener('click', () => { gameMode = 'target'; initGame(); });
     howToPlayBtn.addEventListener('click', () => { howToPlayModal.style.display = 'flex'; });
     closeHowToPlayBtn.addEventListener('click', () => { howToPlayModal.style.display = 'none'; });
 
-    function returnToMainMenu() {
-        gameOverModal.style.display = 'none';
-        youWinModal.style.display = 'none';
-        gameInterface.style.display = 'none';
-        cyclePosBtn.style.display = 'none';
-        confirmEndGameModal.style.display = 'none';
+    mainmenuBtn.addEventListener('click', () => {
+        gameOverModal.style.display = 'none'; gameInterface.style.display = 'none';
+        cycleOrderBtn.style.display = 'none'; confirmEndGameModal.style.display = 'none';
         modeSelectionModal.style.display = 'flex';
-        allowInput = false;
-        isProcessingPlacement = false;
-        gameMode = null; 
-        loadLanguage(); 
-    }
-    mainmenuBtn.addEventListener('click', returnToMainMenu);
-    winMainmenuBtn.addEventListener('click', returnToMainMenu);
-
-
-endgameBtn.addEventListener('click', () => {
-    if (gameOverModal.style.display === 'flex' || youWinModal.style.display === 'flex' || modeSelectionModal.style.display === 'flex') return;
-
-    const wasAllowingInput = allowInput;
-    allowInput = false;
-    gameInterface.style.display = 'none';
-    confirmEndGameModal.style.display = 'flex';
-
-    if (gameMode === 'pressure' && wasAllowingInput) {
-        if (pressureFrameId) {
-            cancelAnimationFrame(pressureFrameId); //
-            pressureFrameId = null; //
-        }
-        if (pressureTimerInterval) {
-            clearTimeout(pressureTimerInterval); //
-            pressureTimerInterval = null; //
-        }
-        const elapsedTimeInSegment = Date.now() - pressureTurnStartTime; //
-        pressureTimeRemainingOnPause = Math.max(0, pressureCurrentSegmentTargetDuration - elapsedTimeInSegment); //
-    } else if (gameMode === 'timed' && wasAllowingInput) { // ADD THIS ELSE IF BLOCK
-        if (gameTimerInterval) {
-            clearInterval(gameTimerInterval);
-            gameTimerInterval = null;
-        }
-        // remainingTimedModeTime already holds the current accurate remaining time
-        timedModeTimeRemainingOnPause = remainingTimedModeTime;
-    } else if (gameMode === 'target' && wasAllowingInput) { // ADD THIS ELSE IF BLOCK
-        if (targetModeScoreInterval) {
-            clearInterval(targetModeScoreInterval);
-            targetModeScoreInterval = null;
-        }
-        // The 'score' variable itself holds the current state, effectively pausing it.
-    }
-});
-    
-    confirmEndGameYesBtn.addEventListener('click', () => {
-        confirmEndGameModal.style.display = 'none';
-		gameInterface.style.display = 'flex';
-        if (gameMode === 'target') { 
-            score = 0; 
-            handleGameOver();
-        } else {
-            handleGameOver();
-        }
-        allowInput = false; 
+        allowInput=false;isFalling=false;isGamePaused=false;
+        if(gameTimerInterval)clearInterval(gameTimerInterval); if(pressureTimerInterval)clearTimeout(pressureTimerInterval);
+        if(pressureAnimationRequestFrameId)cancelAnimationFrame(pressureAnimationRequestFrameId);
+        if(targetModeScoreInterval)clearInterval(targetModeScoreInterval); if(dynamicComboTimeout)clearTimeout(dynamicComboTimeout);
+        dynamicComboDisplayElement.classList.remove('show','hide','high-combo'); removeTargetMarker();
+        loadLanguage();
     });
 
-confirmEndGameNoBtn.addEventListener('click', () => {
-    confirmEndGameModal.style.display = 'none';
-    gameInterface.style.display = 'flex';
+    pauseGameBtn.addEventListener('click', () => {
+        if (gameOverModal.style.display === 'flex' || isGamePaused || gameInterface.style.display === 'none') return;
+        isGamePaused = true; allowInput = false;
+        confirmEndGameModal.style.display = 'flex';
+        if (gameMode === 'pressure') {
+            if(pressureTimerInterval) clearTimeout(pressureTimerInterval);
+            if(pressureAnimationRequestFrameId){cancelAnimationFrame(pressureAnimationRequestFrameId);pressureAnimationRequestFrameId=null;}
+            pressureTimerRemainingBeforePause = pressureTurnEffectiveTimeLimit - (Date.now() - pressureTurnStartTime);
+            if(pressureTimerRemainingBeforePause < 0) pressureTimerRemainingBeforePause = 0;
+        } else if (gameMode === 'target') targetModeScoreBeforePause = score;
+        if (timerStatDisplay.style.display === 'flex') timeLeftDisplay.style.opacity = '0.5';
+        if (gameMode === 'target') scoreDisplay.style.opacity = '0.5';
+    });
 
-    if (!isProcessingPlacement) {
-        allowInput = true;
-    }
+    confirmEndGameYesBtn.addEventListener('click', () => {
+        if (timerStatDisplay.style.display === 'flex') timeLeftDisplay.style.opacity = '1';
+        if (gameMode === 'target') scoreDisplay.style.opacity = '1';
+        isGamePaused = false;
+        if (gameMode === 'target') score = 0;
+        handleGameOver(false);
+    });
 
-    if (gameMode === 'pressure') {
-        if (allowInput) {
-            if (pressureTimeRemainingOnPause >= 0) { //
-                startPressureTurnTimer(pressureTimeRemainingOnPause); //
-            } else {
-                if (!isProcessingPlacement) { //
-                    startPressureTurnTimer(); //
-                }
-            }
-            pressureTimeRemainingOnPause = -1; //
-        }
-    } else if (gameMode === 'timed') { // ADD THIS ELSE IF BLOCK
-        if (allowInput) { // Only restart/resume timer if input is allowed
-            if (timedModeTimeRemainingOnPause >= 0) {
-                // Resume with the stored time
-                startTimedModeTimer(timedModeTimeRemainingOnPause);
-            } else {
-                // This case would mean "No" was pressed without a proper pause state.
-                // If not processing, start a fresh timer (though ideally, this state shouldn't be common).
-                if (!isProcessingPlacement) {
-                     startTimedModeTimer(); // Or could be TIMED_MODE_DURATION if starting completely fresh
-                }
-            }
-            timedModeTimeRemainingOnPause = -1; // Reset pause state
-        }
-        // If allowInput is false (because isProcessingPlacement is true),
-        // the timer remains paused. It will be handled when processing ends if needed,
-        // though Timed Mode doesn't have a direct restart like Pressure mode post-processing.
-        // The existing logic in startTimedModeTimer interval handles `allowInput`.
-    } else if (gameMode === 'target') { // ADD THIS ELSE IF BLOCK
-        if (allowInput) { // Only restart score decrement if input is allowed
-            // Restart the score-decrementing interval.
-            // It will use the current 'score' value from where it was "paused".
-            startTargetModeScoreTimer();
-        }
-        // If allowInput is false (because isProcessingPlacement is true),
-        // the targetModeScoreInterval remains stopped. It will be appropriately
-        // handled if/when processing completes, as the startTargetModeScoreTimer
-        // function already contains checks for allowInput and isProcessingPlacement.
-    }
-});
+    confirmEndGameNoBtn.addEventListener('click', () => {
+        confirmEndGameModal.style.display = 'none';
+        isGamePaused = false; allowInput = true;
+        if (timerStatDisplay.style.display === 'flex') timeLeftDisplay.style.opacity = '1';
+        if (gameMode === 'target') scoreDisplay.style.opacity = '1';
+        if (gameMode === 'pressure') {
+            pressureTurnEffectiveTimeLimit = pressureTimerRemainingBeforePause;
+            pressureTurnStartTime = Date.now();
+            if (pressureTurnEffectiveTimeLimit > 0) {
+                if(pressureTimerInterval) clearTimeout(pressureTimerInterval);
+                pressureTimerInterval = setTimeout(() => {
+                    if(allowInput && !isGamePaused && gameMode === 'pressure' && !isFalling) autoPlacePressureBlock();
+                }, pressureTurnEffectiveTimeLimit);
+                if(pressureAnimationRequestFrameId) cancelAnimationFrame(pressureAnimationRequestFrameId);
+                pressureAnimationRequestFrameId = requestAnimationFrame(updatePressureBar);
+            } else if (allowInput && !isGamePaused && gameMode === 'pressure' && !isFalling) autoPlacePressureBlock();
+        } else if (gameMode === 'timed') updateTimerDisplay(remainingTimedModeTime); // No need to restart interval, it checks isGamePaused
+        else if (gameMode === 'target') { score = targetModeScoreBeforePause; updateScoreDisplay(); } // Interval also checks isGamePaused
+    });
 
-    // Initial setup:
-    loadLanguage(); 
+    loadLanguage();
     modeSelectionModal.style.display = 'flex';
-    cyclePosBtn.style.display = 'none'; 
-    allowInput = false; 
-    isProcessingPlacement = false;
-
+    cycleOrderBtn.style.display = 'none';
+    gameInterface.style.display = 'none';
+    allowInput = false;
 });
 </script>
 </body>
