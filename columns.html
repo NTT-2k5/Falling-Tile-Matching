@@ -1335,6 +1335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Not enough space or other issue, check for game over
                 if (isGameOver()) {
+					if (gameMode === 'target') score = 0;
                     handleGameOver();
                 } else {
                     allowInput = true; // Re-enable input if game is not over
@@ -1461,6 +1462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } while (madeChange);
         isFalling = false;
         if (isGameOver()) {
+			if (gameMode === 'target') score = 0;
             handleGameOver();
         } else {
             if (!isGamePaused) {
